@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  cli:
+    build: ./cli
+    volumes:
+      - ./cli:/cli
+      - gem_cache:/gems
+    env_file:
+      - cli/.env
+    command:
+      - /bin/bash
+      - "-c"
+      - "bin/standardrb && bin/rspec && bin/cucumber"
+
+  api:
+    build: ./api
+    volumes:
+      - ./api:/api
+      - gem_cache:/gems
+    env_file:
+      - api/.env
+    command:
+      - /bin/bash
+      - "-c"
+      - "bin/standardrb && bin/rspec && bin/cucumber"
+
+volumes:
+  gem_cache:
