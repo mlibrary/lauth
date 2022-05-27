@@ -1,0 +1,200 @@
+@startuml
+
+' PlantUML version of the schema
+
+hide circle
+skinparam linetype ortho
+
+entity aa_user {
+	*userid		 	: VARCHAR(64)
+	--
+	personalTitle		: VARCHAR(32)
+	*givenName		: VARCHAR(32)
+	initials		: VARCHAR(32)
+	*surname		: VARCHAR(32)
+	rfc822Mailbox		: VARCHAR(64)
+	organizationalUnitName	: VARCHAR(128)
+	postalAddress           : VARCHAR(128)
+	localityName		: VARCHAR(32)
+	stateOrProvinceName     : VARCHAR(32)
+	postalCode		: VARCHAR(9)
+	countryName		: VARCHAR(32)
+	telephoneNumber		: VARCHAR(32)
+	organizationalStatus	: VARCHAR(8)
+	dlpsCourse		: VARCHAR(8)
+	*dlpsKey		: VARCHAR(32)
+	*userPassword		: VARCHAR(32)
+	manager			: INT <<FK>>
+	description		: VARCHAR(2048)
+	*lastModifiedTime	: TIMESTAMP
+	*lastModifiedBy		: VARCHAR(64) <<FK>>
+	dlpsExpiryTime  	: DATETIME
+        dlpsDeleted             : CHAR(1) ('t','f')
+}
+
+
+entity aa_user_grp {
+	*uniqueIdentifier		INT <<generated>>
+	--
+	commonName			VARCHAR(128)
+	manager				INT
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+	PRIMARY KEY (uniqueIdentifier)
+}
+
+entity aa_inst {
+	*uniqueIdentifier		INT <<generated>>
+	--
+	*organizationName		VARCHAR(128)
+	manager				INT
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_is_member_of_inst {
+	*userid				VARCHAR(64)
+	*inst				INT
+	--
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_is_member_of_grp {
+	*userid				VARCHAR(64)
+	*user_grp			INT
+	--
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_coll {
+	*uniqueIdentifier		VARCHAR(32)
+	--
+	*commonName			VARCHAR(128)
+	*description			VARCHAR(128)
+	dlpsClass			VARCHAR(10)
+	*dlpsSource			VARCHAR(128)
+	*dlpsAuthenMethod		VARCHAR(3) ('any', 'ip', 'pw')
+	*dlpsAuthzType			CHAR(1) ('n', 'd', 'm')
+        *dlpsPartlyPublic		CHAR(1) ('t', 'f')
+	manager				INT
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_coll_obj {
+	*dlpsServer			VARCHAR(128)
+	*dlpsPath			VARCHAR(128)
+	*coll				VARCHAR(32)
+	--
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_network {
+	*uniqueIdentifier		INT <<generated>>
+	--
+	dlpsDNSName			VARCHAR(128)
+	dlpsCIDRAddress			VARCHAR(18)
+	dlpsAddressStart		INT UNSIGNED
+	dlpsAddressEnd  		INT UNSIGNED
+	*dlpsAccessSwitch		VARCHAR(5) ('allow', 'deny')
+	coll				VARCHAR(32)
+	inst				INT
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+entity aa_may_access {
+	*uniqueIdentifier		INT <<generated>>
+	--
+	userid				VARCHAR(64)
+	user_grp			INT
+	inst				INT
+	*coll				VARCHAR(32)
+	*lastModifiedTime		TIMESTAMP
+	*lastModifiedBy			VARCHAR(64)
+	dlpsExpiryTime  		TIMESTAMP
+        *dlpsDeleted                    CHAR(1) ('t', 'f')
+}
+
+' user : inst many-to-many
+' userid -> userid
+' inst -> uniqueIdentifier
+aa_is_member_of_inst }|--|| aa_user
+aa_is_member_of_inst }|--|| aa_inst
+
+' user : group many-to-many
+' userid -> user
+' user_grp -> uniqueIdentifier
+aa_is_member_of_grp }|--|| aa_user
+aa_is_member_of_grp }|--|| aa_user_grp
+
+' coll -> uniqueIdentifier
+aa_coll_obj }o--|| aa_coll
+
+' coll -> uniqueIdentifier
+aa_may_access }o--|| aa_coll
+
+' Three-way mutually exclusive typing/polymorphism
+' userid -> userid
+' user_grp -> uniqueIdentifier
+' inst -> uniqueIdentifier
+aa_may_access }o--|| aa_user
+aa_may_access }o--|| aa_user_grp
+aa_may_access }o--|| aa_inst
+
+'''' Potentially superseded by may_access??
+' coll -> uniqueIdentifier
+' inst -> uniqueIdentifier
+aa_network }o--|| aa_coll
+aa_network }o--|| aa_inst
+
+'''' Manager / lastModifiedBy stuff
+' manager -> uniqueIdentifier
+' aa_user }o--o| aa_user_grp
+
+' lastModifiedBy -> userid
+' aa_user }|--|| aa_user
+
+' manager -> uniqueIdentifier
+' aa_user_grp }|--|| aa_user_grp
+
+' lastModifiedBy -> user_id
+' aa_user_grp }|--|| aa_user
+
+' manager -> uniqueIdentifier
+' aa_inst }o--o| aa_user_grp
+
+' lastModifiedBy -> user_id
+' aa_inst }|--|| aa_user
+
+' lastModifiedBy -> user_id
+' aa_is_member_of_inst }|--|| aa_user
+
+' lastModifiedBy -> user_id
+' aa_is_member_of_grp }|--|| aa_user
+
+' manager -> uniqueIdentifier
+' aa_coll }o--o| aa_user_grp
+
+' lastModifiedBy -> user_id
+' aa_coll }|--|| aa_user
+
+' lastModifiedBy -> user_id
+' aa_coll_obj }|--|| aa_user
+
+' lastModifiedBy -> user_id
+' aa_network }|--|| aa_user
+
+' lastModifiedBy -> userid
+' aa_may_access }|--|| aa_user
+@enduml
