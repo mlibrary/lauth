@@ -25,5 +25,13 @@ services:
       - "-c"
       - "bin/standardrb && bin/rspec && bin/cucumber"
 
+  apache:
+    build: ./module
+    # platform: linux/amd64
+    ports:
+      - "8888:80"
+    volumes:
+      - ./module:/module
+
 volumes:
   gem_cache:
