@@ -25,6 +25,18 @@ services:
       - "-c"
       - "bin/standardrb && bin/rspec && bin/cucumber"
 
+  mariadb:
+    image: bitnami/mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./db:/sql
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_DATABASE=lauth
+      - MARIADB_USER=lauth
+      - MARIADB_PASSWORD=lauth
+      - TZ=America/Detroit
+
   apache:
     build: ./module
     # platform: linux/amd64
@@ -35,3 +47,4 @@ services:
 
 volumes:
   gem_cache:
+  mariadb_data:
