@@ -15,13 +15,20 @@ RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
 RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN groupadd -g ${GID} -o ${UNAME}
-RUN useradd -m -d /api -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
+RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
+RUN mkdir -p /lauth/api /lauth/lib
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
 USER $UNAME
 
 ENV BUNDLE_PATH /gems
 
-WORKDIR /api
+WORKDIR /lauth/api
+COPY api/Gemfile* /lauth/api
+RUN bundle install
 
-CMD ["sleep", "infinity"]
+COPY api/ /lauth/api
+COPY lib/ /lauth/lib
+
+EXPOSE 9292
+CMD ["bin/rackup", "-o", "0.0.0.0", "-p", "9292"]

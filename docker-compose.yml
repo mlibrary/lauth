@@ -14,16 +14,17 @@ services:
       - "bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
-    build: ./api
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
+    ports:
+      - "9292:9292"
     volumes:
-      - ./api:/api
+      - ./api:/lauth/api
+      - ./lib:/lauth/lib
       - gem_cache:/gems
     env_file:
       - api/.env
-    command:
-      - /bin/bash
-      - "-c"
-      - "bin/standardrb && bin/rspec && bin/cucumber"
 
   mariadb:
     image: bitnami/mariadb
