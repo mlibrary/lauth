@@ -11,10 +11,13 @@ include /usr/local/apache2/build/special.mk
 #   the used tools
 APACHECTL=apachectl
 
+CXX=g++
+CXXFLAGS=-std=c++17
+
 #   additional defines, includes and libraries
 #DEFS=-Dmy_define=my_value
-#INCLUDES=-Imy/include/dir
-#LIBS=-Lmy/lib/dir -lmylib
+INCLUDES=-Iinclude
+LIBS=-lssl
 
 #   the default target
 all: local-shared-build

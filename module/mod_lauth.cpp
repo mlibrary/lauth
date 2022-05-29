@@ -42,32 +42,56 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#include <httplib.h>
+#include <json.hpp>
+
+using json = nlohmann::json;
+
+extern "C" {
+    void lauth_register_hooks(apr_pool_t *p);
+
+    /* Dispatch list for API hooks */
+    module AP_MODULE_DECLARE_DATA lauth_module = {
+        STANDARD20_MODULE_STUFF, 
+        NULL,                  /* create per-dir    config structures */
+        NULL,                  /* merge  per-dir    config structures */
+        NULL,                  /* create per-server config structures */
+        NULL,                  /* merge  per-server config structures */
+        NULL,                  /* table of config file commands       */
+        lauth_register_hooks  /* register hooks                      */
+    };
+};
+
 /* The sample content handler */
-static int lauth_handler(request_rec *r)
+int lauth_handler(request_rec *r)
 {
     if (strcmp(r->handler, "lauth")) {
         return DECLINED;
     }
     r->content_type = "text/html";      
 
-    if (!r->header_only)
-        ap_rputs("The sample page from mod_lauth.c\n", r);
+    json j = {
+        {"foo", "bar"},
+        {"baz", "quux"},
+        {"val", 12}
+    };
+
+    httplib::Client http("https://api.github.com");
+
+    auto response = http.Get("/users/mlibrary");
+    json library = json::parse(response->body);
+
+    if (!r->header_only) {
+        ap_rprintf(r, "Literal json object: <pre><code>%s</pre></code><br/>", j.dump().c_str());
+        ap_rprintf(r, "API response, pretty-printed: <pre><code>%s</pre></code>", library.dump(4).c_str());
+    }
     return OK;
 }
 
-static void lauth_register_hooks(apr_pool_t *p)
+void lauth_register_hooks(apr_pool_t *p)
 {
     ap_hook_handler(lauth_handler, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
-/* Dispatch list for API hooks */
-module AP_MODULE_DECLARE_DATA lauth_module = {
-    STANDARD20_MODULE_STUFF, 
-    NULL,                  /* create per-dir    config structures */
-    NULL,                  /* merge  per-dir    config structures */
-    NULL,                  /* create per-server config structures */
-    NULL,                  /* merge  per-server config structures */
-    NULL,                  /* table of config file commands       */
-    lauth_register_hooks  /* register hooks                      */
-};
 
