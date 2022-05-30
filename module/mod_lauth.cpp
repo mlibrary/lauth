@@ -77,9 +77,9 @@ int lauth_handler(request_rec *r)
         {"val", 12}
     };
 
-    httplib::Client http("https://api.github.com");
+    httplib::Client http("http://api.lauth.local:9292");
 
-    auto response = http.Get("/users/mlibrary");
+    auto response = http.Get("/users/root");
     json library = json::parse(response->body);
 
     if (!r->header_only) {

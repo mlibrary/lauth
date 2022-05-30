@@ -9,6 +9,8 @@ The modules are:
 
  - **[api/](./api/)** - REST API for authentication/authorization
  - **[cli/](./cli/)** - Command-line client for data management
+ - **[module/](./module/)** - Apache module for compatibility
+ - **[test/](./test/)** - End-to-end acceptance tests
 
 These modules may be broken out to individual repositories at some time, but
 they are colocated for convenience and shared evolution for now.
