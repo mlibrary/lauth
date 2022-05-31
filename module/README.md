@@ -27,3 +27,12 @@ from your host system:
 ```
 docker compose up apache
 ```
+
+## Test site virtual host / DNS entries
+
+The test site is configured with a ServerName of `www.lauth.local`. When
+running under Compose, this is also the container's hostname, so requests will
+be served over http through the default port forwarding at localhost:8888. To
+test HTTPS or other virtual hosts, you would need to add local hosts entries to
+alias those names to localhost or run from within another container on the same
+(default) network under Compose.
