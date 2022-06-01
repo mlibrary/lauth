@@ -3,6 +3,7 @@ version: '3'
 services:
   cli:
     build: ./cli
+    profiles: ["test", "cli"]
     volumes:
       - ./cli:/cli
       - gem_cache:/gems
@@ -14,16 +15,65 @@ services:
       - "bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
-    build: ./api
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
+    hostname: api.lauth.local
+    networks:
+      default:
+        aliases: ["api"]
+    ports:
+      - "9292:9292"
     volumes:
-      - ./api:/api
+      - ./api:/lauth/api
+      - ./lib:/lauth/lib
       - gem_cache:/gems
     env_file:
       - api/.env
-    command:
-      - /bin/bash
-      - "-c"
-      - "bin/standardrb && bin/rspec && bin/cucumber"
+
+  mariadb:
+    image: bitnami/mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./db:/sql
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_DATABASE=lauth
+      - MARIADB_USER=lauth
+      - MARIADB_PASSWORD=lauth
+      - TZ=America/Detroit
+
+  apache:
+    build: ./module
+    # platform: linux/amd64
+    ports:
+      - "8888:80"
+    hostname: "www.lauth.local"
+    networks:
+      default:
+        aliases: ["apache"]
+    volumes:
+      - ./module:/module
+
+  test:
+    image: ruby:3.1
+    # depends_on:
+    #   - api
+    #   - apache
+    #   - db
+    profiles: ["test"]
+    environment:
+      - BUNDLE_PATH=/gems
+    volumes:
+      - ./test:/test
+      - gem_cache:/gems
+    working_dir: /test
+    command: ["bin/rspec"]
+
 
 volumes:
   gem_cache:
+  mariadb_data:
+
+networks:
+  default:

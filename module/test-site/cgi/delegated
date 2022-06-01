@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use JSON::XS;
+print "Content-type: application/json\n\n";
+
+my $coder = JSON::XS->new->ascii->pretty;
+print $pretty_printed_unencoded = $coder->encode (\%ENV);
+
