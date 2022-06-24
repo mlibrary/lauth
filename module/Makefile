@@ -16,8 +16,8 @@ CXXFLAGS=-std=c++17
 
 #   additional defines, includes and libraries
 #DEFS=-Dmy_define=my_value
-INCLUDES=-Iinclude
-LIBS=-lssl
+INCLUDES=-Iclient/include -Iclient
+LIBS=-lssl -lcrypto
 
 #   the default target
 all: local-shared-build
@@ -27,11 +27,11 @@ install: install-modules-yes
 
 #   cleanup
 clean:
-	-rm -f mod_lauth.o mod_lauth.lo mod_lauth.slo mod_lauth.la 
+	-rm -f mod_lauth.o mod_lauth.lo mod_lauth.slo mod_lauth.la
 
 #   simple test
-test: reload
-	lynx -mime_header http://localhost/lauth
+test:
+	cd client && bazel test ...
 
 #   install and activate shared object by reloading Apache to
 #   force a reload of the shared object file
