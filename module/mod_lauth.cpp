@@ -42,10 +42,10 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-#include <httplib.h>
-#include <json.hpp>
+#include "lauth/client.h"
+#include <string>
 
+using namespace mlibrary::lauth::v1;
 using json = nlohmann::json;
 
 extern "C" {
@@ -71,20 +71,12 @@ int lauth_handler(request_rec *r)
     }
     r->content_type = "text/html";      
 
-    json j = {
-        {"foo", "bar"},
-        {"baz", "quux"},
-        {"val", 12}
-    };
-
-    httplib::Client http("http://api.lauth.local:9292");
-
-    auto response = http.Get("/users/root");
-    json library = json::parse(response->body);
+    Client client("http://api.lauth.local:9292");
+    User user = client.getUser("root");
+    json j = user;
 
     if (!r->header_only) {
-        ap_rprintf(r, "Literal json object: <pre><code>%s</pre></code><br/>", j.dump().c_str());
-        ap_rprintf(r, "API response, pretty-printed: <pre><code>%s</pre></code>", library.dump(4).c_str());
+        ap_rprintf(r, "API response, pretty-printed: <pre><code>%s</pre></code>", j.dump(4).c_str());
     }
     return OK;
 }

@@ -28,6 +28,29 @@ from your host system:
 docker compose up apache
 ```
 
+## Unit Tests
+
+This package is divided into two pieces: an API client and the thin module to
+handle the Apache request portions. The API client has unit tests using
+GoogleTest, run with Bazel, in the `client/` directory.
+
+The Bazel WORKSPACE and BUILD files set up the artifacts and dependencies.
+Running the tests is straightforward within a container, with either make or
+bazel directly. To run tests repeatedly without the setup steps, the easiest
+way is to use an interactive shell in the `apache` Compose service: 
+
+```
+docker run --rm apache bash
+make test
+
+cd client
+bazel test --test_output=all ...
+```
+
+Note that the `--test_output` argument is optional and `...` is shorthand for
+all packages in the workspace. This could also be run as `//...` or with a
+a specific package, like `//test:client_test`.
+
 ## Test site virtual host / DNS entries
 
 The test site is configured with a ServerName of `www.lauth.local`. When

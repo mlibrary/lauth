@@ -5,7 +5,15 @@ RUN apt update; \
         apache2-dev \
         ca-certificates \
         g++ \
-        libssl-dev
+        libssl-dev \
+        curl
+
+RUN MACHINE=`gcc -dumpmachine`; if echo $MACHINE | grep -q aarch64; then CPU_ARCH=arm64; else CPU_ARCH=amd64; fi; \
+    curl -fsSL -o /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.12.0/bazelisk-linux-${CPU_ARCH} \
+    && chmod +x /usr/local/bin/bazel \
+    && mkdir -p /tmp/bazel-setup \
+    && cd /tmp/bazel-setup \
+    && bazel
 
 WORKDIR /module
 COPY . /module
