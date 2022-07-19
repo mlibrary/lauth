@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "cucumber", "~> 8.0.0"
+gem "dotenv", "~> 2.7.6"
 gem "hanami-api", "~> 0.2.0"
 gem "mysql2", "~> 0.5.4"
 gem "puma", "~> 5.6"
@@ -8,3 +9,7 @@ gem "rom", "~> 5.2.6"
 gem "rom-sql", "~> 3.5.0"
 gem "rspec", "~> 3.11"
 gem "standard", "~> 1.12"
+
+# testing
+gem "rom-factory"
+gem "sqlite3"
