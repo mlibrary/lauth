@@ -1,4 +1,21 @@
 require "faraday"
+require "base64"
+
+class HttpCodes
+  OK = 200
+  Unauthorized = 401
+  Forbidden = 403
+end
+
+module BasicAuth
+  def basic_auth_bad_user
+    "Basic #{Base64.urlsafe_encode64("baduser:baduser")}"
+  end
+
+  def basic_auth_good_user
+    "Basic #{Base64.urlsafe_encode64("gooduser:gooduser")}"
+  end
+end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

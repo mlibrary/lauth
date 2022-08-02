@@ -23,7 +23,13 @@ LIBS=-lssl -lcrypto
 all: local-shared-build
 
 #   install the shared object file into Apache 
-install: install-modules-yes
+install: install-modules-yes install-client
+
+liblauth-client.so:
+	cd client && bazel build ...
+
+install-client: liblauth-client.so
+	install -v client/bazel-bin/lauth/liblauth-client.so /usr/lib/`gcc -dumpmachine`
 
 #   cleanup
 clean:
