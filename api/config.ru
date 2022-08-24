@@ -1,3 +1,3 @@
 require_relative "api"
 
-run Lauth::API.new
+run Lauth::API::APP.new

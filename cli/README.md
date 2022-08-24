@@ -5,7 +5,5 @@ system.
 
 Tools used for implementation:
 
- - [Dry::CLI](https://dry-rb.org/gems/dry-cli/) - Library for creating command
-   suite-style command line applications
- - [Faraday](https://lostisland.github.io/faraday/) - HTTP client library used
-   to make calls to the REST API
+ - [> gli](http://davetron5000.github.io/gli/) - Git Like Interface is the easy way to make command-suite CLI apps.
+ - [ROM](https://rom-rb.org/) - Ruby Object Mapper is an open-source persistence and mapping toolkit for Ruby built for speed and simplicity.

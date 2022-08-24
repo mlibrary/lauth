@@ -1,11 +1,13 @@
 require "faraday"
 require "base64"
 
+# standard:disable Naming/ConstantName
 class HttpCodes
   OK = 200
   Unauthorized = 401
   Forbidden = 403
 end
+# standard:enable Naming/ConstantName
 
 module BasicAuth
   def basic_auth_bad_user

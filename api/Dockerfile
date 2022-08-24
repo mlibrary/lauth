@@ -19,12 +19,14 @@ RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 RUN mkdir -p /lauth/api /lauth/lib
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
-USER $UNAME
-
 ENV BUNDLE_PATH /gems
 
 WORKDIR /lauth/api
 COPY api/Gemfile* /lauth/api
+RUN chown ${UID}:${GID} /lauth/api/Gemfile*
+
+USER $UNAME
+
 RUN bundle install
 
 COPY api/ /lauth/api

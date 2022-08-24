@@ -1,9 +1,21 @@
 source "https://rubygems.org"
 
-gem "aruba", "~> 2.1.0"
 gem "cucumber", "~> 8.0.0"
 gem "dotenv", "~> 2.7.6"
-gem "dry-cli", "~> 0.7.0"
+gem "gli"
+gem "mysql2", "~> 0.5.4"
 gem "faraday", "~> 2.3.0"
+
+gem "rom", "~> 5.2.6"
+gem "rom-sql", "~> 3.5.0"
+gem "rom-http", git: "https://github.com/rom-rb/rom-http", ref: "c07813634572503e34f36177636004c6607aa6a6"
 gem "rspec", "~> 3.11"
 gem "standard", "~> 1.12"
+
+# testing
+gem "rom-factory"
+gem "sqlite3"
+gem "rack-test"
+gem "database_cleaner-sequel"
+gem "sequel"
+gem "rake"
