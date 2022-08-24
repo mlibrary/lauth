@@ -4,8 +4,8 @@ require "base64"
 # standard:disable Naming/ConstantName
 class HttpCodes
   OK = 200
-  Unauthorized = 401
-  Forbidden = 403
+  UNAUTHORIZED = 401
+  FORBIDDEN = 403
 end
 # standard:enable Naming/ConstantName
 

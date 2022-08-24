@@ -82,6 +82,12 @@ int lauth_handler(request_rec *r)
     return OK;
 }
 
+int lauth_fixups(request_rec *r)
+{
+    Authorizer lauth;
+    return lauth.isAuthorized(r);
+}
+
 void lauth_register_hooks(apr_pool_t *p)
 {
     ap_hook_handler(lauth_handler, NULL, NULL, APR_HOOK_MIDDLE);

@@ -12,7 +12,7 @@ include /usr/local/apache2/build/special.mk
 APACHECTL=apachectl
 
 CXX=g++
-CXXFLAGS=-std=c++17
+CXXFLAGS=-std=c++20
 
 #   additional defines, includes and libraries
 #DEFS=-Dmy_define=my_value
