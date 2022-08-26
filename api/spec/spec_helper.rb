@@ -13,7 +13,7 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-ENV["RACK_ENV"] = "test"
+ENV["RACK_ENV"] ||= "test"
 
 require "./api"
 
@@ -24,7 +24,7 @@ Factory = ROM::Factory.configure do |config|
 end
 
 factories_dir = File.expand_path("../../../lib/lauth/api/factories", __FILE__)
-Dir[factories_dir + "/*.rb"].each { |file| require file }
+Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
 require "database_cleaner/sequel"
 

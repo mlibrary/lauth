@@ -1,0 +1,61 @@
+---
+name: Continuous Integration
+
+on:
+  push:
+  pull_request:
+
+env:
+  RACK_ENV: ci
+
+jobs:
+
+  ci:
+    runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - '3.1.2'
+          - '3.0.4'
+          - '2.7.6'
+
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: test
+          MYSQL_ROOT_PASSWORD: password
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Run API install
+        run: cd api && bundle install
+      - name: Run DB migration
+        run: cd api && bundle exec rake db:migrate
+      - name: Run API standard
+        run: cd api && bundle exec standardrb
+      - name: Run API rspec
+        run: cd api && bundle exec rspec
+      - name: Run API cucumber
+        run: cd api && bundle exec cucumber
+      - name: Run API rackup
+        run: cd api && bundle exec rackup &
+      - name: Run CLI install
+        run: cd cli && bundle install
+      - name: Run CLI standard
+        run: cd cli && bundle exec standardrb
+      - name: Run CLI rspec
+        run: cd cli && bundle exec rspec
+      - name: Run CLI cucumber
+        run: cd cli && bundle exec cucumber
