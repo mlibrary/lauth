@@ -2,11 +2,14 @@ version: '3'
 
 services:
   cli:
-    build: ./cli
+    build:
+      context: ./
+      dockerfile: ./cli/Dockerfile
     profiles: ["test", "cli"]
     volumes:
-      - ./cli:/cli
-      - gem_cache:/gems
+      - ./cli:/lauth/cli
+      - ./lib:/lauth/lib
+#      - gem_cache:/gems
     env_file:
       - cli/.env
     command:

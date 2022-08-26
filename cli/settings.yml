@@ -1,0 +1,26 @@
+development:
+  db:
+    host: 'localhost'
+    port: 3306
+    name: 'rom_app_development'
+    username: 'root'
+    password: ''
+    encoding: 'utf8mb4'
+
+test:
+  db:
+    host: 'localhost'
+    port: 3306
+    name: 'rom_app_test'
+    username: 'root'
+    password: ''
+    encoding: 'utf8mb4'
+
+compose:
+  db:
+    host: 'db.lauth.local'
+    port: 3306
+    name: 'rom_app_test'
+    username: 'mysql'
+    password: ''
+    encoding: 'utf8mb4'

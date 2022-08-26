@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
+    profiles: ["api"]
+    hostname: api.lauth.local
+    networks:
+      default:
+        aliases: ["api"]
+    ports:
+      - "9292:9292"
+    volumes:
+      - ./api:/lauth/api
+      - ./lib:/lauth/lib
+#      - gem_cache:/gems
+    env_file:
+      - api/.env
+    environment:
+      - RACK_ENV=compose
+    command:
+      - /bin/bash
+      - "-c"
+      - "bundle exec rake db:migrate && bin/rspec"
+
+  mariadb:
+    image: bitnami/mariadb
+    hostname: db.lauth.local
+    networks:
+      default:
+        aliases: [ "db" ]
+    ports:
+      - "3306:3306"
+#    volumes:
+#      - mariadb_data:/var/lib/mysql
+#      - ./db:/sql
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_DATABASE=rom_app_test
+      - MARIADB_USER=mysql
+      - MARIADB_PASSWORD=
+      - TZ=America/Detroit
+
+volumes:
+  gem_cache:
+  mariadb_data:
+
+networks:
+  default:
