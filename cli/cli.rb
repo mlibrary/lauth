@@ -1,8 +1,8 @@
 ENV["RACK_ENV"] ||= "development"
 
-APP_ROOT = File.expand_path("../", __FILE__)
+API_ROOT = File.expand_path("../../api", __FILE__)
 require "yaml"
-CONFIG = YAML.load(File.open(File.join(APP_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
+CONFIG = YAML.safe_load(File.open(File.join(API_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
 
 require "gli"
 
@@ -63,6 +63,8 @@ module Lauth
           "http://localhost:9191"
         when "compose"
           "http://api.lauth.local:9292"
+        when "ci"
+          "http://0.0.0.0:9292"
         else
           "http://api.lauth.local:9292"
         end

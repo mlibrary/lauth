@@ -5,5 +5,5 @@ Feature: Clients
     When I visit "clients"
     Then I should see
       """
-      [2]
+      [{"type":"clients","id":"1","attributes":{"name":"one"}},{"type":"clients","id":"2","attributes":{"name":"two"}}]
       """

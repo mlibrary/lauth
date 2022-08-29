@@ -2,7 +2,7 @@ ENV["RACK_ENV"] ||= "development"
 
 APP_ROOT = File.expand_path("../", __FILE__)
 require "yaml"
-CONFIG = YAML.load(File.open(File.join(APP_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
+CONFIG = YAML.safe_load(File.open(File.join(APP_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
 
 require "hanami/api"
 

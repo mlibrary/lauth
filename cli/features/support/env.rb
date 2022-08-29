@@ -21,7 +21,7 @@ Factory = ROM::Factory.configure do |config|
 end
 
 factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__)
-Dir[factories_dir + "/*.rb"].each { |file| require file }
+Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
 require "database_cleaner/sequel"
 

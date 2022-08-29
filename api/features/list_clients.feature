@@ -5,7 +5,7 @@ Feature: List Clients
     When I visit "clients"
     Then I should see
       """
-      [0]
+      []
       """
 
   Scenario: One client
@@ -13,7 +13,7 @@ Feature: List Clients
     When I visit "clients"
     Then I should see
       """
-      [1]
+      [{"type":"clients","id":"3","attributes":{"name":"one"}}]
       """
 
   Scenario: Two client
@@ -21,5 +21,5 @@ Feature: List Clients
     When I visit "clients"
     Then I should see
       """
-      [2]
+      [{"type":"clients","id":"4","attributes":{"name":"one"}},{"type":"clients","id":"5","attributes":{"name":"two"}}]
       """
