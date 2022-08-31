@@ -1,4 +1,3 @@
-require "dotenv"
 require "gli"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
@@ -9,23 +8,27 @@ $LOAD_PATH.unshift(File.expand_path("..", __FILE__))
 
 module Lauth
   module CLI
-    Dotenv.load
-
     module APP
       extend GLI::App
 
-      program_desc "Describe your application here"
+      config_file ".lauth.rc"
+
+      program_desc "A command-line interface (CLI) for managing data in the Library Authorization system."
 
       subcommand_option_handling :normal
       arguments :strict
 
-      desc "Describe some switch here"
-      switch [:s, :switch]
+      desc "Verbose"
+      switch [:v, :verbose], negatable: false
 
-      desc "Describe some flag here"
-      default_value "the default"
-      arg_name "The name of the argument"
-      flag [:f, :flagname]
+      desc "Lauth API URL"
+      flag [:u, :url], arg_name: "url", default_value: "http://localhost:9292"
+
+      desc "Authorized user name"
+      flag [:n, :username], arg_name: "username", default_value: "lauth"
+
+      desc "Authorized user password"
+      flag [:p, :password], arg_name: "password", default_value: "lauth", mask: true
 
       commands_from("app")
 
@@ -35,6 +38,10 @@ module Lauth
         # chosen command
         # Use skips_pre before a command to skip this block
         # on that command only
+        $rom = ::ROM.container(:http, uri: global[:url], handlers: :handlers) do |config| # standard:disable Style/GlobalVars
+          config.auto_registration("../lib/lauth/cli/rom", namespace: "Lauth::CLI::ROM")
+        end
+
         true
       end
 
@@ -49,18 +56,6 @@ module Lauth
         # return false to skip default error handling
         true
       end
-    end
-
-    class BDD
-      def self.rom
-        @@rom ||= ::ROM.container(:http, uri: ENV["LAUTH_CLI_API_URL"], handlers: :handlers) do |config|
-          config.auto_registration("../lib/lauth/cli/rom", namespace: "Lauth::CLI::ROM")
-        end
-      end
-    end
-
-    def self.client_repo
-      Lauth::CLI::ROM::Repositories::Client.new(Lauth::CLI::BDD.rom)
     end
   end
 end

@@ -1,21 +1,15 @@
 require "./cli"
-
-module Lauth
-  module API
-    class BDD
-      def self.rom
-        @@rom ||= ::ROM.container(:sql, ENV["LAUTH_CLI_API_DB_URL"]) do |config|
-          config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
-        end
-      end
-    end
-  end
-end
-
+require "dotenv"
 require "rom-factory"
 
+Dotenv.load
+
+LAUTH_API_ROM = ::ROM.container(:sql, ENV["LAUTH_TEST_DB_URL"]) do |config|
+  config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
+end
+
 Factory = ROM::Factory.configure do |config|
-  config.rom = Lauth::API::BDD.rom
+  config.rom = LAUTH_API_ROM
 end
 
 factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__)

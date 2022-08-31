@@ -14,12 +14,11 @@ services:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
     environment:
-      - LAUTH_CLI_API_URL=http://api.lauth.local:9292
-      - LAUTH_CLI_API_DB_URL=mysql2://mysql@db.lauth.local/mysql?encoding=utf8mb4
+      - LAUTH_TEST_DB_URL=mysql2://mysql@db.lauth.local/mysql?encoding=utf8mb4
     command:
       - /bin/bash
       - "-c"
-      - "bin/standardrb && bin/rspec && bin/cucumber"
+      - "bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
     build:
