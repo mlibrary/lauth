@@ -4,6 +4,7 @@
 #include "lauth/client.h"
 #include "lauth/request_info.h"
 
+#include <memory>
 #include <string>
 
 using namespace mlibrary::lauth;
@@ -35,26 +36,26 @@ TEST(AuthorizerTest, figuringitout) {
 }
 
 TEST(AuthorizerTest, InjectsSystemCalls) {
-    MockSystem system;
-    EXPECT_CALL(system, getHostname()).WillRepeatedly(Return("lauth.host"));
+    auto system = std::make_unique<MockSystem>();
+    EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
 
-    Authorizer lauth(&system);
+    Authorizer lauth(std::move(system));
     EXPECT_THAT(lauth.getHostname(), "lauth.host");
 }
 
 TEST(AuthorizerTest, EmptyRequestInfoUnauthorized) {
-    MockSystem system;
-    EXPECT_CALL(system, getHostname()).WillRepeatedly(Return("lauth.host"));
+    auto system = std::make_unique<MockSystem>();
+    EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
 
-    Authorizer lauth(&system);
+    Authorizer lauth(std::move(system));
     RequestInfo req;
     EXPECT_THAT(lauth.isAuthorized(req), false);
 }
 
 TEST(AuthorizerTest, UnprotectedUrlAlwaysAuthorized) {
-    MockSystem system;
-    EXPECT_CALL(system, getHostname()).WillRepeatedly(Return("lauth.host"));
-    Authorizer lauth(&system);
+    auto system = std::make_unique<MockSystem>();
+    EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
+    Authorizer lauth(std::move(system));
     RequestInfo req {
         .uri = "/public/"
     };

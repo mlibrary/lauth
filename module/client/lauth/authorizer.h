@@ -3,6 +3,7 @@
 
 #include "lauth/request_info.h"
 
+#include <memory>
 #include <string>
 
 namespace mlibrary::lauth {
@@ -14,9 +15,8 @@ namespace mlibrary::lauth {
 
     class Authorizer {
         public:
-        Authorizer();
-        Authorizer(System *system);
-        ~Authorizer();
+        Authorizer() : system(std::make_unique<System>()) {};
+        Authorizer(std::unique_ptr<System>&& system) : system(std::move(system)) {};
         Authorizer(const Authorizer&) = delete;
         Authorizer& operator=(const Authorizer&) = delete;
         Authorizer(Authorizer&&) = delete;
@@ -27,7 +27,7 @@ namespace mlibrary::lauth {
 
         std::string getHostname();
         protected:
-        System *system;
+        std::unique_ptr<System> system;
         bool defaultCleanup = false;
     };
 }
