@@ -17,6 +17,11 @@ namespace mlibrary::lauth {
         Authorizer();
         Authorizer(System *system);
         ~Authorizer();
+        Authorizer(const Authorizer&) = delete;
+        Authorizer& operator=(const Authorizer&) = delete;
+        Authorizer(Authorizer&&) = delete;
+        Authorizer& operator=(Authorizer&&) = delete;
+
         bool isAuthorized();
         bool isAuthorized(RequestInfo& req);
 
@@ -24,12 +29,6 @@ namespace mlibrary::lauth {
         protected:
         System *system;
         bool defaultCleanup = false;
-
-        private:
-        Authorizer(const Authorizer&) = delete;
-        Authorizer& operator=(const Authorizer&) = delete;
-        Authorizer(Authorizer&&) = delete;
-        Authorizer& operator=(Authorizer&&) = delete;
     };
 }
 
