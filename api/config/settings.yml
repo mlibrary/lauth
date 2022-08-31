@@ -1,0 +1,69 @@
+---
+#  DATABASE GENERAL CONNECTION OPTIONS
+#
+#  Options below are available to all database drivers and can be used to
+#  configure the connection between ROM and the database.
+#
+#  Option           Value Type Description
+#  :adapter         Symbol     Sets the database driver which should be used when making a connection.
+#                              This option is only to be used in situations where a connection string is
+#                              NOT provided to the ROM Configuration instance.
+#                              Available Options:
+#                                :postgres
+#                                :sqlite
+#                                :oracle
+#                                :mysql
+#                                :mysql2
+#  :host            String     Internet location of the database server.
+#                              This option is required when the adapter option is being used.
+#  :port            Integer    Port number used during connection.
+#  :database        String     Name of the database to open after successful connection.
+#  :user            String     Name of the user account to use when logging in.
+#  :password        String     Password that matches the user account.
+#  :max_connections Integer    The maximum number of connections the connection pool will open (default 4).
+#
+#  MYSQL ADDITIONAL OPTIONS
+#
+#  Option           Value Type Default Value Description
+#  :encoding        String     'UTF8'        Specify the encoding/character set to use for the connection.
+#                                            Available encodings can be found in the MySQL Charset Table.
+#                                            The most common option being 'UTF8'
+#  :write_timeout   Integer                  Set the timeout in seconds when writing to the database.
+#  :read_timeout    Integer                  Set the timeout in seconds when reading query results.
+#  :connect_timeout Integer                  Set the timeout in seconds before a connection attempt is abandoned.
+#  :secure_auth     Boolean    true          When enabled the server will refuse connection if the account password is stored in old pre-MySQL 4.1 format.
+#  :sql_mode        Array<String, Symbol>,   Sets the sql_mode(s) for a given connection. eg: [:no_zero_date, :pipes_as_concat]
+#                   String, Symbol           Available sql_modes can be found in MySQL Server SQL Modes documentation.
+#  :flags           String, Array<String>    Flags added to an array are added to the Default flags,
+#                                            while flags with a - (minus) prefix are removed from the default flags.
+#                                            For more information see Flag Option Parsing.
+#                                            Available Options:
+#                                              'REMEMBER_OPTIONS'
+#                                              'LONG_PASSWORD'
+#                                              'LONG_FLAG'
+#                                              'TRANSACTIONS'
+#                                              'PROTOCOL_41'
+#                                              'SECURE_CONNECTION'
+#                                              'MULTI_STATEMENTS'
+#  :socket          String                   Used to specify a Unix socket file to connect to instead of a TCP host & port.
+#  :sslmode         Symbol     :disabled     Determines the priority or whether or not a SSL TCP/IP connection is to be made.
+#                                            Available Options:
+#                                              :disabled - Establish an unencrypted connection
+#                                              :preferred - First try a non-SSL connection; if that fails, try an SSL connection
+#                                              :required - Establish a secure connection if the server supports secure connections
+#                                              :verify_ca - Only establish an SSL connection and verify the servers TLS certificate against the configured Certificate Authority (CA) certificates.
+#                                              :verify_identity - Like :verify_ca, but additionally verify the server certificate matches the host to which the connection is attempted.
+#  :sslkey          String                   Path to the client key. eg: 'path/to/client-key.pem'
+#  :sslcert         String                   Path to the client certificate. eg: 'path/to/client-cert.pem'
+#  :sslca           String                   Path to the CA certificate. eg: '/path/to/ca-cert.pem'
+#  :sslcapath       String                   Path to the CA certificates. eg. 'path/to/cacerts'
+#  :sslcipher       String                   Supported ciphers can be found in the MySQL Encrypted Connection Protocols document. eg: 'DHE-RSA-AES256-SHA'
+#  :sslverify       Boolean    false         When set to true, the server is required to present a valid certificate.
+db:
+  adapter: :mysql2
+  host: 'localhost'
+  port: 3306
+  database: 'test'
+  user: 'root'
+  password: ''
+  encoding: 'utf8mb4'

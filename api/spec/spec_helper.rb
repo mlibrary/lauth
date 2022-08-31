@@ -13,8 +13,6 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-ENV["RACK_ENV"] ||= "test"
-
 require "./api"
 
 require "rom-factory"

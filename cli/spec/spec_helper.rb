@@ -13,15 +13,13 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-ENV["RACK_ENV"] ||= "test"
-
 require "./cli"
 
 module Lauth
   module API
     class BDD
       def self.rom
-        @@rom ||= ::ROM.container(:sql, "mysql2:///#{CONFIG["db"]["name"]}", CONFIG["db"]) do |config|
+        @@rom ||= ::ROM.container(:sql, ENV["LAUTH_CLI_API_DB_URL"]) do |config|
           config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
         end
       end

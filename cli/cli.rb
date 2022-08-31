@@ -1,9 +1,4 @@
-ENV["RACK_ENV"] ||= "development"
-
-API_ROOT = File.expand_path("../../api", __FILE__)
-require "yaml"
-CONFIG = YAML.safe_load(File.open(File.join(API_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
-
+require "dotenv"
 require "gli"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
@@ -14,6 +9,8 @@ $LOAD_PATH.unshift(File.expand_path("..", __FILE__))
 
 module Lauth
   module CLI
+    Dotenv.load
+
     module APP
       extend GLI::App
 
@@ -56,21 +53,7 @@ module Lauth
 
     class BDD
       def self.rom
-        uri = case ENV["RACK_ENV"]
-        when "development"
-          "http://localhost:9292"
-        when "test"
-          "http://localhost:9191"
-        when "compose"
-          "http://api.lauth.local:9292"
-        when "ci"
-          "http://0.0.0.0:9292"
-        else
-          "http://api.lauth.local:9292"
-        end
-
-        # @@rom ||= ::ROM.container(:http, uri: uri, handlers: :json) do |config|
-        @@rom ||= ::ROM.container(:http, uri: uri, handlers: :handlers) do |config|
+        @@rom ||= ::ROM.container(:http, uri: ENV["LAUTH_CLI_API_URL"], handlers: :handlers) do |config|
           config.auto_registration("../lib/lauth/cli/rom", namespace: "Lauth::CLI::ROM")
         end
       end

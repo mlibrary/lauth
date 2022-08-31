@@ -15,7 +15,8 @@ The modules are:
 These modules may be broken out to individual repositories at some time, but
 they are colocated for convenience and shared evolution for now.
 
-# api
+# Docker Compose Test Suites
+## docker-compose-api.yml
 Database Shell Window
 ``` shell
 docker compose --file docker-compose-api.yml up --build
@@ -27,7 +28,7 @@ docker compose --file docker-compose-api.yml run --rm api
 docker compose --file docker-compose-api.yml down
 ```
 
-# cli
+## docker-compose-cli.yml
 Database Shell Window
 ``` shell
 docker compose --file docker-compose-cli.yml up --build

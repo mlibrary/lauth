@@ -1,5 +1,3 @@
-ENV["API_ENV"] ||= "test"
-
 require "./api"
 
 require "rom-factory"

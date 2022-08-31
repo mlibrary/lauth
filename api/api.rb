@@ -1,9 +1,5 @@
-ENV["RACK_ENV"] ||= "development"
-
-APP_ROOT = File.expand_path("../", __FILE__)
-require "yaml"
-CONFIG = YAML.safe_load(File.open(File.join(APP_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
-
+require "dotenv"
+require "config"
 require "hanami/api"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
@@ -11,6 +7,19 @@ require "lauth"
 
 module Lauth
   module API
+    Dotenv.load
+
+    Config.setup do |config|
+      config.const_name = "Settings"
+      config.use_env = true
+      config.env_prefix = "LAUTH_API"
+      config.env_separator = "_"
+      config.env_converter = :downcase
+      config.env_parse_values = true
+    end
+
+    Config.load_and_set_settings(Config.setting_files(__dir__ + "/config", nil))
+
     class APP < Hanami::API
       get "/" do
         "This is the Lauth API, and our version is #{Lauth::VERSION}."
@@ -55,7 +64,7 @@ module Lauth
 
     class BDD
       def self.rom
-        @@rom ||= ::ROM.container(:sql, "mysql2:///#{CONFIG["db"]["name"]}", CONFIG["db"]) do |config|
+        @@rom ||= ::ROM.container(:sql, Settings.db.to_h) do |config|
           config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
         end
       end

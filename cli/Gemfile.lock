@@ -173,6 +173,7 @@ GEM
     unicode-display_width (2.2.0)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-21
 
 DEPENDENCIES

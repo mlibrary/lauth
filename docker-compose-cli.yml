@@ -13,11 +13,9 @@ services:
     volumes:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
-#      - gem_cache:/gems
-    env_file:
-      - cli/.env
     environment:
-      - RACK_ENV=compose
+      - LAUTH_CLI_API_URL=http://api.lauth.local:9292
+      - LAUTH_CLI_API_DB_URL=mysql2://mysql@db.lauth.local/mysql?encoding=utf8mb4
     command:
       - /bin/bash
       - "-c"
@@ -37,15 +35,14 @@ services:
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
-#      - gem_cache:/gems
-    env_file:
-      - api/.env
     environment:
-      - RACK_ENV=compose
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=mysql
+      - LAUTH_API_DB_USER=mysql
     command:
       - /bin/bash
       - "-c"
-      - "bundle exec rake db:migrate && bin/rackup"
+      - "bundle exec rake db:migrate && bin/rackup --host 0.0.0.0"
 
   mariadb:
     image: bitnami/mariadb
@@ -55,19 +52,12 @@ services:
         aliases: [ "db" ]
     ports:
       - "3306:3306"
-#    volumes:
-#      - mariadb_data:/var/lib/mysql
-#      - ./db:/sql
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_DATABASE=rom_app_test
+      - MARIADB_DATABASE=mysql
       - MARIADB_USER=mysql
       - MARIADB_PASSWORD=
       - TZ=America/Detroit
-
-volumes:
-  gem_cache:
-  mariadb_data:
 
 networks:
   default:
