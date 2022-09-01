@@ -1,10 +1,26 @@
 require "./cli"
 require "dotenv"
 require "rom-factory"
+require "database_cleaner/sequel"
 
 Dotenv.load
 
-LAUTH_API_ROM = ::ROM.container(:sql, ENV["LAUTH_TEST_DB_URL"]) do |config|
+MYSQL_DB = {
+  adapter: ENV["LAUTH_API_DB_ADAPTER"] || :mysql2,
+  host: ENV["LAUTH_API_DB_HOST"] || "localhost",
+  port: ENV["LAUTH_API_DB_PORT"] || 3306,
+  database: ENV["LAUTH_API_DB_DATABASE"] || "test",
+  user: ENV["LAUTH_API_DB_USER"] || "root",
+  password: ENV["LAUTH_API_DB_PASSWORD"] || "",
+  encoding: ENV["LAUTH_API_DB_ENCODING"] || "utf8mb4"
+}.freeze
+
+MYSQL_CMD = "mysql --user=#{MYSQL_DB[:user]} --host=#{MYSQL_DB[:host]} --port=#{MYSQL_DB[:port]} --password=#{MYSQL_DB[:password]}  #{MYSQL_DB[:database]}".freeze
+
+puts MYSQL_DB.to_s
+puts MYSQL_CMD.to_s
+
+LAUTH_API_ROM = ::ROM.container(:sql, MYSQL_DB) do |config|
   config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
 end
 
@@ -15,34 +31,31 @@ end
 factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__)
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
-require "database_cleaner/sequel"
-
-DatabaseCleaner.strategy = :truncation
-
-Around do |scenario, block|
-  DatabaseCleaner.cleaning(&block)
-end
-
-# require "rack/test"
-#
-# include Rack::Test::Methods
-#
-# def app
-#   Lauth::API.new
-# end
-
 BeforeAll do
-  # puts "Before All"
+  # puts "BeforeAll"
+  # DatabaseCleaner.clean_with :truncation
+  # DatabaseCleaner.strategy = :transaction
+  DatabaseCleaner.strategy = :truncation
 end
 
 AfterAll do
-  # puts "After All"
+  puts "AfterAll"
 end
+
+# NOTE: Around will mask Before and After a.k.a. XOR
+# Around do |scenario, block|
+#   # DatabaseCleaner.cleaning(&block)
+# end
 
 Before do
-  # puts "Before"
+  puts "Before"
+  DatabaseCleaner.start
 end
 
-After do
-  # puts "After"
+After do |scenario|
+  puts "After"
+  `#{MYSQL_CMD} < "../db/drop-keys.sql"`
+  DatabaseCleaner.clean
+  # `#{MYSQL_CMD} < "../db/root.sql"`
+  `#{MYSQL_CMD} < "../db/keys.sql"`
 end

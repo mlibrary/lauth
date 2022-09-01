@@ -17,30 +17,15 @@ they are colocated for convenience and shared evolution for now.
 
 # Docker Compose Test Suites
 ## docker-compose-api.yml
-Database Shell Window
 ``` shell
 docker compose --file docker-compose-api.yml up --build
-```
-Specs Shell Window
-``` shell
-docker compose --file docker-compose-api.yml build api
-docker compose --file docker-compose-api.yml run --rm api
+ctrl-c
 docker compose --file docker-compose-api.yml down
 ```
 
 ## docker-compose-cli.yml
-Database Shell Window
 ``` shell
 docker compose --file docker-compose-cli.yml up --build
-```
-API Shell Window
-``` shell
-docker compose --file docker-compose-cli.yml build api
-docker compose --file docker-compose-cli.yml run --rm api
-```
-Specs Shell Window
-``` shell
-docker compose --file docker-compose-cil.yml build cli
-docker compose --file docker-compose-cli.yml run --rm cli
+ctrl-c
 docker compose --file docker-compose-cli.yml down
 ```

@@ -5,7 +5,9 @@ services:
     build:
       context: ./
       dockerfile: ./cli/Dockerfile
-    profiles: ["cli"]
+    depends_on:
+      - api
+    restart: "no"
     hostname: cli.lauth.local
     networks:
       default:
@@ -13,18 +15,23 @@ services:
     volumes:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
+      - ./db:/lauth/db
     environment:
-      - LAUTH_TEST_DB_URL=mysql2://mysql@db.lauth.local/mysql?encoding=utf8mb4
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     command:
       - /bin/bash
       - "-c"
-      - "bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
+      - "sleep 40 && bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
-    profiles: ["api"]
+    depends_on:
+      - mariadb
     hostname: api.lauth.local
     networks:
       default:
@@ -36,12 +43,13 @@ services:
       - ./lib:/lauth/lib
     environment:
       - LAUTH_API_DB_HOST=db.lauth.local
-      - LAUTH_API_DB_DATABASE=mysql
-      - LAUTH_API_DB_USER=mysql
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     command:
       - /bin/bash
       - "-c"
-      - "bundle exec rake db:migrate && bin/rackup --host 0.0.0.0"
+      - "sleep 30 && bundle exec rake db:migrate && bin/rackup --host 0.0.0.0"
 
   mariadb:
     image: bitnami/mariadb
@@ -53,10 +61,22 @@ services:
       - "3306:3306"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_DATABASE=mysql
-      - MARIADB_USER=mysql
-      - MARIADB_PASSWORD=
+      - MARIADB_DATABASE=lauth
+      - MARIADB_USER=lauth
+      - MARIADB_PASSWORD=lauth
       - TZ=America/Detroit
+
+  mariadbsetup:
+    image: bitnami/mariadb
+    depends_on:
+      - mariadb
+    restart: "no"
+    volumes:
+      - ./db:/sql
+    entrypoint:
+      - /bin/bash
+      - "-c"
+      - "sleep 20 && /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
 
 networks:
   default:

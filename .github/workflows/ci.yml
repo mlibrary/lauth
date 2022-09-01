@@ -10,7 +10,6 @@ env:
   LAUTH_API_DB_DATABASE: test
   LAUTH_API_DB_USER: user
   LAUTH_API_DB_PASSWORD: password
-  LAUTH_TEST_DB_URL: "mysql2://user:password@127.0.0.1/test?encoding=utf8mb4"
 
 jobs:
 

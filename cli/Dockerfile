@@ -10,6 +10,7 @@ LABEL maintainer="dla-staff@umich.edu"
 
 # Install Vim (optional)
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
+  default-mysql-client \
   vim-tiny
 
 RUN gem install bundler:${BUNDLER_VERSION}
