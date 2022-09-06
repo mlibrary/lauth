@@ -26,8 +26,9 @@ module Lauth
       end
 
       get "/clients" do
+        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
         clients = []
-        Lauth::API.client_repo.clients.each do |client|
+        client_repo.clients.each do |client|
           clients << client.resource_object
         end
         clients.to_json
@@ -35,16 +36,29 @@ module Lauth
       end
 
       post "/clients" do
-        client = Lauth::API.client_repo.create(params)
+        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        client = client_repo.create(params)
         client.resource_identifier_object.to_json
+      end
+
+      get "/users" do
+        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+        users = []
+        user_repo.users.each do |user|
+          users << user.resource_object
+        end
+        users.to_json
       end
 
       get "/users/:id" do |id|
         # The root user should always be present
-        users = DB.rom.relations[:aa_user]
-        user = users.where(userid: params[:id]).one
-        user ||= {error: "User not found: #{params[:id]}"}
-        json(user)
+        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+        user = user_repo.user(params[:id])
+        if user
+          user.resource_object.to_json
+        else
+          {error: "User not found: #{params[:id]}"}
+        end
       end
     end
 
@@ -68,12 +82,6 @@ module Lauth
           config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
         end
       end
-    end
-
-    # SERVER
-
-    def self.client_repo
-      Lauth::API::ROM::Repositories::Client.new(BDD.rom)
     end
   end
 end

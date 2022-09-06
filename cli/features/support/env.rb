@@ -32,14 +32,12 @@ factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
 BeforeAll do
-  # puts "BeforeAll"
   # DatabaseCleaner.clean_with :truncation
   # DatabaseCleaner.strategy = :transaction
   DatabaseCleaner.strategy = :truncation
 end
 
 AfterAll do
-  puts "AfterAll"
 end
 
 # NOTE: Around will mask Before and After a.k.a. XOR
@@ -48,14 +46,12 @@ end
 # end
 
 Before do
-  puts "Before"
   DatabaseCleaner.start
 end
 
 After do |scenario|
-  puts "After"
   `#{MYSQL_CMD} < "../db/drop-keys.sql"`
   DatabaseCleaner.clean
-  # `#{MYSQL_CMD} < "../db/root.sql"`
+  `#{MYSQL_CMD} < "../db/root.sql"`
   `#{MYSQL_CMD} < "../db/keys.sql"`
 end

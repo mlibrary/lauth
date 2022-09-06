@@ -5,7 +5,10 @@ services:
     build:
       context: ./
       dockerfile: ./cli/Dockerfile
+    profiles:
+      - "test"
     depends_on:
+      - mariadb
       - api
     restart: "no"
     hostname: cli.lauth.local
@@ -24,7 +27,7 @@ services:
     command:
       - /bin/bash
       - "-c"
-      - "sleep 40 && bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
+      - "bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
     build:

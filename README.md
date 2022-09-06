@@ -17,15 +17,26 @@ they are colocated for convenience and shared evolution for now.
 
 # Docker Compose Test Suites
 ## docker-compose-api.yml
+### Service Shell
 ``` shell
 docker compose --file docker-compose-api.yml up --build
 ctrl-c
 docker compose --file docker-compose-api.yml down
 ```
-
+### Test Shell
+``` shell
+docker compose --file docker-compose-api.yml build api
+docker compose --file docker-compose-api.yml run --rm api
+```
 ## docker-compose-cli.yml
+### Service Shell
 ``` shell
 docker compose --file docker-compose-cli.yml up --build
 ctrl-c
 docker compose --file docker-compose-cli.yml down
+```
+### Test Shell
+``` shell
+docker compose --file docker-compose-cli.yml build cli
+docker compose --file docker-compose-cli.yml run --rm cli
 ```

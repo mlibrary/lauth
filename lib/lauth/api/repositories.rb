@@ -1,10 +1,9 @@
 require_relative "repositories/client"
+require_relative "repositories/user"
 
 module Lauth
   module API
-    module ROM
-      module Repositories
-      end
+    module Repositories
     end
   end
 end

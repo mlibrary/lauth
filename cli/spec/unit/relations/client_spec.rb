@@ -30,7 +30,7 @@ RSpec.describe Lauth::API::ROM::Relations::Clients do
 
   describe "persistence" do
     it "creates a persistent client record" do
-      client_repo = Lauth::API::ROM::Repositories::Client.new(LAUTH_API_ROM)
+      client_repo = Lauth::API::Repositories::Client.new(LAUTH_API_ROM)
       client
       expect(client_repo.clients.count).to eq(1)
     end

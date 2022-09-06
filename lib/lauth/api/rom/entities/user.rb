@@ -2,20 +2,20 @@ module Lauth
   module API
     module ROM
       module Entities
-        class Client < ::ROM::Struct
+        class User < ::ROM::Struct
           def resource_object
             {
-              type: "clients",
+              type: "users",
               id: id.to_s,
               attributes: {
-                name: name.to_s
+                name: surname.to_s
               }
             }
           end
 
           def resource_identifier_object
             {
-              type: "clients",
+              type: "users",
               id: id.to_s
             }
           end

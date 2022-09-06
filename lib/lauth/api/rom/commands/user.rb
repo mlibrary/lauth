@@ -2,14 +2,14 @@ module Lauth
   module API
     module ROM
       module Commands
-        class Client < ::ROM::SQL::Commands::Create
-          relation :clients
-          register_as :client_create
+        class User < ::ROM::SQL::Commands::Create
+          relation :users
+          register_as :user_create
 
           def execute(tuple)
-            client_repo = Lauth::API::Repositories::Client.new(Lauth::API::BDD.rom)
+            user_repo = Lauth::API::Repositories::User.new(Lauth::API::BDD.rom)
 
-            rv = client_repo.create(tuple)
+            rv = user_repo.create(tuple)
 
             [rv]
             #

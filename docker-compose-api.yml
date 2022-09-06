@@ -5,6 +5,8 @@ services:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
+    profiles:
+      - "test"
     depends_on:
       - mariadb
     restart: "no"
@@ -25,7 +27,7 @@ services:
     command:
       - /bin/bash
       - "-c"
-      - "sleep 30 && bundle exec rake db:migrate && bin/standardrb && bin/rspec && bin/cucumber"
+      - "bundle exec rake db:migrate && bin/standardrb && bin/rspec && bin/cucumber"
 
   mariadb:
     image: bitnami/mariadb

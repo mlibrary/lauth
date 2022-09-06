@@ -44,6 +44,8 @@ jobs:
           bundler-cache: true
       - name: Run API install
         run: cd api && bundle install
+      - name: Run DB setup script
+        run: ./db/setup.sh -u user -p password -h 127.0.0.1 test
       - name: Run DB migration
         run: cd api && bundle exec rake db:migrate
       - name: Run API standard
