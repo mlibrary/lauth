@@ -9,7 +9,7 @@ module Lauth
         end
 
         def users
-          super.rename(userid: :id)
+          super.rename(userid: :id, userPassword: :password)
         end
 
         def create

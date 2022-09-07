@@ -17,8 +17,8 @@ MYSQL_DB = {
 
 MYSQL_CMD = "mysql --user=#{MYSQL_DB[:user]} --host=#{MYSQL_DB[:host]} --port=#{MYSQL_DB[:port]} --password=#{MYSQL_DB[:password]}  #{MYSQL_DB[:database]}".freeze
 
-puts MYSQL_DB.to_s
-puts MYSQL_CMD.to_s
+puts "MYSQL_DB  : " + MYSQL_DB.to_s
+puts "MYSQL_CMD : " + MYSQL_CMD.to_s
 
 LAUTH_API_ROM = ::ROM.container(:sql, MYSQL_DB) do |config|
   config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
@@ -32,6 +32,9 @@ factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
 BeforeAll do
+  # puts "BeforeAll"
+  puts `./bin/lauth --user=root --password="!none" --route=http://127.0.0.1:9292 initconfig --force`
+  puts `cat ~/.lauth.rc`
   # DatabaseCleaner.clean_with :truncation
   # DatabaseCleaner.strategy = :transaction
   DatabaseCleaner.strategy = :truncation
@@ -50,8 +53,8 @@ Before do
 end
 
 After do |scenario|
-  `#{MYSQL_CMD} < "../db/drop-keys.sql"`
+  `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
   DatabaseCleaner.clean
-  `#{MYSQL_CMD} < "../db/root.sql"`
-  `#{MYSQL_CMD} < "../db/keys.sql"`
+  `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
+  `#{MYSQL_CMD} < ../db/keys.sql 2> /dev/null`
 end

@@ -1,4 +1,5 @@
 require "gli"
+require "base64"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 require "lauth"
@@ -22,10 +23,10 @@ module Lauth
       switch [:v, :verbose], negatable: false
 
       desc "Lauth API URL"
-      flag [:u, :url], arg_name: "url", default_value: "http://localhost:9292"
+      flag [:r, :route], arg_name: "route", default_value: "http://127.0.0.1:9292"
 
       desc "Authorized user name"
-      flag [:n, :username], arg_name: "username", default_value: "lauth"
+      flag [:u, :user], arg_name: "user", default_value: "lauth"
 
       desc "Authorized user password"
       flag [:p, :password], arg_name: "password", default_value: "lauth", mask: true
@@ -38,7 +39,8 @@ module Lauth
         # chosen command
         # Use skips_pre before a command to skip this block
         # on that command only
-        $rom = ::ROM.container(:http, uri: global[:url], handlers: :handlers) do |config| # standard:disable Style/GlobalVars
+        credentials = Base64.encode64("#{global[:user]}:#{global[:password]}").chomp
+        $rom = ::ROM.container(:http, uri: global[:route], headers: {X_AUTH: credentials}, handlers: :handlers) do |config| # standard:disable Style/GlobalVars
           config.auto_registration("../lib/lauth/cli/rom", namespace: "Lauth::CLI::ROM")
         end
 

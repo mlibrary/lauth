@@ -21,7 +21,7 @@ jobs:
         ruby:
           - '3.1.2'
           - '3.0.4'
-          - '2.7.6'
+#          - '2.7.6' hanami-api was resolved to 0.2.0, which depends on Ruby (>= 3.0.0)
 
     services:
       mariadb:

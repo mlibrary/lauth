@@ -1,16 +1,22 @@
 Feature: User Authorization
 
-  Scenario: Unauthorized
-    Given an unknown user "user" with password "password"
-    When I enter lauth -n "user" -p "password" "list users"
+  Background:
+    Given an authorized user "user" with password "password"
+
+  Scenario: Unknown User
+    When I enter lauth -u "resu" -p "password" "list users"
     Then I should see
       """
-      root
       """
 
-  Scenario: Authorized
-    Given a known user "user" with password "password"
-    When I enter lauth -n "user" -p "password" "list users"
+  Scenario: Wrong Password
+    When I enter lauth -u "user" -p "drowssap" "list users"
+    Then I should see
+      """
+      """
+
+  Scenario: Correct Password
+    When I enter lauth -u "user" -p "password" "list users"
     Then I should see
       """
       root

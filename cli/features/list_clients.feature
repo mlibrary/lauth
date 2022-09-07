@@ -2,14 +2,14 @@ Feature: List Clients
 
   Scenario: Empty list
     Given there are no clients
-    When I enter lauth "list clients" on the command line
+    When I enter lauth "list clients"
     Then I should see
       """
       """
 
   Scenario: One client
     Given there is one client "one"
-    When I enter lauth "list clients" on the command line
+    When I enter lauth "list clients"
     Then I should see
       """
       one
@@ -17,7 +17,7 @@ Feature: List Clients
 
   Scenario: Two clients
     Given there is two clients "one two"
-    When I enter lauth "list clients" on the command line
+    When I enter lauth "list clients"
     Then I should see
       """
       one

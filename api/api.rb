@@ -1,6 +1,7 @@
 require "dotenv"
 require "config"
 require "hanami/api"
+require "base64"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 require "lauth"
@@ -21,11 +22,30 @@ module Lauth
     Config.load_and_set_settings(Config.setting_files(__dir__ + "/config", nil))
 
     class APP < Hanami::API
+      module Authentication
+        private
+
+        def authorized!
+          # puts env
+          halt(401) unless env["HTTP_X_AUTH"] # User Anonymous
+          plain = Base64.decode64(env["HTTP_X_AUTH"])
+          username, password = plain.split(":")
+          user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+          user = user_repo.user(username)
+          halt(401) unless user # User Unknown
+          halt(401) unless user.password == password # User Wrong Password
+        end
+      end
+
+      helpers(Authentication)
+
       get "/" do
+        authorized!
         "This is the Lauth API, and our version is #{Lauth::VERSION}."
       end
 
       get "/clients" do
+        authorized!
         client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
         clients = []
         client_repo.clients.each do |client|
@@ -36,12 +56,14 @@ module Lauth
       end
 
       post "/clients" do
+        authorized!
         client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
         client = client_repo.create(params)
         client.resource_identifier_object.to_json
       end
 
       get "/users" do
+        authorized!
         user_repo = Lauth::API::Repositories::User.new(BDD.rom)
         users = []
         user_repo.users.each do |user|
@@ -51,6 +73,7 @@ module Lauth
       end
 
       get "/users/:id" do |id|
+        authorized!
         # The root user should always be present
         user_repo = Lauth::API::Repositories::User.new(BDD.rom)
         user = user_repo.user(params[:id])

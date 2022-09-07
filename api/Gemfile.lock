@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/hanami/api
+  revision: 10c0d3b79232e933dd4e9e74bb2c6feb4a1f539e
+  ref: 10c0d3b79232e933dd4e9e74bb2c6feb4a1f539e
+  specs:
+    hanami-api (0.2.0)
+      hanami-router (~> 2.0.alpha)
+
+GIT
   remote: https://github.com/rom-rb/rom-http
   revision: c07813634572503e34f36177636004c6607aa6a6
   ref: c07813634572503e34f36177636004c6607aa6a6
@@ -92,8 +100,6 @@ GEM
     faker (2.23.0)
       i18n (>= 1.8.11, < 2)
     ffi (1.15.5)
-    hanami-api (0.2.0)
-      hanami-router (~> 2.0.alpha)
     hanami-router (2.0.0.beta2)
       mustermann (~> 1.0)
       mustermann-contrib (~> 1.0)
@@ -200,7 +206,6 @@ GEM
     unicode-display_width (2.2.0)
 
 PLATFORMS
-  aarch64-linux
   arm64-darwin-21
 
 DEPENDENCIES
@@ -208,7 +213,7 @@ DEPENDENCIES
   cucumber (~> 8.0.0)
   database_cleaner-sequel
   dotenv (~> 2.7.6)
-  hanami-api (~> 0.2.0)
+  hanami-api!
   mysql2 (~> 0.5.4)
   puma (~> 5.6)
   rack-test
