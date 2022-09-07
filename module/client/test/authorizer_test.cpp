@@ -3,26 +3,18 @@
 #include "lauth/authorizer.h"
 #include "lauth/client.h"
 #include "lauth/request_info.h"
+#include "test/mocks.h"
 
 #include <memory>
 #include <string>
 
 using namespace mlibrary::lauth;
-using namespace mlibrary::lauth::v1;
 
 using std::string;
 
 using testing::IsFalse;
 using testing::IsTrue;
 using testing::Return;
-
-class MockSystem : public System {
-    public:
-    MOCK_METHOD(std::string, getHostname, ());
-};
-
-class MockClient : public Client {
-};
 
 TEST(AuthorizerTest, figuringitout) {
     RequestInfo req {
@@ -54,14 +46,14 @@ TEST(AuthorizerTest, EmptyRequestInfoUnauthorized) {
 
 TEST(AuthorizerTest, UnprotectedUrlAlwaysAuthorized) {
     auto system = std::make_unique<MockSystem>();
+    auto client = std::make_unique<MockClient>();
     EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
-    Authorizer lauth(std::move(system));
+    Authorizer lauth(std::move(system), std::move(client));
     RequestInfo req {
         .uri = "/public/"
     };
 
     bool authorized = lauth.isAuthorized(req);
-
     /* EXPECT_THAT(authorized, true); */
 }
 

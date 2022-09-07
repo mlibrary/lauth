@@ -3,20 +3,15 @@
 #include "lauth/v1/user.h"
 
 #include <json.hpp>
-#include <string>
+
 #include <iostream>
+#include <memory>
+#include <string>
 
 using json = nlohmann::json;
 using namespace mlibrary::lauth;
 
 namespace mlibrary::lauth::v1 {
-    Client::Client(HttpClient *api) : api(api)
-    {
-        if (api == nullptr) {
-            throw std::invalid_argument("HttpClient 'api', must not be null");
-        }
-    }
-
     User Client::getUser(std::string username) {
         auto path = std::string("/users/") + username;
         auto body = api->getBody(path.c_str());

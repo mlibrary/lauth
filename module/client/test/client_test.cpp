@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include "lauth/client.h"
 #include "lauth/http_client.h"
+#include "test/mocks.h"
 
 #include <json.hpp>
 #include <httplib.h>
@@ -14,16 +15,6 @@ using std::string;
 using testing::Return;
 using testing::_;
 
-struct StubRawClient : public httplib::Client {
-    StubRawClient() : httplib::Client("http://default.invalid") {}
-};
-
-class MockApi : public HttpClient {
-    public:
-    MockApi() : HttpClient(StubRawClient()) {}
-    MOCK_METHOD(std::string, getBody, (const std::string&));
-};
-
 TEST(ClientTest, GetRootHasUserInfo) {
     std::string body = R"(
       {
@@ -32,10 +23,10 @@ TEST(ClientTest, GetRootHasUserInfo) {
         "surname": "User"
       }
     )";
-    MockApi api;
-    EXPECT_CALL(api, getBody(_)).WillRepeatedly(Return(body));
+    auto api = std::make_unique<MockHttpClient>();
+    EXPECT_CALL(*api, getBody(_)).WillRepeatedly(Return(body));
 
-    Client client(&api);
+    Client client(std::move(api));
     User user = client.getUser("root");
 
     EXPECT_EQ(user.userid, "root");

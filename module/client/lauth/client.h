@@ -4,20 +4,21 @@
 #include "lauth/http_client.h"
 #include "lauth/v1/user.h"
 
+#include <memory>
 #include <string>
 
 namespace mlibrary::lauth::v1 {
 
     class Client {
         public:
-        Client(HttpClient *api);
+        Client(std::unique_ptr<HttpClient>&& api) : api(std::move(api)) {};
 
-        User getUser(std::string username);
+        virtual User getUser(std::string username);
 
         std::string url;
 
         protected:
-        HttpClient *api;
+        std::unique_ptr<HttpClient> api;
     };
 
 };
