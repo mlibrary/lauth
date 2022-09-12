@@ -5,7 +5,11 @@ services:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
-    profiles: ["api"]
+    profiles:
+      - "test"
+    depends_on:
+      - mariadb
+    restart: "no"
     hostname: api.lauth.local
     networks:
       default:
@@ -15,15 +19,15 @@ services:
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
-#      - gem_cache:/gems
-    env_file:
-      - api/.env
     environment:
-      - RACK_ENV=compose
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     command:
       - /bin/bash
       - "-c"
-      - "bundle exec rake db:migrate && bin/rspec"
+      - "bundle exec rake db:migrate && bin/standardrb && bin/rspec && bin/cucumber"
 
   mariadb:
     image: bitnami/mariadb
@@ -33,19 +37,24 @@ services:
         aliases: [ "db" ]
     ports:
       - "3306:3306"
-#    volumes:
-#      - mariadb_data:/var/lib/mysql
-#      - ./db:/sql
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-      - MARIADB_DATABASE=rom_app_test
-      - MARIADB_USER=mysql
-      - MARIADB_PASSWORD=
+      - MARIADB_DATABASE=lauth
+      - MARIADB_USER=lauth
+      - MARIADB_PASSWORD=lauth
       - TZ=America/Detroit
 
-volumes:
-  gem_cache:
-  mariadb_data:
+  mariadbsetup:
+    image: bitnami/mariadb
+    depends_on:
+      - mariadb
+    restart: "no"
+    volumes:
+      - ./db:/sql
+    entrypoint:
+      - /bin/bash
+      - "-c"
+      - "sleep 20 && /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
 
 networks:
   default:

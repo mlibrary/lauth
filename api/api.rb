@@ -1,24 +1,54 @@
-ENV["RACK_ENV"] ||= "development"
-
-APP_ROOT = File.expand_path("../", __FILE__)
-require "yaml"
-CONFIG = YAML.safe_load(File.open(File.join(APP_ROOT, "settings.yml")))[ENV["RACK_ENV"]]
-
+require "dotenv"
+require "config"
 require "hanami/api"
+require "base64"
 
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 require "lauth"
 
 module Lauth
   module API
+    Dotenv.load
+
+    Config.setup do |config|
+      config.const_name = "Settings"
+      config.use_env = true
+      config.env_prefix = "LAUTH_API"
+      config.env_separator = "_"
+      config.env_converter = :downcase
+      config.env_parse_values = true
+    end
+
+    Config.load_and_set_settings(Config.setting_files(__dir__ + "/config", nil))
+
     class APP < Hanami::API
+      module Authentication
+        private
+
+        def authorized!
+          # puts env
+          halt(401) unless env["HTTP_X_AUTH"] # User Anonymous
+          plain = Base64.decode64(env["HTTP_X_AUTH"])
+          username, password = plain.split(":")
+          user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+          user = user_repo.user(username)
+          halt(401) unless user # User Unknown
+          halt(401) unless user.password == password # User Wrong Password
+        end
+      end
+
+      helpers(Authentication)
+
       get "/" do
+        authorized!
         "This is the Lauth API, and our version is #{Lauth::VERSION}."
       end
 
       get "/clients" do
+        authorized!
+        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
         clients = []
-        Lauth::API.client_repo.clients.each do |client|
+        client_repo.clients.each do |client|
           clients << client.resource_object
         end
         clients.to_json
@@ -26,16 +56,32 @@ module Lauth
       end
 
       post "/clients" do
-        client = Lauth::API.client_repo.create(params)
+        authorized!
+        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        client = client_repo.create(params)
         client.resource_identifier_object.to_json
       end
 
+      get "/users" do
+        authorized!
+        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+        users = []
+        user_repo.users.each do |user|
+          users << user.resource_object
+        end
+        users.to_json
+      end
+
       get "/users/:id" do |id|
+        authorized!
         # The root user should always be present
-        users = DB.rom.relations[:aa_user]
-        user = users.where(userid: params[:id]).one
-        user ||= {error: "User not found: #{params[:id]}"}
-        json(user)
+        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+        user = user_repo.user(params[:id])
+        if user
+          user.resource_object.to_json
+        else
+          {error: "User not found: #{params[:id]}"}
+        end
       end
     end
 
@@ -55,16 +101,10 @@ module Lauth
 
     class BDD
       def self.rom
-        @@rom ||= ::ROM.container(:sql, "mysql2:///#{CONFIG["db"]["name"]}", CONFIG["db"]) do |config|
+        @@rom ||= ::ROM.container(:sql, Settings.db.to_h) do |config|
           config.auto_registration("../lib/lauth/api/rom", namespace: "Lauth::API::ROM")
         end
       end
-    end
-
-    # SERVER
-
-    def self.client_repo
-      Lauth::API::ROM::Repositories::Client.new(BDD.rom)
     end
   end
 end

@@ -10,11 +10,3 @@ Given("there is two clients {string}") do |names|
     Factory[:client, name: name]
   end
 end
-
-When("I enter lauth {string} on the command line") do |args|
-  @output = `bin/lauth #{args}`.chomp
-end
-
-Then("I should see") do |doc_string|
-  expect(@output).to eq(doc_string)
-end

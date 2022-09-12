@@ -8,7 +8,7 @@ module Lauth
               type: "clients",
               id: id.to_s,
               attributes: {
-                name: name
+                name: name.to_s
               }
             }
           end

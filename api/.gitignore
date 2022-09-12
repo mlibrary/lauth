@@ -14,7 +14,10 @@
 .cache/
 
 # Used by dotenv library to load environment variables.
-# .env
+.env
+
+# Used by config library to load local settings.
+/config/settings.local.yml
 
 # Ignore Byebug command history file.
 .byebug_history

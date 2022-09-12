@@ -13,11 +13,9 @@
 # it.
 #
 # See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
-ENV["RACK_ENV"] ||= "test"
-
 require "./api"
-
 require "rom-factory"
+require "database_cleaner/sequel"
 
 Factory = ROM::Factory.configure do |config|
   config.rom = Lauth::API::BDD.rom
@@ -26,12 +24,9 @@ end
 factories_dir = File.expand_path("../../../lib/lauth/api/factories", __FILE__)
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
-require "database_cleaner/sequel"
-
 RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation)
   end
 
   config.around(:each) do |example|

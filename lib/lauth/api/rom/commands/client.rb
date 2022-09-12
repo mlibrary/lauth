@@ -7,7 +7,7 @@ module Lauth
           register_as :client_create
 
           def execute(tuple)
-            client_repo = Lauth::API::ROM::Repositories::Client.new(Lauth::API::BDD.rom)
+            client_repo = Lauth::API::Repositories::Client.new(Lauth::API::BDD.rom)
 
             rv = client_repo.create(tuple)
 

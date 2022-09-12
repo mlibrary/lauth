@@ -1,6 +1,6 @@
 -- Drop all foreign keys; for truncate and data load
 
-ALTER TABLE aa_user DROP FOREIGN KEY user_manager
+ALTER TABLE aa_user DROP FOREIGN KEY user_manager;
 ALTER TABLE aa_user DROP FOREIGN KEY user_lastModifiedBy;
 ALTER TABLE aa_user_grp DROP FOREIGN KEY user_grp_manager;
 ALTER TABLE aa_user_grp DROP FOREIGN KEY user_grp_lastModifiedBy;

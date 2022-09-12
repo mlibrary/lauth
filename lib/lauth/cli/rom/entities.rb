@@ -1,4 +1,5 @@
 require_relative "entities/client"
+require_relative "entities/user"
 
 module Lauth
   module CLI

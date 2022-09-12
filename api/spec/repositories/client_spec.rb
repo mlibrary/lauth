@@ -1,4 +1,4 @@
-RSpec.describe Lauth::API::ROM::Repositories::Client do
+RSpec.describe Lauth::API::Repositories::Client do
   let(:client_repo) { described_class.new(Lauth::API::BDD.rom) }
 
   describe "#clients" do

@@ -6,7 +6,10 @@ on:
   pull_request:
 
 env:
-  RACK_ENV: ci
+  LAUTH_API_DB_HOST: 127.0.0.1
+  LAUTH_API_DB_DATABASE: test
+  LAUTH_API_DB_USER: user
+  LAUTH_API_DB_PASSWORD: password
 
 jobs:
 
@@ -18,7 +21,7 @@ jobs:
         ruby:
           - '3.1.2'
           - '3.0.4'
-          - '2.7.6'
+#          - '2.7.6' hanami-api was resolved to 0.2.0, which depends on Ruby (>= 3.0.0)
 
     services:
       mariadb:
@@ -41,6 +44,8 @@ jobs:
           bundler-cache: true
       - name: Run API install
         run: cd api && bundle install
+      - name: Run DB setup script
+        run: ./db/setup.sh -u user -p password -h 127.0.0.1 test
       - name: Run DB migration
         run: cd api && bundle exec rake db:migrate
       - name: Run API standard

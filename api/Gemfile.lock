@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/hanami/api
+  revision: 10c0d3b79232e933dd4e9e74bb2c6feb4a1f539e
+  ref: 10c0d3b79232e933dd4e9e74bb2c6feb4a1f539e
+  specs:
+    hanami-api (0.2.0)
+      hanami-router (~> 2.0.alpha)
+
+GIT
   remote: https://github.com/rom-rb/rom-http
   revision: c07813634572503e34f36177636004c6607aa6a6
   ref: c07813634572503e34f36177636004c6607aa6a6
@@ -19,6 +27,9 @@ GEM
     ast (2.4.2)
     builder (3.2.4)
     concurrent-ruby (1.1.10)
+    config (4.0.0)
+      deep_merge (~> 1.2, >= 1.2.1)
+      dry-validation (~> 1.0, >= 1.0.0)
     cucumber (8.0.0)
       builder (~> 3.2, >= 3.2.4)
       cucumber-ci-environment (~> 9.0, >= 9.0.4)
@@ -47,6 +58,7 @@ GEM
     database_cleaner-sequel (2.0.2)
       database_cleaner-core (~> 2.0.0)
       sequel
+    deep_merge (1.2.2)
     diff-lcs (1.5.0)
     dotenv (2.7.6)
     dry-configurable (0.15.0)
@@ -62,6 +74,13 @@ GEM
     dry-logic (1.2.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
+    dry-schema (1.10.2)
+      concurrent-ruby (~> 1.0)
+      dry-configurable (~> 0.13, >= 0.13.0)
+      dry-core (~> 0.5, >= 0.5)
+      dry-initializer (~> 3.0)
+      dry-logic (~> 1.0)
+      dry-types (~> 1.5)
     dry-struct (1.4.0)
       dry-core (~> 0.5, >= 0.5)
       dry-types (~> 1.5)
@@ -72,11 +91,15 @@ GEM
       dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
-    faker (2.22.0)
+    dry-validation (1.8.1)
+      concurrent-ruby (~> 1.0)
+      dry-container (~> 0.7, >= 0.7.1)
+      dry-core (~> 0.5, >= 0.5)
+      dry-initializer (~> 3.0)
+      dry-schema (~> 1.8, >= 1.8.0)
+    faker (2.23.0)
       i18n (>= 1.8.11, < 2)
     ffi (1.15.5)
-    hanami-api (0.2.0)
-      hanami-router (~> 2.0.alpha)
     hanami-router (2.0.0.beta2)
       mustermann (~> 1.0)
       mustermann-contrib (~> 1.0)
@@ -155,7 +178,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
-    rubocop (1.35.0)
+    rubocop (1.35.1)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.2.1)
@@ -172,10 +195,10 @@ GEM
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.5)
-    sequel (5.59.0)
+    sequel (5.60.1)
     sqlite3 (1.4.4)
-    standard (1.16.0)
-      rubocop (= 1.35.0)
+    standard (1.16.1)
+      rubocop (= 1.35.1)
       rubocop-performance (= 1.14.3)
     sys-uname (1.2.2)
       ffi (~> 1.1)
@@ -186,10 +209,11 @@ PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  config (~> 4.0.0)
   cucumber (~> 8.0.0)
   database_cleaner-sequel
   dotenv (~> 2.7.6)
-  hanami-api (~> 0.2.0)
+  hanami-api!
   mysql2 (~> 0.5.4)
   puma (~> 5.6)
   rack-test

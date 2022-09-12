@@ -2,7 +2,8 @@ source "https://rubygems.org"
 
 gem "cucumber", "~> 8.0.0"
 gem "dotenv", "~> 2.7.6"
-gem "hanami-api", "~> 0.2.0"
+gem "config", "~> 4.0.0"
+gem "hanami-api", git: "https://github.com/hanami/api", ref: "10c0d3b79232e933dd4e9e74bb2c6feb4a1f539e"
 gem "mysql2", "~> 0.5.4"
 gem "puma", "~> 5.6"
 
