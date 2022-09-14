@@ -46,21 +46,21 @@ end
 factories_dir = File.expand_path("../../../lib/lauth/api/factories", __FILE__)
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
+DatabaseCleaner.strategy = :truncation
+
 RSpec.configure do |config|
-  config.before(:suite) do
-    # DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.strategy = :truncation
-  end
-
   config.before(:each) do
-    DatabaseCleaner.start
-  end
-
-  config.after(:each) do
     `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
     DatabaseCleaner.clean
-    # `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
-    `#{MYSQL_CMD} < ../db/keys.sql  2> /dev/null`
+    `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
+    `#{MYSQL_CMD} < ../db/keys.sql 2> /dev/null`
+  end
+
+  config.after(:all) do
+    `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
+    DatabaseCleaner.clean
+    `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
+    `#{MYSQL_CMD} < ../db/keys.sql 2> /dev/null`
   end
 
   # rspec-expectations config goes here. You can use an alternate

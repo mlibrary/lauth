@@ -19,11 +19,26 @@ module Lauth
       subcommand_option_handling :normal
       arguments :strict
 
+      accept(Hash) do |value|
+        result = {}
+        value.split(",").each do |pair|
+          k, v = pair.split(":")
+          result[k.to_sym] = v
+        end
+        result
+      end
+
       desc "Verbose"
-      switch [:v, :verbose], negatable: false
+      switch [:v, :verbose]
+
+      desc "Headers"
+      switch [:h, :headers]
 
       desc "Lauth API URL"
       flag [:r, :route], arg_name: "route", default_value: "http://127.0.0.1:9292"
+
+      desc "Separator"
+      flag [:s, :separator], arg_name: "{comma, tab}", default_value: "comma", must_match: %w[comma tab]
 
       desc "Authorized user name"
       flag [:u, :user], arg_name: "user", default_value: "lauth"
@@ -40,8 +55,16 @@ module Lauth
         # Use skips_pre before a command to skip this block
         # on that command only
         credentials = Base64.encode64("#{global[:user]}:#{global[:password]}").chomp
+
         $rom = ::ROM.container(:http, uri: global[:route], headers: {X_AUTH: credentials}, handlers: :handlers) do |config| # standard:disable Style/GlobalVars
           config.auto_registration("../lib/lauth/cli/rom", namespace: "Lauth::CLI::ROM")
+        end
+
+        $separator = case global[:separator] # standard:disable Style/GlobalVars
+        when "comma"
+          ","
+        when "tab"
+          "\t"
         end
 
         true

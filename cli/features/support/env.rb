@@ -31,16 +31,22 @@ end
 factories_dir = File.expand_path("../../../../lib/lauth/api/factories", __FILE__)
 Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 
+DatabaseCleaner.strategy = :truncation
+
 BeforeAll do
-  # puts "BeforeAll"
   puts `./bin/lauth --user=root --password="!none" --route=http://127.0.0.1:9292 initconfig --force`
   puts `cat ~/.lauth.rc`
-  # DatabaseCleaner.clean_with :truncation
-  # DatabaseCleaner.strategy = :transaction
-  DatabaseCleaner.strategy = :truncation
+  `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
+  DatabaseCleaner.clean
+  `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
+  `#{MYSQL_CMD} < ../db/keys.sql 2> /dev/null`
 end
 
 AfterAll do
+  `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
+  DatabaseCleaner.clean
+  `#{MYSQL_CMD} < ../db/root.sql 2> /dev/null`
+  `#{MYSQL_CMD} < ../db/keys.sql 2> /dev/null`
 end
 
 # NOTE: Around will mask Before and After a.k.a. XOR

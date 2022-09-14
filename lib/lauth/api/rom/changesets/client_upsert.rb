@@ -2,7 +2,7 @@ module Lauth
   module API
     module ROM
       module Changesets
-        class User < ::ROM::Changeset::Stateful[:users]
+        class ClientUpsert < ::ROM::Changeset::Stateful[:clients]
           command_type :upsert
           # relation :clients
           # register_as :client_create

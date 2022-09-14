@@ -5,7 +5,7 @@ Feature: Authenticate
     When I visit "users/root"
     Then I should see
       """
-      Unauthorized
+      {"errors":[{"error":{"code":401,"msg":"Unauthorized"}}]}
       """
 
   Scenario: User Unknown
@@ -13,7 +13,7 @@ Feature: Authenticate
     When I visit "users/root"
     Then I should see
       """
-      Unauthorized
+      {"errors":[{"error":{"code":401,"msg":"Unauthorized"}}]}
       """
 
   Scenario: User Wrong Password
@@ -21,7 +21,7 @@ Feature: Authenticate
     When I visit "users/root"
     Then I should see
       """
-      Unauthorized
+      {"errors":[{"error":{"code":401,"msg":"Unauthorized"}}]}
       """
 
   Scenario: User Correct Password
@@ -29,5 +29,5 @@ Feature: Authenticate
     When I visit "users/root"
     Then I should see
       """
-      {"type":"users","id":"root","attributes":{"name":"User"}}
+      {"data":{"type":"users","id":"root","attributes":{"name":"User"}}}
       """

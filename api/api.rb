@@ -27,13 +27,14 @@ module Lauth
 
         def authorized!
           # puts env
-          halt(401) unless env["HTTP_X_AUTH"] # User Anonymous
+          errors = '{"errors":[{"error":{"code":401,"msg":"Unauthorized"}}]}'
+          halt(401, errors) unless env["HTTP_X_AUTH"] # User Anonymous
           plain = Base64.decode64(env["HTTP_X_AUTH"])
           username, password = plain.split(":")
           user_repo = Lauth::API::Repositories::User.new(BDD.rom)
-          user = user_repo.user(username)
-          halt(401) unless user # User Unknown
-          halt(401) unless user.password == password # User Wrong Password
+          user = user_repo.read(username)
+          halt(401, errors) unless user # User Unknown
+          halt(401, errors) unless user.password == password # User Wrong Password
         end
       end
 
@@ -43,43 +44,248 @@ module Lauth
         "This is the Lauth API, and our version is #{Lauth::VERSION}."
       end
 
+      # CLIENTS
+
+      # index clients
       get "/clients" do
         authorized!
-        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        document = {}
         clients = []
-        client_repo.clients.each do |client|
+        repo.index.each do |client|
           clients << client.resource_object
         end
-        clients.to_json
-        # [clients.count].to_s
+        document[:data] = clients
+        document.to_json
       end
 
+      # create client
       post "/clients" do
         authorized!
-        client_repo = Lauth::API::Repositories::Client.new(BDD.rom)
-        client = client_repo.create(params)
-        client.resource_identifier_object.to_json
+        repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        client = repo.create(document)
+
+        if client
+          document = {}
+          document[:data] = client.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":403,"msg":"Forbidden"}}]}'
+          halt(403, errors)
+        end
       end
 
+      # read client
+      get "/clients/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        client = repo.read(params[:id])
+
+        if client
+          document = {}
+          document[:data] = client.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # update client
+      put "/clients/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        client = repo.update(document)
+
+        if client
+          document = {}
+          document[:data] = client.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # delete client
+      delete "/clients/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Client.new(BDD.rom)
+        client = repo.read(params[:id])
+
+        if client
+          repo.delete(params[:id])
+          document = {}
+          document[:data] = client.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # INSTITUTIONS
+
+      # index institutions
+      get "/institutions" do
+        authorized!
+        repo = Lauth::API::Repositories::Institution.new(BDD.rom)
+        document = {}
+        institutions = []
+        repo.index.each do |institution|
+          institutions << institution.resource_object
+        end
+        document[:data] = institutions
+        document.to_json
+      end
+
+      # create institution
+      post "/institutions" do
+        authorized!
+        repo = Lauth::API::Repositories::Institution.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        institution = repo.create(document)
+
+        if institution
+          document = {}
+          document[:data] = institution.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":403,"msg":"Forbidden"}}]}'
+          halt(403, errors)
+        end
+      end
+
+      # read institution
+      get "/institutions/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Institution.new(BDD.rom)
+        institution = repo.read(params[:id])
+
+        if institution
+          document = {}
+          document[:data] = institution.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # update institution
+      put "/institutions/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Institution.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        institution = repo.update(document)
+
+        if institution
+          document = {}
+          document[:data] = institution.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # delete institution
+      delete "/institutions/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::Institution.new(BDD.rom)
+        institution = repo.read(params[:id])
+
+        if institution
+          repo.delete(params[:id])
+          document = {}
+          document[:data] = institution.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # USERS
+
+      # index users
       get "/users" do
         authorized!
-        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
+        repo = Lauth::API::Repositories::User.new(BDD.rom)
+        document = {}
         users = []
-        user_repo.users.each do |user|
+        repo.index.each do |user|
           users << user.resource_object
         end
-        users.to_json
+        document[:data] = users
+        document.to_json
       end
 
+      # create user
+      post "/users" do
+        authorized!
+        repo = Lauth::API::Repositories::User.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        user = repo.create(document)
+
+        if user
+          document = {}
+          document[:data] = user.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":403,"msg":"Forbidden"}}]}'
+          halt(403, errors)
+        end
+      end
+
+      # read user
       get "/users/:id" do |id|
         authorized!
-        # The root user should always be present
-        user_repo = Lauth::API::Repositories::User.new(BDD.rom)
-        user = user_repo.user(params[:id])
+        repo = Lauth::API::Repositories::User.new(BDD.rom)
+        user = repo.read(params[:id])
+
         if user
-          user.resource_object.to_json
+          document = {}
+          document[:data] = user.resource_object
+          document.to_json
         else
-          {error: "User not found: #{params[:id]}"}
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # update user
+      put "/users/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::User.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        user = repo.update(document)
+
+        if user
+          document = {}
+          document[:data] = user.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # delete user
+      delete "/users/:id" do |id|
+        authorized!
+        repo = Lauth::API::Repositories::User.new(BDD.rom)
+        user = repo.delete(params[:id])
+
+        if user
+          document = {}
+          document[:data] = user.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
         end
       end
     end

@@ -3,22 +3,22 @@ module Lauth
     module Handlers
       class Response < ::ROM::HTTP::Handlers::JSONResponse
         def self.call(response, dataset)
-          case response.code
-          when "200"
-            json = JSON.parse(response.body)
-
-            # array = []
-            # json.each do |record|
-            #   array << { id: record["id"], name: record["attributes"]["name"] }
-            # end
-            # array
-            #
-            json.map do |record|
-              {id: record["id"]}.merge!(record["attributes"])
+          status = response.code.to_i
+          if status >= 200 && status < 300
+            jsonapi = JSON.parse(response.body)
+            data = Array([jsonapi["data"]]).flatten
+            array = []
+            data.each do |obj|
+              array << {"id" => obj["id"]}.merge(obj["attributes"]).transform_keys { |key| key.to_sym }
+            end
+            case dataset.request_method
+            when :post, :put
+              array[0]
+            else
+              array
             end
           else
-            warn "#{response.code} : #{response.msg}"
-            {}
+            response.error!
           end
         end
       end

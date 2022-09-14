@@ -1,33 +1,23 @@
 RSpec.describe Lauth::API::Repositories::Client do
-  let(:client_repo) { described_class.new(Lauth::API::BDD.rom) }
+  let(:repo) { described_class.new(Lauth::API::BDD.rom) }
 
-  describe "#clients" do
-    it "empty" do
-      expect(client_repo.clients.count).to eq(0)
+  it "has no clients" do
+    expect(repo.clients.count).to eq(0)
+  end
+
+  describe "#client and #clients" do
+    let!(:client) { Factory[:client, id: 2] }
+
+    it "contains one client" do
+      expect(repo.clients.count).to eq(1)
     end
 
-    context "one client" do
-      let(:client_one) { Factory[:client] }
+    it "finds the new client" do
+      expect(repo.read(2).id).to eq(2)
+    end
 
-      before do
-        client_one
-      end
-
-      it "contains one" do
-        expect(client_repo.clients.count).to eq(1)
-      end
-
-      context "two clients" do
-        let(:client_two) { Factory[:client] }
-
-        before do
-          client_two
-        end
-
-        it "contains two" do
-          expect(client_repo.clients.count).to eq(2)
-        end
-      end
+    it "does NOT find an unknown client" do
+      expect(repo.read(1)).to be nil
     end
   end
 end

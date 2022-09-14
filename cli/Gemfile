@@ -8,7 +8,7 @@ gem "faraday", "~> 2.3.0"
 
 gem "rom", "~> 5.2.6"
 gem "rom-sql", "~> 3.5.0"
-gem "rom-http", git: "https://github.com/rom-rb/rom-http", ref: "c07813634572503e34f36177636004c6607aa6a6"
+gem "rom-http", git: "https://github.com/rom-rb/rom-http", ref: "f0507e52ba5f39a42ccfd24b0b6b88b86984c8de"
 gem "rspec", "~> 3.11"
 gem "standard", "~> 1.12"
 

@@ -4,24 +4,44 @@ module Lauth
   module API
     module Repositories
       class User < AA::User
-        def user(id)
-          users.where(userid: id).one
+        def index
+          undeleted_users
         end
 
-        def users
-          super.rename(userid: :id, userPassword: :password)
+        def create(document)
+          id = document["data"]["id"]
+          user = undeleted_users.where(userid: id).one
+          return nil if user
+
+          if deleted_users.where(userid: id).one
+            deleted_users.where(userid: id).changeset(Lauth::API::ROM::Changesets::UserUpdate, document).commit
+          else
+            undeleted_users.changeset(Lauth::API::ROM::Changesets::UserCreate, document).commit
+          end
+
+          undeleted_users.where(userid: id).one
         end
 
-        def create
-          super
+        def read(id)
+          undeleted_users.where(userid: id).one
         end
 
-        def update
-          super
+        def update(document)
+          id = document["data"]["id"]
+          user = deleted_users.where(userid: id).one
+          return nil if user
+
+          if undeleted_users.where(userid: id).one
+            undeleted_users.where(userid: id).changeset(Lauth::API::ROM::Changesets::UserUpdate, document).commit
+          end
+
+          undeleted_users.where(userid: id).one
         end
 
-        def delete
-          super
+        def delete(id)
+          user = read(id)
+          undeleted_users.where(userid: id).update(dlpsDeleted: "t") if user
+          user
         end
       end
     end

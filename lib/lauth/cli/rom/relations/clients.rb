@@ -10,6 +10,10 @@ module Lauth
 
           struct_namespace Lauth::CLI::ROM::Entities
           auto_struct true
+
+          def by_id(id)
+            append_path(id)
+          end
         end
       end
     end
