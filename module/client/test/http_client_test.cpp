@@ -7,6 +7,8 @@
 using json = nlohmann::json;
 using namespace mlibrary::lauth;
 
+using httplib::detail::params_to_query_str;
+
 TEST(HttpClientTest, GetsUrl) {
     HttpClient client("https://api.github.com");
 
@@ -15,3 +17,4 @@ TEST(HttpClientTest, GetsUrl) {
 
     EXPECT_THAT(mlibrary["name"], "University of Michigan Library");
 }
+

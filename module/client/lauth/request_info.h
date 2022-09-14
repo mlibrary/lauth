@@ -7,6 +7,7 @@ namespace mlibrary::lauth {
     struct RequestInfo {
         std::string uri;
         std::string filename;
+        std::string username;
     };
 };
 

@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "lauth/client.h"
+#include "lauth/consts.h"
 #include "lauth/http_client.h"
 #include "lauth/system.h"
 
@@ -30,6 +31,7 @@ class MockClient : public v1::Client {
     public:
     MockClient() : v1::Client(std::make_unique<MockHttpClient>()) {}
     MOCK_METHOD(v1::User, getUser, (std::string));
+    MOCK_METHOD(AuthenticationMethod, getAuthenticationMethod, (std::string, std::string));
 };
 
 #endif

@@ -85,7 +85,18 @@ int lauth_handler(request_rec *r)
 int lauth_fixups(request_rec *r)
 {
     Authorizer lauth;
-    return lauth.isAuthorized(r);
+    /* return lauth.isAuthorized(r); */
+    // we want to move the config logic to tested code, so splitting that
+    // off into a separate object from the request info and passing two
+    // params makes a little sense... or maybe the relevant config is just
+    // a property of the requestinfo...
+    RequestInfo req {
+        .uri = r->whatever,
+        .filename = r->somethingelse,
+        .blah = config->yada
+    };
+    auto result = lauth.process(req);
+    return result.status;
 }
 
 void lauth_register_hooks(apr_pool_t *p)
