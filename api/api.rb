@@ -40,7 +40,6 @@ module Lauth
       helpers(Authentication)
 
       get "/" do
-        authorized!
         "This is the Lauth API, and our version is #{Lauth::VERSION}."
       end
 

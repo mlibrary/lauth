@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web # this name is up to you
+  namespace: gkostin-sandbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # these must be the same as spec.template.metadata.labels below
+      app: web
+  template:
+    metadata:
+      labels: # these must be the same as spec.selector.matchLabels above
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: ghcr.io/mlibrary/lauth/lauth-api:latest
+          ports:
+            - containerPort: 9292 # set this to the port your app runs on
+              name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: gkostin-sandbox
+spec:
+  selector: # this should match the above labels/matchLabels objects
+    app: web
+  ports:
+    - name: web
+      port: 80
+      targetPort: web # this is the name you give the port in the deployment's spec.template.spec.containers[].ports[]
