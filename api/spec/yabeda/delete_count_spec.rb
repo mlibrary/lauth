@@ -22,6 +22,13 @@ RSpec.describe "Yabeda.lauth.delete_count" do
       .by(1)
   end
 
+  it "resource networks" do
+    expect { delete "/networks/1", {}, headers }
+      .to increment_yabeda_counter(Yabeda.lauth.delete_count)
+      .with_tags(resource: "networks")
+      .by(1)
+  end
+
   it "resource users" do
     expect { delete "/users/user", {}, headers }
       .to increment_yabeda_counter(Yabeda.lauth.delete_count)

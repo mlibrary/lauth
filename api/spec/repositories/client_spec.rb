@@ -2,14 +2,14 @@ RSpec.describe Lauth::API::Repositories::Client do
   let(:repo) { described_class.new(Lauth::API::BDD.rom) }
 
   it "has no clients" do
-    expect(repo.clients.count).to eq(0)
+    expect(repo.index.count).to eq(0)
   end
 
   describe "#client and #clients" do
     let!(:client) { Factory[:client, id: 2] }
 
     it "contains one client" do
-      expect(repo.clients.count).to eq(1)
+      expect(repo.index.count).to eq(1)
     end
 
     it "finds the new client" do

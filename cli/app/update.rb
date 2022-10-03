@@ -2,6 +2,11 @@ module Lauth
   module CLI
     module APP
       desc "Update Resource"
+      long_desc %(
+          Attributes are a comma separated list of colon separated key value pairs.
+
+          name:wolverine,year:1817,city:"Ann Arbor",state:Michigan
+      )
       arg_name "Resource"
       command :update do |update|
         update.desc "Update Client"
@@ -38,12 +43,29 @@ module Lauth
           end
         end
 
+        update.desc "Update Network"
+        update.arg "id"
+        update.arg "attributes", type: Hash
+        update.command :network do |network|
+          network.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+            attributes = accepts[Hash].call(args[1])
+
+            repo = Lauth::CLI::Repositories::Network.new($rom) # standard:disable Style/GlobalVars
+            updated_network = repo.update(id, attributes)
+
+            puts "#{updated_network.id}#{$separator}#{updated_network.cidr}#{$separator}#{updated_network.access}" if updated_network # standard:disable Style/GlobalVars
+          end
+        end
+
         update.desc "Update User"
         update.arg "id"
         update.arg "attributes", type: Hash
-        update.command :user do |usr|
+        update.command :user do |user|
           # user.desc "User ID"
-          usr.action do |global_options, options, args|
+          user.action do |global_options, options, args|
             # If you have any errors, just raise them
             raise "that command made no sense" unless args
             id = args[0]

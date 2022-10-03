@@ -244,6 +244,98 @@ module Lauth
         end
       end
 
+      # NETWORKS
+
+      # index networks
+      get "/networks" do
+        Yabeda.lauth.index_count.increment({resource: "networks"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Network.new(BDD.rom)
+        document = {}
+        networks = []
+        repo.index.each do |network|
+          networks << network.resource_object
+        end
+        document[:data] = networks
+        document.to_json
+      end
+
+      # create network
+      post "/networks" do
+        Yabeda.lauth.create_count.increment({resource: "networks"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Network.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        network = repo.create(document)
+
+        if network
+          document = {}
+          document[:data] = network.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":403,"msg":"Forbidden"}}]}'
+          halt(403, errors)
+        end
+      end
+
+      # read network
+      get "/networks/:id" do |id|
+        Yabeda.lauth.read_count.increment({resource: "networks"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Network.new(BDD.rom)
+        network = repo.read(params[:id])
+
+        if network
+          document = {}
+          document[:data] = network.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # update network
+      put "/networks/:id" do |id|
+        Yabeda.lauth.update_count.increment({resource: "networks"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Network.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        network = repo.update(document)
+
+        if network
+          document = {}
+          document[:data] = network.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # delete network
+      delete "/networks/:id" do |id|
+        Yabeda.lauth.delete_count.increment({resource: "networks"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Network.new(BDD.rom)
+        network = repo.read(params[:id])
+
+        if network
+          repo.delete(params[:id])
+          document = {}
+          document[:data] = network.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
       # USERS
 
       # index users

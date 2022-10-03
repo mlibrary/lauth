@@ -34,6 +34,21 @@ module Lauth
           end
         end
 
+        delete.desc "Delete Network"
+        delete.arg_name "id"
+        delete.command :network do |network|
+          network.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+
+            repo = Lauth::CLI::Repositories::Network.new($rom) # standard:disable Style/GlobalVars
+            deleted_network = repo.delete(id)
+
+            puts "#{deleted_network.id}#{$separator}#{deleted_network.cidr}#{$separator}#{deleted_network.access}" if deleted_network # standard:disable Style/GlobalVars
+          end
+        end
+
         delete.desc "Delete User"
         delete.arg_name "id"
         delete.command :user do |user|

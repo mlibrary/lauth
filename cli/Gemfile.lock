@@ -49,9 +49,9 @@ GEM
       sequel
     diff-lcs (1.5.0)
     dotenv (2.7.6)
-    dry-configurable (0.15.0)
-      concurrent-ruby (~> 1.0)
+    dry-configurable (0.16.1)
       dry-core (~> 0.6)
+      zeitwerk (~> 2.6)
     dry-container (0.11.0)
       concurrent-ruby (~> 1.0)
     dry-core (0.8.1)
@@ -74,15 +74,12 @@ GEM
       dry-logic (~> 1.0, >= 1.0.2)
     faker (2.23.0)
       i18n (>= 1.8.11, < 2)
-    faraday (2.3.0)
-      faraday-net_http (~> 2.0)
-      ruby2_keywords (>= 0.0.4)
-    faraday-net_http (2.1.0)
     ffi (1.15.5)
     gli (2.21.0)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
+    ipaddress (0.8.3)
     json (2.6.2)
     mime-types (3.4.1)
       mime-types-data (~> 3.2015)
@@ -161,9 +158,8 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
-    ruby2_keywords (0.0.5)
     sequel (5.61.0)
-    sqlite3 (1.5.2-arm64-darwin)
+    sqlite3 (1.5.3-arm64-darwin)
     standard (1.16.1)
       rubocop (= 1.35.1)
       rubocop-performance (= 1.14.3)
@@ -171,6 +167,7 @@ GEM
       ffi (~> 1.1)
     transproc (1.1.1)
     unicode-display_width (2.3.0)
+    zeitwerk (2.6.1)
 
 PLATFORMS
   arm64-darwin-21
@@ -179,8 +176,8 @@ DEPENDENCIES
   cucumber (~> 8.0.0)
   database_cleaner-sequel
   dotenv (~> 2.7.6)
-  faraday (~> 2.3.0)
   gli
+  ipaddress
   mysql2 (~> 0.5.4)
   rack-test
   rake

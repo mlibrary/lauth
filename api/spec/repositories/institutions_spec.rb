@@ -2,7 +2,7 @@ RSpec.describe Lauth::API::Repositories::Institution do
   let(:repo) { described_class.new(Lauth::API::BDD.rom) }
 
   it "has no institutions" do
-    expect(repo.institutions.count).to eq(0)
+    expect(repo.index.count).to eq(0)
   end
 
   describe "#institution and #institutions" do
