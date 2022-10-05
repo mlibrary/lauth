@@ -1,0 +1,29 @@
+#!/bin/sh
+
+pwd=$(pwd)
+echo "pwd: $pwd"
+
+echo "script: $0"
+echo "script dirname: $(dirname $0)"
+bin=$(dirname $0)
+
+# Load environment variables from .env file in working directory
+eval "$($bin/shdotenv)"
+
+export ENVSUBST_NAMESPACE="${pwd##*/}"
+echo "namespace: $ENVSUBST_NAMESPACE"
+
+#for file_path in "${l:-../templates}"/*
+for file_path in `find ../templates -type f`
+do
+#  echo "file_path: $file_path"
+  file_name="${file_path##*/}"
+#  echo "file_name: $file_name"
+#  file_extension="${file_name##*.}"
+#  echo "file_extension: $file_extension"
+#  file_base="${file_name%.*}"
+#  echo "file_base: $file_base"
+
+  echo "envsubst < $file_path > $file_name"
+  envsubst '$ENVSUBST_NAMESPACE $ENVSUBST_API_ROOT_USER $ENVSUBST_API_ROOT_PASSWORD $ENVSUBST_DB_ROOT_PASSWORD $ENVSUBST_DB_DATABASE $ENVSUBST_DB_USER $ENVSUBST_DB_PASSWORD' < $file_path > $file_name
+done

@@ -1,0 +1,58 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: lauth
+  name: db
+  namespace: lauth-testing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lauth
+  template:
+    metadata:
+      labels:
+        app: lauth
+    spec:
+      volumes:
+        - name: db-pv
+          persistentVolumeClaim:
+            claimName: db-persistent-volume
+      containers:
+        - name: db
+          image: bitnami/mariadb
+          volumeMounts:
+            - name: db-pv
+              mountPath: /var/lib/mysql
+          env:
+            - name: MARIADB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_database
+            - name: MARIADB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_user
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_password
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+               secretKeyRef:
+                 name: lauth-secret
+                 key: db_root_password
+            - name: MARIADB_ROOT_HOST
+              value: localhost
+            - name: MARIADB_MYSQL_LOCALHOST_USER
+              value: non_empty_value
+            - name: TZ
+              value: America/Detroit
+          ports:
+            - containerPort: 3306
+              name: db

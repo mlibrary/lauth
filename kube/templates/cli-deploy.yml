@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: lauth
+  name: cli
+  namespace: $ENVSUBST_NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lauth
+  template:
+    metadata:
+      labels:
+        app: lauth
+    spec:
+      containers:
+        - name: cli
+          image: ghcr.io/mlibrary/lauth/lauth-cli:latest
+          env:
+            - name: LAUTH_API_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: api_root_user
+            - name: LAUTH_API_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: api_root_password

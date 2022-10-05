@@ -41,7 +41,7 @@ module Lauth
       helpers(Authentication)
 
       get "/" do
-        "This is the Lauth API, and our version is #{Lauth::VERSION}."
+        Settings.db.to_h.to_s
       end
 
       # CLIENTS
