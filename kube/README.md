@@ -96,9 +96,12 @@ stringData:
 Apply the yaml files in the following order.
 ```shell
 $ kubectl apply --filename lauth-secret.yml
-$ kubectl apply --filename db-svc.yml
 $ kubectl apply --filename db-pvc.yml
+$ kubectl apply --filename db-svc.yml
 $ kubectl apply --filename db-deploy.yml
+```
+Pause here to allow the database some time to come up.
+```shell
 $ kubectl apply --filename db-setup-job.yml
 $ kubectl apply --filename db-migrate-job.yml
 $ kubectl apply --filename api-svc.yml
