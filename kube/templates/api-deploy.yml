@@ -15,6 +15,10 @@ spec:
     metadata:
       labels:
         app: lauth
+    annotations:
+      mlibrary.io/prometheus-scrape: "true"
+      mlibrary.io/prometheus-port: "9394"
+      mlibrary.io/prometheus-path: "/metrics" # optional; defaults to /metrics
     spec:
       containers:
         - name: api
@@ -40,3 +44,5 @@ spec:
           ports:
             - containerPort: 9292
               name: api
+            - containerPort: 9394
+              name: metrics

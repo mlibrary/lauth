@@ -1,4 +1,55 @@
 # kubectl
+## Interactive Bash Shell
+Lauth CLI
+```shell
+$ kubectl --namespace=lauth-testing exec --stdin --tty deployment.apps/cli -- /bin/bash
+lauth@cli-6b56c9569b-b8d6h:~/cli$ pwd
+/lauth/cli
+
+lauth@cli-6b56c9569b-b8d6h:~/cli$ env | grep LAUTH
+LAUTH_API_ROOT_PASSWORD=!none
+LAUTH_API_ROOT_USER=root
+
+lauth@cli-6b56c9569b-b8d6h:~/cli$ ./bin/lauth --user=$LAUTH_API_ROOT_USER --password=$LAUTH_API_ROOT_PASSWORD --route=http://api:9292 initconfig
+create:client
+create:institution
+create:network
+create:user
+delete:client
+delete:institution
+delete:network
+delete:user
+list:clients
+list:institutions
+list:networks
+list:users
+read:client
+read:institution
+read:network
+read:user
+update:client
+update:institution
+update:network
+update:user
+Configuration file '/lauth/.lauth.rc' written.
+
+lauth@cli-6b56c9569b-b8d6h:~/cli$ ./bin/lauth list users
+root,User
+```
+## Port Mapping
+Lauth API
+```shell
+$ kubectl --namespace=lauth-testing port-forward service/api 9292
+Forwarding from 127.0.0.1:9292 -> 9292
+Forwarding from [::1]:9292 -> 9292
+```
+Prometheus
+```shell
+$ kubectl --namespace=lauth-monitor port-forward service/prometheus-server 9090
+Forwarding from 127.0.0.1:9090 -> 9090
+Forwarding from [::1]:9090 -> 9090
+```
+## Deployment
 Configure kubectl to use the deployment namespace.
 ```shell
 $ kubectl config use lauth-testing        
@@ -11,14 +62,14 @@ $ pwd
  
 $ mkdir lauth-testing
 ```
-Change directory to the deployment namespace directory to making it your present working directory.
+Change directory to the deployment namespace directory making it your present working directory.
 ```shell
 $ cd lauth-testing
 
 $ pwd
  /Users/foo/.../bar/mlibrary/lauth/kube/lauth-testing
 ```
-Create the database setup configuration map by executing create-db-setup-configmap.
+Create the database setup configuration map by executing create-db-setup-configmap script.
 ```shell
 $ cat ../bin/create-db-setup-configmap 
 #!/bin/sh
@@ -33,7 +84,7 @@ $ ../bin/yml-envsubst
 pwd: /Users/foo/.../bar/mlibrary/lauth/kube/lauth-example
 script: ../bin/yml-envsubst
 script dirname: ../bin
-namespace: lauth-example
+namespace: lauth-testing
 envsubst < ../templates/lauth-secret.yml > lauth-secret.yml
 envsubst < ../templates/cli-deploy.yml > cli-deploy.yml
 envsubst < ../templates/db-pvc.yml > db-pvc.yml
@@ -136,8 +187,7 @@ NAME                   COMPLETIONS   DURATION   AGE
 job.batch/db-migrate   1/1           5s         8m57s
 job.batch/db-setup     1/1           5s         9m16s
 
-$ kubectl exec --stdin --tty pod/cli-6b56c9569b-b8d6h -- /bin/bash                        
-
+$ kubectl --namespace=lauth-testing exec --stdin --tty deployment.apps/cli -- /bin/bash
 lauth@cli-6b56c9569b-b8d6h:~/cli$ pwd
 /lauth/cli
 ```

@@ -6,6 +6,9 @@ require "base64"
 $LOAD_PATH.unshift(File.expand_path("../../lib", __FILE__))
 require "lauth"
 
+require "yabeda"
+require "yabeda/prometheus"
+
 module Lauth
   module API
     Dotenv.load
@@ -21,7 +24,20 @@ module Lauth
 
     Config.load_and_set_settings(Config.setting_files(__dir__ + "/config", nil))
 
+    Yabeda.configure do
+      group :lauth do
+        counter :index_count, comment: "Total number of index request", tags: %i[resource]
+        counter :create_count, comment: "Total number of create request", tags: %i[resource]
+        counter :read_count, comment: "Total number of read request", tags: %i[resource]
+        counter :update_count, comment: "Total number of update request", tags: %i[resource]
+        counter :delete_count, comment: "Total number of delete request", tags: %i[resource]
+      end
+    end
+
     class APP < Hanami::API
+      Yabeda.configure!
+      # Yabeda.debug!
+
       module Authentication
         private
 
@@ -48,7 +64,9 @@ module Lauth
 
       # index clients
       get "/clients" do
+        Yabeda.lauth.index_count.increment({resource: "clients"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Client.new(BDD.rom)
         document = {}
         clients = []
@@ -61,7 +79,9 @@ module Lauth
 
       # create client
       post "/clients" do
+        Yabeda.lauth.create_count.increment({resource: "clients"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Client.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         client = repo.create(document)
@@ -78,7 +98,9 @@ module Lauth
 
       # read client
       get "/clients/:id" do |id|
+        Yabeda.lauth.read_count.increment({resource: "clients"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Client.new(BDD.rom)
         client = repo.read(params[:id])
 
@@ -94,7 +116,9 @@ module Lauth
 
       # update client
       put "/clients/:id" do |id|
+        Yabeda.lauth.update_count.increment({resource: "clients"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Client.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         client = repo.update(document)
@@ -111,7 +135,9 @@ module Lauth
 
       # delete client
       delete "/clients/:id" do |id|
+        Yabeda.lauth.delete_count.increment({resource: "clients"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Client.new(BDD.rom)
         client = repo.read(params[:id])
 
@@ -130,7 +156,9 @@ module Lauth
 
       # index institutions
       get "/institutions" do
+        Yabeda.lauth.index_count.increment({resource: "institutions"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Institution.new(BDD.rom)
         document = {}
         institutions = []
@@ -143,7 +171,9 @@ module Lauth
 
       # create institution
       post "/institutions" do
+        Yabeda.lauth.create_count.increment({resource: "institutions"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Institution.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         institution = repo.create(document)
@@ -160,7 +190,9 @@ module Lauth
 
       # read institution
       get "/institutions/:id" do |id|
+        Yabeda.lauth.read_count.increment({resource: "institutions"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Institution.new(BDD.rom)
         institution = repo.read(params[:id])
 
@@ -176,7 +208,9 @@ module Lauth
 
       # update institution
       put "/institutions/:id" do |id|
+        Yabeda.lauth.update_count.increment({resource: "institutions"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Institution.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         institution = repo.update(document)
@@ -193,7 +227,9 @@ module Lauth
 
       # delete institution
       delete "/institutions/:id" do |id|
+        Yabeda.lauth.delete_count.increment({resource: "institutions"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::Institution.new(BDD.rom)
         institution = repo.read(params[:id])
 
@@ -212,7 +248,9 @@ module Lauth
 
       # index users
       get "/users" do
+        Yabeda.lauth.index_count.increment({resource: "users"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::User.new(BDD.rom)
         document = {}
         users = []
@@ -225,7 +263,9 @@ module Lauth
 
       # create user
       post "/users" do
+        Yabeda.lauth.create_count.increment({resource: "users"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::User.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         user = repo.create(document)
@@ -242,7 +282,9 @@ module Lauth
 
       # read user
       get "/users/:id" do |id|
+        Yabeda.lauth.read_count.increment({resource: "users"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::User.new(BDD.rom)
         user = repo.read(params[:id])
 
@@ -258,7 +300,9 @@ module Lauth
 
       # update user
       put "/users/:id" do |id|
+        Yabeda.lauth.update_count.increment({resource: "users"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::User.new(BDD.rom)
         document = JSON.parse(env["rack.input"].gets)
         user = repo.update(document)
@@ -275,7 +319,9 @@ module Lauth
 
       # delete user
       delete "/users/:id" do |id|
+        Yabeda.lauth.delete_count.increment({resource: "users"}, by: 1)
         authorized!
+
         repo = Lauth::API::Repositories::User.new(BDD.rom)
         user = repo.delete(params[:id])
 

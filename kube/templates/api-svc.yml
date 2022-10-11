@@ -13,3 +13,5 @@ spec:
   ports:
     - port: 9292
       name: api
+    - port: 9394
+      name: metrics
