@@ -25,7 +25,7 @@ spec:
           image: bitnami/mariadb
           volumeMounts:
             - name: db-pv
-              mountPath: /var/lib/mysql
+              mountPath: /bitnami/mariadb
           env:
             - name: MARIADB_DATABASE
               valueFrom:
