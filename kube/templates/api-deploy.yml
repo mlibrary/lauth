@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: lauth
+  name: api
+  namespace: $ENVSUBST_NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lauth
+  template:
+    metadata:
+      labels:
+        app: lauth
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/mlibrary/lauth/lauth-api:latest
+          env:
+            - name: LAUTH_API_DB_HOST
+              value: db
+            - name: LAUTH_API_DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_database
+            - name: LAUTH_API_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_user
+            - name: LAUTH_API_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_password
+          ports:
+            - containerPort: 9292
+              name: api

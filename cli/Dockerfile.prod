@@ -10,6 +10,7 @@ LABEL maintainer="dla-staff@umich.edu"
 
 # Install Vim (optional)
 RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
+  default-mysql-client \
   vim-tiny
 
 RUN gem install bundler:${BUNDLER_VERSION}
@@ -17,6 +18,8 @@ RUN gem install bundler:${BUNDLER_VERSION}
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 RUN mkdir -p /lauth/api
+RUN mkdir -p /lauth/cli
+RUN mkdir -p /lauth/db
 RUN mkdir -p /lauth/lib
 RUN mkdir -p /lauth/gems
 
@@ -26,12 +29,17 @@ WORKDIR /lauth/api
 COPY api/Gemfile* /lauth/api
 RUN bundle install
 
+WORKDIR /lauth/cli
+COPY cli/Gemfile* /lauth/cli
+RUN bundle install
+
 COPY api/ /lauth/api
+COPY cli/ /lauth/cli
+COPY db/ /lauth/db
 COPY lib/ /lauth/lib
 
 RUN chown -R ${UID}:${GID} /lauth
 
 USER $UNAME
 
-EXPOSE 9292
-CMD ["bin/rackup", "-o", "0.0.0.0", "-p", "9292"]
+CMD ["sleep", "infinity"]

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+kubectl create configmap db-setup --from-file=../../db

@@ -1,0 +1,35 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: lauth
+  name: db-migrate
+  namespace: $ENVSUBST_NAMESPACE
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-migrate
+          image: ghcr.io/mlibrary/lauth/lauth-api:latest
+          env:
+            - name: LAUTH_API_DB_HOST
+              value: db
+            - name: LAUTH_API_DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_database
+            - name: LAUTH_API_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_user
+            - name: LAUTH_API_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_password
+          command: [ 'sh', '-c', 'bundle exec rake db:migrate']
+  backoffLimit: 0

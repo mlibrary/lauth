@@ -1,0 +1,41 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: lauth
+  name: db-setup
+  namespace: lauth-testing
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: db-setup
+          configMap:
+            name: db-setup
+      containers:
+        - name: db-setup
+          image: bitnami/mariadb
+          volumeMounts:
+            - name: db-setup
+              mountPath: /sql
+              readOnly: true
+          env:
+            - name: MARIADB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_database
+            - name: MARIADB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_user
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: lauth-secret
+                  key: db_password
+          command: [ 'sh', '-c', 'cp /sql/* /tmp && chmod +x /tmp/setup.sh && /tmp/setup.sh -u $MARIADB_USER -p $MARIADB_PASSWORD -h db $MARIADB_DATABASE' ]
+  backoffLimit: 0
