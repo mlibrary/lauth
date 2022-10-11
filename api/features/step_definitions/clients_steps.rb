@@ -1,12 +1,5 @@
-Given("there are no clients") do
-end
-
-Given("there is one client {string}") do |name|
-  Factory[:client, name: name]
-end
-
-Given("there is two clients {string}") do |names|
-  names.split.each do |name|
-    Factory[:client, name: name]
+Given("the following clients exist:") do |table|
+  table.hashes.each do |row|
+    Factory[:client, id: row["id"].to_i, name: row["name"]]
   end
 end

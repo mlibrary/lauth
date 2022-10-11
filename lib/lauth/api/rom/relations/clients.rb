@@ -5,14 +5,6 @@ module Lauth
         class Clients < ::ROM::Relation[:sql]
           schema(:clients, infer: true)
 
-          # dataset do
-          #   select(:id, :name).order(:name)
-          # end
-
-          def listing
-            select(:id, :name).order(:name)
-          end
-
           struct_namespace Entities
           auto_struct true
         end

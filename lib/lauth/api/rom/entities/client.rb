@@ -3,20 +3,15 @@ module Lauth
     module ROM
       module Entities
         class Client < ::ROM::Struct
-          def resource_object
-            {
-              type: "clients",
-              id: id.to_s,
-              attributes: {
-                name: name.to_s
-              }
-            }
+          include Entity
+
+          def type
+            "clients"
           end
 
-          def resource_identifier_object
+          def attributes
             {
-              type: "clients",
-              id: id.to_s
+              name: name.to_s
             }
           end
         end

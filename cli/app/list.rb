@@ -1,37 +1,60 @@
 module Lauth
   module CLI
     module APP
-      desc "Describe list here"
-      arg_name "Describe arguments to list here"
-      command :list do |c|
-        # c.desc "Describe a switch to list"
-        # c.switch :s
+      desc "List Resource"
+      arg_name "Resource"
+      command :list do |list|
+        desc "Page List Size"
+        list.flag [:pagesize], arg_name: "page_size", default_value: 10
 
-        # c.desc "Describe a flag to list"
-        # c.default_value "default"
-        # c.flag :f
+        desc "Page Number"
+        list.flag [:pagenumber], arg_name: "page_number", default_value: -1
 
-        c.action do |global_options, options, args|
-          # Your command logic
+        desc "Regulare Expression"
+        list.flag [:regex], arg_name: "regular_expression", default_value: ".*"
 
-          # If you have any errors, just raise them
-          raise "that command made no sense" unless args
+        list.desc "List Clients"
+        list.command :clients do |clients|
+          clients.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
 
-          case Array(args)[0]
-          when "users"
-            user_repo = Lauth::CLI::Repositories::User.new($rom) # standard:disable Style/GlobalVars
+            repo = Lauth::CLI::Repositories::Client.new($rom) # standard:disable Style/GlobalVars
+            clients = repo.index
 
-            user_repo.users.each do |user|
-              puts user.id.to_s
+            clients.each do |client|
+              puts "#{client.id}#{$separator}#{client.name}" # standard:disable Style/GlobalVars
             end
-          when "clients"
-            client_repo = Lauth::CLI::Repositories::Client.new($rom) # standard:disable Style/GlobalVars
+          end
+        end
 
-            client_repo.clients.each do |client|
-              puts client.name.to_s
+        list.desc "List Institutions"
+        list.command :institutions do |institutions|
+          institutions.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
+
+            repo = Lauth::CLI::Repositories::Institution.new($rom) # standard:disable Style/GlobalVars
+            institutions = repo.index
+
+            institutions.each do |user|
+              puts "#{user.id}#{$separator}#{user.name}" # standard:disable Style/GlobalVars
             end
-          else
-            raise "list #{args[0]} made no sense"
+          end
+        end
+
+        list.desc "List Users"
+        list.command :users do |users|
+          users.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
+
+            repo = Lauth::CLI::Repositories::User.new($rom) # standard:disable Style/GlobalVars
+            users = repo.index
+
+            users.each do |user|
+              puts "#{user.id}#{$separator}#{user.name}" # standard:disable Style/GlobalVars
+            end
           end
         end
       end
