@@ -9,6 +9,7 @@
 #include <string>
 
 using namespace mlibrary::lauth;
+using namespace mlibrary::lauth::v1;
 
 using std::string;
 
@@ -50,7 +51,7 @@ TEST(AuthorizerTest, UnregisteredUrlAlwaysAuthorized) {
     auto system = std::make_unique<MockSystem>();
     auto client = std::make_unique<MockClient>();
     EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
-    EXPECT_CALL(*client, getAuthenticationMethod(_, _)).WillOnce(Return(AuthenticationMethod::None));
+    EXPECT_CALL(*client, findCollection).WillOnce(Return(std::nullopt));
     Authorizer lauth(std::move(system), std::move(client));
     RequestInfo req {
         .uri = "/unregistered/"
@@ -63,8 +64,9 @@ TEST(AuthorizerTest, UnregisteredUrlAlwaysAuthorized) {
 TEST(AuthorizerTest, ProtectedWithNoUsernameIsUnauthorized) {
     auto system = std::make_unique<MockSystem>();
     auto client = std::make_unique<MockClient>();
+    auto coll = std::make_optional(Collection { .id = "resource", .authenticationMethod = "username" });
     EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
-    EXPECT_CALL(*client, getAuthenticationMethod).WillRepeatedly(Return(AuthenticationMethod::Username));
+    EXPECT_CALL(*client, findCollection).WillRepeatedly(Return(coll));
     Authorizer lauth(std::move(system), std::move(client));
     RequestInfo req {
         .uri = "/lit-authn/"
@@ -72,4 +74,37 @@ TEST(AuthorizerTest, ProtectedWithNoUsernameIsUnauthorized) {
 
     auto result = lauth.process(req);
     EXPECT_THAT(result.status, STATUS_UNAUTHORIZED);
+}
+
+
+TEST(AuthorizerTest, ProtectedWithUnknownUsernameIsForbidden) {
+    auto system = std::make_unique<MockSystem>();
+    auto client = std::make_unique<MockClient>();
+    auto coll = std::make_optional(Collection { .id = "resource", .authenticationMethod = "username" });
+    EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
+    EXPECT_CALL(*client, findCollection).WillRepeatedly(Return(coll));
+    Authorizer lauth(std::move(system), std::move(client));
+    RequestInfo req {
+        .uri = "/lit-authn/",
+        .username = "baduser"
+    };
+
+    auto result = lauth.process(req);
+    EXPECT_THAT(result.status, STATUS_FORBIDDEN);
+}
+
+TEST(AuthorizerTest, ProtectedWithAcceptedUsernameIsAllowed) {
+    auto system = std::make_unique<MockSystem>();
+    auto client = std::make_unique<MockClient>();
+    auto coll = std::make_optional(Collection { .id = "resource", .authenticationMethod = "username" });
+    EXPECT_CALL(*system, getHostname()).WillRepeatedly(Return("lauth.host"));
+    EXPECT_CALL(*client, findCollection).WillRepeatedly(Return(coll));
+    Authorizer lauth(std::move(system), std::move(client));
+    RequestInfo req {
+        .uri = "/lit-authn/",
+        .username = "gooduser"
+    };
+
+    auto result = lauth.process(req);
+    EXPECT_THAT(result.status, STATUS_ALLOWED);
 }

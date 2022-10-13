@@ -9,6 +9,7 @@
 #include "lauth/system.h"
 
 #include <memory>
+#include <optional>
 
 using namespace mlibrary::lauth;
 
@@ -32,6 +33,7 @@ class MockClient : public v1::Client {
     MockClient() : v1::Client(std::make_unique<MockHttpClient>()) {}
     MOCK_METHOD(v1::User, getUser, (std::string));
     MOCK_METHOD(AuthenticationMethod, getAuthenticationMethod, (std::string, std::string));
+    MOCK_METHOD(std::optional<v1::Collection>, findCollection, (std::string, std::string));
 };
 
 #endif

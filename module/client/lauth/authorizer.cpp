@@ -32,14 +32,40 @@ namespace mlibrary::lauth {
         return system->getHostname();
     }
 
-    Result Authorizer::process(RequestInfo& req) {
-        auto method = client->getAuthenticationMethod(system->getHostname(), req.uri);
-        if (method == AuthenticationMethod::Username) {
-            if (req.username.empty()) {
-                return Result { .status = STATUS_UNAUTHORIZED };
-            }
+    AuthenticationMethod Authorizer::getAuthenticationMethod(const v1::Collection& coll) const {
+        auto method = coll.authenticationMethod;
+        if (method == "clientAddress") {
+            return AuthenticationMethod::ClientAddress;
+        } else if (method == "username") {
+            return AuthenticationMethod::Username;
+        } else if (method == "any") {
+            return AuthenticationMethod::Any;
+        } else {
+            return AuthenticationMethod::None;
         }
-        return Result { .status = STATUS_ALLOWED };
+    }
+
+    Result Authorizer::checkUsername(const v1::Collection& coll, const std::string& username) const {
+        if (username.empty())
+            return Result { .status = STATUS_UNAUTHORIZED };
+
+        if (username == "gooduser")
+            return Result { .status = STATUS_ALLOWED };
+        else
+            return Result { .status = STATUS_FORBIDDEN };
+    }
+
+    Result Authorizer::process(RequestInfo& req) {
+        auto coll = client->findCollection(system->getHostname(), req.uri);
+        if (!coll)
+            return Result { .status = STATUS_ALLOWED };
+
+        auto method = getAuthenticationMethod(*coll);
+        if (method == AuthenticationMethod::Username) {
+            return checkUsername(*coll, req.username);
+        }
+
+        return Result { .status = STATUS_FORBIDDEN };
     }
 
     /* struct Result { */

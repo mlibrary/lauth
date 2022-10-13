@@ -12,6 +12,8 @@ using namespace mlibrary::lauth::v1;
 using json = nlohmann::json;
 using std::string;
 
+using testing::AllOf;
+using testing::StartsWith;
 using testing::HasSubstr;
 using testing::Return;
 using testing::_;
@@ -115,6 +117,15 @@ TEST(ClientTest, AuthenticationMethodCallIncludesEscapedPath) {
 
   Client client(std::move(api));
   client.getAuthenticationMethod("server.host", "/resource");
+}
+
+TEST(ClientTest, CollectionCallIncludesEscapedPath) {
+  std::string collInfo = R"({"data": []})";
+  auto api = std::make_unique<MockHttpClient>();
+  EXPECT_CALL(*api, getBody(AllOf(StartsWith("/collections"), HasSubstr("uri=%2Fresource")))).WillOnce(Return(collInfo));
+
+  Client client(std::move(api));
+  auto coll = client.findCollection("server.host", "/resource");
 }
 
 /* Given a collection configured for identity-based authentication */

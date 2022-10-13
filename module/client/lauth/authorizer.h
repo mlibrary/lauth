@@ -10,6 +10,7 @@
 
 #define STATUS_ALLOWED 0
 #define STATUS_UNAUTHORIZED 401
+#define STATUS_FORBIDDEN 403
 
 namespace mlibrary::lauth {
 
@@ -40,6 +41,10 @@ namespace mlibrary::lauth {
         protected:
         std::unique_ptr<System> system;
         std::unique_ptr<v1::Client> client;
+
+        private:
+        AuthenticationMethod getAuthenticationMethod(const v1::Collection& coll) const;
+        Result checkUsername(const v1::Collection& coll, const std::string& username) const;
     };
 }
 
