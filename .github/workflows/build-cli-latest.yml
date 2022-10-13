@@ -1,10 +1,10 @@
 ---
-name: Build API latest from main
+name: Build CLI latest from main (or manually from a selected branch)
 
 on:
-  workflow_dispatch:  # This allows to kick-off the action manually from GitHub Actions
+  workflow_dispatch: # This allows to kick-off the action manually from GitHub Actions
   push:
-    branches: [ main, kubernetes ]  # This watches the branches "main" and "kubernetes"
+    branches: [ main ] # This watches pushes to the "main" branch
 
 jobs:
   build:
@@ -28,5 +28,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: 'ghcr.io/mlibrary/lauth/lauth-api:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth-api:latest'
-          file: api/Dockerfile.prod
+#          tags: 'ghcr.io/mlibrary/lauth/lauth-cli:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth-cli:latest'
+          tags: 'ghcr.io/mlibrary/lauth/lauth-cli:latest'
+          file: cli/Dockerfile.prod

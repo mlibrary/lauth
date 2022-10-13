@@ -16,6 +16,8 @@
 require "./api"
 require "rom-factory"
 require "database_cleaner/sequel"
+require "rack/test"
+require "yabeda/rspec"
 
 Factory = ROM::Factory.configure do |config|
   config.rom = Lauth::API::BDD.rom
