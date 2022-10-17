@@ -22,6 +22,13 @@ RSpec.describe "Yabeda.lauth.update_count" do
       .by(1)
   end
 
+  it "resource networks" do
+    expect { put "/networks/1", {}, headers }
+      .to increment_yabeda_counter(Yabeda.lauth.update_count)
+      .with_tags(resource: "networks")
+      .by(1)
+  end
+
   it "resource users" do
     expect { put "/users/user", {}, headers }
       .to increment_yabeda_counter(Yabeda.lauth.update_count)

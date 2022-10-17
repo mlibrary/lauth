@@ -1,4 +1,4 @@
-Feature: Institutions
+Feature: Create, Read, Update, and Delete Institutions
 
   Background:
     Given the following institutions exist:

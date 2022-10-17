@@ -1,4 +1,4 @@
-Feature: Users
+Feature: Create, Read, Update, and Delete Users
 
   Background:
     Given the following users exist:

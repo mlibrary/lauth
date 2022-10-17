@@ -1,21 +1,21 @@
 source "https://rubygems.org"
 
-gem "cucumber", "~> 8.0.0"
 gem "dotenv", "~> 2.7.6"
 gem "gli"
+gem "ipaddress"
 gem "mysql2", "~> 0.5.4"
-gem "faraday", "~> 2.3.0"
-
 gem "rom", "~> 5.2.6"
 gem "rom-sql", "~> 3.5.0"
 gem "rom-http", git: "https://github.com/rom-rb/rom-http", ref: "f0507e52ba5f39a42ccfd24b0b6b88b86984c8de"
-gem "rspec", "~> 3.11"
-gem "standard", "~> 1.12"
 
 # testing
-gem "rom-factory"
-gem "sqlite3"
-gem "rack-test"
+
+gem "cucumber", "~> 8.0.0"
 gem "database_cleaner-sequel"
-gem "sequel"
+gem "rack-test"
 gem "rake"
+gem "rom-factory"
+gem "rspec", "~> 3.11"
+gem "sequel"
+gem "sqlite3"
+gem "standard", "~> 1.12"

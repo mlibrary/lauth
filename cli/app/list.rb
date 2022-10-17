@@ -20,9 +20,9 @@ module Lauth
             # raise "that command made no sense" unless args
 
             repo = Lauth::CLI::Repositories::Client.new($rom) # standard:disable Style/GlobalVars
-            clients = repo.index
+            listed_clients = repo.index
 
-            clients.each do |client|
+            listed_clients.each do |client|
               puts "#{client.id}#{$separator}#{client.name}" # standard:disable Style/GlobalVars
             end
           end
@@ -35,10 +35,25 @@ module Lauth
             # raise "that command made no sense" unless args
 
             repo = Lauth::CLI::Repositories::Institution.new($rom) # standard:disable Style/GlobalVars
-            institutions = repo.index
+            listed_institutions = repo.index
 
-            institutions.each do |user|
-              puts "#{user.id}#{$separator}#{user.name}" # standard:disable Style/GlobalVars
+            listed_institutions.each do |institution|
+              puts "#{institution.id}#{$separator}#{institution.name}" # standard:disable Style/GlobalVars
+            end
+          end
+        end
+
+        list.desc "List Networks"
+        list.command :networks do |networks|
+          networks.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
+
+            repo = Lauth::CLI::Repositories::Network.new($rom) # standard:disable Style/GlobalVars
+            listed_networks = repo.index
+
+            listed_networks.each do |network|
+              puts "#{network.id}#{$separator}#{network.cidr}#{$separator}#{network.access}" # standard:disable Style/GlobalVars
             end
           end
         end
@@ -50,9 +65,9 @@ module Lauth
             # raise "that command made no sense" unless args
 
             repo = Lauth::CLI::Repositories::User.new($rom) # standard:disable Style/GlobalVars
-            users = repo.index
+            listed_users = repo.index
 
-            users.each do |user|
+            listed_users.each do |user|
               puts "#{user.id}#{$separator}#{user.name}" # standard:disable Style/GlobalVars
             end
           end

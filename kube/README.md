@@ -81,7 +81,7 @@ $ ../bin/create-db-setup-configmap
 Execute the yml-envsubst script.
 ```shell
 $ ../bin/yml-envsubst
-pwd: /Users/foo/.../bar/mlibrary/lauth/kube/lauth-example
+pwd: /Users/foo/.../bar/mlibrary/lauth/kube/lauth-testing
 script: ../bin/yml-envsubst
 script dirname: ../bin
 namespace: lauth-testing
@@ -115,7 +115,7 @@ metadata:
   labels:
     app: lauth
   name: lauth-secret
-  namespace: lauth-example
+  namespace: lauth-testing
 type: Opaque
 stringData:
   api_root_user: ""
@@ -134,7 +134,7 @@ metadata:
   labels:
     app: lauth
   name: lauth-secret
-  namespace: lauth-example
+  namespace: lauth-testing
 type: Opaque
 stringData:
   api_root_user: "root"

@@ -1,9 +1,12 @@
-require_relative "aa/user"
-
 module Lauth
   module API
     module Repositories
-      class User < AA::User
+      class User < ::ROM::Repository[:users]
+        commands :create, update: :by_pk, delete: :by_pk
+
+        struct_namespace Lauth::API::ROM::Entities
+        auto_struct true
+
         def index
           undeleted_users
         end
@@ -42,6 +45,26 @@ module Lauth
           user = read(id)
           undeleted_users.where(userid: id).update(dlpsDeleted: "t") if user
           user
+        end
+
+        protected
+
+        def all_users
+          users.rename(userid: :id, userPassword: :password, surname: :name)
+        end
+
+        def undeleted_users
+          users.where(dlpsDeleted: "f").rename(userid: :id, userPassword: :password, surname: :name)
+        end
+
+        def deleted_users
+          users.where(dlpsDeleted: "t").rename(userid: :id, userPassword: :password, surname: :name)
+        end
+
+        private
+
+        def users
+          super
         end
       end
     end

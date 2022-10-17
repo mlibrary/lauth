@@ -1,4 +1,4 @@
-Feature: Clients
+Feature: Create, Read, Update, and Delete Clients
 
   Background:
     Given the following clients exist:
