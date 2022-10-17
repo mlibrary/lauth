@@ -4,7 +4,7 @@ module Lauth
       module Relations
         class Networks < ::ROM::Relation[:sql]
           schema(:aa_network, infer: true, as: :networks) do
-            attribute :dlpsAccessSwitch, Types::String.default("allow")
+            attribute :dlpsAccessSwitch, Types::String.default("allow".freeze)
           end
 
           struct_namespace Entities

@@ -152,6 +152,98 @@ module Lauth
         end
       end
 
+      # COLLECTIONS
+
+      # index collections
+      get "/collections" do
+        Yabeda.lauth.index_count.increment({resource: "collections"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Collection.new(BDD.rom)
+        document = {}
+        collections = []
+        repo.index.each do |collection|
+          collections << collection.resource_object
+        end
+        document[:data] = collections
+        document.to_json
+      end
+
+      # create collection
+      post "/collections" do
+        Yabeda.lauth.create_count.increment({resource: "collections"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Collection.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        collection = repo.create(document)
+
+        if collection
+          document = {}
+          document[:data] = collection.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":403,"msg":"Forbidden"}}]}'
+          halt(403, errors)
+        end
+      end
+
+      # read collection
+      get "/collections/:id" do |id|
+        Yabeda.lauth.read_count.increment({resource: "collections"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Collection.new(BDD.rom)
+        collection = repo.read(params[:id])
+
+        if collection
+          document = {}
+          document[:data] = collection.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # update collection
+      put "/collections/:id" do |id|
+        Yabeda.lauth.update_count.increment({resource: "collections"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Collection.new(BDD.rom)
+        document = JSON.parse(env["rack.input"].gets)
+        collection = repo.update(document)
+
+        if collection
+          document = {}
+          document[:data] = collection.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
+      # delete collection
+      delete "/collections/:id" do |id|
+        Yabeda.lauth.delete_count.increment({resource: "collections"}, by: 1)
+        authorized!
+
+        repo = Lauth::API::Repositories::Collection.new(BDD.rom)
+        collection = repo.read(params[:id])
+
+        if collection
+          repo.delete(params[:id])
+          document = {}
+          document[:data] = collection.resource_object
+          document.to_json
+        else
+          errors = '{"errors":[{"error":{"code":404,"msg":"Not Found"}}]}'
+          halt(404, errors)
+        end
+      end
+
       # INSTITUTIONS
 
       # index institutions

@@ -15,6 +15,13 @@ RSpec.describe "Yabeda.lauth.create_count" do
       .by(1)
   end
 
+  it "resource collections" do
+    expect { post "/collections", {}, headers }
+      .to increment_yabeda_counter(Yabeda.lauth.create_count)
+      .with_tags(resource: "collections")
+      .by(1)
+  end
+
   it "resource institutions" do
     expect { post "/institutions", {}, headers }
       .to increment_yabeda_counter(Yabeda.lauth.create_count)
