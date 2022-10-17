@@ -19,6 +19,36 @@ module Lauth
           end
         end
 
+        read.desc "Read Collection"
+        read.arg_name "id"
+        read.command :collection do |collection|
+          collection.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+
+            repo = Lauth::CLI::Repositories::Collection.new($rom) # standard:disable Style/GlobalVars
+            read_collection = repo.read(id).one
+
+            puts "#{read_collection.id}#{$separator}#{read_collection.name}" if read_collection # standard:disable Style/GlobalVars
+          end
+        end
+
+        read.desc "Read Group"
+        read.arg_name "id"
+        read.command :group do |group|
+          group.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+
+            repo = Lauth::CLI::Repositories::Group.new($rom) # standard:disable Style/GlobalVars
+            read_group = repo.read(id).one
+
+            puts "#{read_group.id}#{$separator}#{read_group.name}" if read_group # standard:disable Style/GlobalVars
+          end
+        end
+
         read.desc "Read Institution"
         read.arg_name "id"
         read.command :institution do |institution|

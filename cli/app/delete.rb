@@ -19,6 +19,36 @@ module Lauth
           end
         end
 
+        delete.desc "Delete Collection"
+        delete.arg_name "id"
+        delete.command :collection do |collection|
+          collection.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+
+            repo = Lauth::CLI::Repositories::Collection.new($rom) # standard:disable Style/GlobalVars
+            deleted_collection = repo.delete(id)
+
+            puts "#{deleted_collection.id}#{$separator}#{deleted_collection.name}" if deleted_collection # standard:disable Style/GlobalVars
+          end
+        end
+
+        delete.desc "Delete Group"
+        delete.arg_name "id"
+        delete.command :group do |group|
+          group.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+
+            repo = Lauth::CLI::Repositories::Group.new($rom) # standard:disable Style/GlobalVars
+            deleted_group = repo.delete(id)
+
+            puts "#{deleted_group.id}#{$separator}#{deleted_group.name}" if deleted_group # standard:disable Style/GlobalVars
+          end
+        end
+
         delete.desc "Delete Institution"
         delete.arg_name "id"
         delete.command :institution do |institution|

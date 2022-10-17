@@ -15,6 +15,20 @@ RSpec.describe "Yabeda.lauth.delete_count" do
       .by(1)
   end
 
+  it "resource collections" do
+    expect { delete "/collections/michigan", {}, headers }
+      .to increment_yabeda_counter(Yabeda.lauth.delete_count)
+      .with_tags(resource: "collections")
+      .by(1)
+  end
+
+  it "resource groups" do
+    expect { delete "/groups/michigan", {}, headers }
+      .to increment_yabeda_counter(Yabeda.lauth.delete_count)
+      .with_tags(resource: "groups")
+      .by(1)
+  end
+
   it "resource institutions" do
     expect { delete "/institutions/michigan", {}, headers }
       .to increment_yabeda_counter(Yabeda.lauth.delete_count)

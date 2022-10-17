@@ -26,6 +26,40 @@ module Lauth
           end
         end
 
+        update.desc "Update Collection"
+        update.arg "id"
+        update.arg "attributes", type: Hash
+        update.command :collection do |collection|
+          collection.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+            attributes = accepts[Hash].call(args[1])
+
+            repo = Lauth::CLI::Repositories::Collection.new($rom) # standard:disable Style/GlobalVars
+            updated_collection = repo.update(id, attributes)
+
+            puts "#{updated_collection.id}#{$separator}#{updated_collection.name}" if updated_collection # standard:disable Style/GlobalVars
+          end
+        end
+
+        update.desc "Update Group"
+        update.arg "id"
+        update.arg "attributes", type: Hash
+        update.command :group do |group|
+          group.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+            attributes = accepts[Hash].call(args[1])
+
+            repo = Lauth::CLI::Repositories::Group.new($rom) # standard:disable Style/GlobalVars
+            updated_group = repo.update(id, attributes)
+
+            puts "#{updated_group.id}#{$separator}#{updated_group.name}" if updated_group # standard:disable Style/GlobalVars
+          end
+        end
+
         update.desc "Update Institution"
         update.arg "id"
         update.arg "attributes", type: Hash

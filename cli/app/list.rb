@@ -28,6 +28,36 @@ module Lauth
           end
         end
 
+        list.desc "List Collections"
+        list.command :collections do |collections|
+          collections.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
+
+            repo = Lauth::CLI::Repositories::Collection.new($rom) # standard:disable Style/GlobalVars
+            listed_collections = repo.index
+
+            listed_collections.each do |collection|
+              puts "#{collection.id}#{$separator}#{collection.name}" # standard:disable Style/GlobalVars
+            end
+          end
+        end
+
+        list.desc "List Groups"
+        list.command :groups do |groups|
+          groups.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            # raise "that command made no sense" unless args
+
+            repo = Lauth::CLI::Repositories::Group.new($rom) # standard:disable Style/GlobalVars
+            listed_groups = repo.index
+
+            listed_groups.each do |group|
+              puts "#{group.id}#{$separator}#{group.name}" # standard:disable Style/GlobalVars
+            end
+          end
+        end
+
         list.desc "List Institutions"
         list.command :institutions do |institutions|
           institutions.action do |global_options, options, args|
