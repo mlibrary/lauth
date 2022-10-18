@@ -15,5 +15,7 @@ When("I delete {string}") do |url|
 end
 
 Then("I should see") do |doc_string|
-  expect(JSON.parse(last_response.body)).to eq(JSON.parse(doc_string))
+  expected = doc_string
+  expected = JSON.parse(doc_string) unless doc_string.empty?
+  expect(JSON.parse(last_response.body)).to eq(expected)
 end

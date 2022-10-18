@@ -2,7 +2,7 @@ module Lauth
   module API
     module Repositories
       class Collection < ::ROM::Repository[:collections]
-        commands :create, update: :by_pk, delete: :by_pk
+        # commands :create, update: :by_pk, delete: :by_pk
 
         struct_namespace Lauth::API::ROM::Entities
         auto_struct true

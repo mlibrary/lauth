@@ -5,6 +5,10 @@ module Lauth
         struct_namespace Lauth::CLI::ROM::Entities
         auto_struct true
 
+        def query(ip)
+          networks.by_ip(ip)
+        end
+
         def index(opts = {})
           networks
         end

@@ -9,10 +9,7 @@ module Lauth
             unwrap :attributes
             reject_keys [:type]
             rename_keys id: :uniqueIdentifier, name: :organizationName
-            deep_merge manager: 0,
-              lastModifiedTime: Time.now,
-              lastModifiedBy: "root",
-              dlpsDeleted: "f"
+            deep_merge lastModifiedTime: Time.now
           end
         end
       end

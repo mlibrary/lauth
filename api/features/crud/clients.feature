@@ -1,4 +1,4 @@
-Feature: Clients
+Feature: CRUD Clients
 
   Background:
     Given user "Name" with credentials "client:password"

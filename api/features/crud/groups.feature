@@ -1,4 +1,4 @@
-Feature: Groups
+Feature: CRUD Groups
 
   Background:
     Given user "Name" with credentials "user:password"

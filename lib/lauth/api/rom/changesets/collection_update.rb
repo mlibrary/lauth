@@ -9,9 +9,7 @@ module Lauth
             unwrap :attributes
             reject_keys [:type]
             rename_keys id: :uniqueIdentifier, name: :commonName
-            deep_merge lastModifiedTime: Time.now,
-              lastModifiedBy: "root",
-              dlpsDeleted: "f"
+            deep_merge lastModifiedTime: Time.now
           end
 
           def clean?

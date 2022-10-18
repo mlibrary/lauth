@@ -1,4 +1,4 @@
-Feature: Users
+Feature: CRUD Users
 
   Background:
     Given user "Name" with credentials "user:password"
