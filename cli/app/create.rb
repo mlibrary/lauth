@@ -26,6 +26,54 @@ module Lauth
           end
         end
 
+        create.desc "Create Collection"
+        create.long_desc %(
+          Attributes are a comma separated list of colon separated key value pairs.
+
+          name:<String>
+
+          e.g. name:wolverine,year:1817,city:"Ann Arbor",state:Michigan
+        )
+        create.arg "<id>"
+        create.arg "<attributes>", type: Hash
+        create.command :collection do |collection|
+          collection.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+            attributes = accepts[Hash].call(args[1])
+
+            repo = Lauth::CLI::Repositories::Collection.new($rom) # standard:disable Style/GlobalVars
+            created_collection = repo.create(id, attributes)
+
+            puts "#{created_collection.id}#{$separator}#{created_collection.name}" if created_collection # standard:disable Style/GlobalVars
+          end
+        end
+
+        create.desc "Create Group"
+        create.long_desc %(
+          Attributes are a comma separated list of colon separated key value pairs.
+
+          name:<String>
+
+          e.g. name:wolverine,year:1817,city:"Ann Arbor",state:Michigan
+        )
+        create.arg "<id>"
+        create.arg "<attributes>", type: Hash
+        create.command :group do |group|
+          group.action do |global_options, options, args|
+            # If you have any errors, just raise them
+            raise "that command made no sense" unless args
+            id = args[0]
+            attributes = accepts[Hash].call(args[1])
+
+            repo = Lauth::CLI::Repositories::Group.new($rom) # standard:disable Style/GlobalVars
+            created_group = repo.create(id, attributes)
+
+            puts "#{created_group.id}#{$separator}#{created_group.name}" if created_group # standard:disable Style/GlobalVars
+          end
+        end
+
         create.desc "Create Institution"
         create.long_desc %(
           Attributes are a comma separated list of colon separated key value pairs.

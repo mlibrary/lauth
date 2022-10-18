@@ -1,5 +1,7 @@
 require_relative "entities/entity"
 require_relative "entities/client"
+require_relative "entities/collection"
+require_relative "entities/group"
 require_relative "entities/institution"
 require_relative "entities/network"
 require_relative "entities/user"
