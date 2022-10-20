@@ -1,0 +1,12 @@
+source "https://rubygems.org"
+
+gem "ipaddress"
+gem "mysql2"
+gem "rom"
+gem "rom-sql"
+gem "rom-http"
+gem "rom-repository"
+# gem "rom/transformer"
+
+gem "rspec", "~> 3.11"
+gem "standard", "~> 1.12"
