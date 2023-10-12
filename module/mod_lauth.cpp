@@ -42,10 +42,12 @@
 #include "http_protocol.h"
 #include "ap_config.h"
 
+#include "lauth/authorizer.h"
 #include "lauth/client.h"
 
 #include <string>
 
+using namespace mlibrary::lauth;
 using namespace mlibrary::lauth::v1;
 using json = nlohmann::json;
 
@@ -72,7 +74,8 @@ int lauth_handler(request_rec *r)
     }
     r->content_type = "text/html";      
 
-    Client client("http://api.lauth.local:9292");
+    auto http = std::make_unique<HttpClient>("http://api.lauth.local:9292");
+    Client client(std::move(http));
     User user = client.getUser("root");
     json j = user;
 
@@ -80,6 +83,26 @@ int lauth_handler(request_rec *r)
         ap_rprintf(r, "API response, pretty-printed: <pre><code>%s</pre></code>", j.dump(4).c_str());
     }
     return OK;
+}
+
+int lauth_fixups(request_rec *r)
+{
+    Authorizer lauth;
+    /* return lauth.isAuthorized(r); */
+    // we want to move the config logic to tested code, so splitting that
+    // off into a separate object from the request info and passing two
+    // params makes a little sense... or maybe the relevant config is just
+    // a property of the requestinfo...
+    RequestInfo req {
+        .uri = "https://idunno.local",
+        .filename = "this-is-a-file",
+        .username = "someone"
+        /* .uri = r->whatever, */
+        /* .filename = r->somethingelse, */
+        /* .blah = config->yada */
+    };
+    auto result = lauth.process(req);
+    return result.status;
 }
 
 void lauth_register_hooks(apr_pool_t *p)

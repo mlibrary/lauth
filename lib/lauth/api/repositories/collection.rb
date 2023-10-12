@@ -47,6 +47,13 @@ module Lauth
           collection
         end
 
+        def by_request_uri(server, uri)
+          collections.join(locations)
+            .where(locations[:dlpsServer].is(server))
+            .where(Sequel.ilike(uri, locations[:dlpsPath]))
+            .order(Sequel.function(:length, locations[:dlpsPath])).reverse.to_a
+        end
+
         protected
 
         def all_collections

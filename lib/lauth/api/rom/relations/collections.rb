@@ -9,6 +9,10 @@ module Lauth
             attribute :dlpsAuthenMethod, Types::String.default("any".freeze)
             attribute :dlpsAuthzType, Types::String.default("n".freeze)
             attribute :dlpsPartlyPublic, Types::String.default("t".freeze)
+
+            associations do
+              has_many :locations
+            end
           end
 
           struct_namespace Entities

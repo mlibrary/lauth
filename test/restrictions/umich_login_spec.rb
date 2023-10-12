@@ -7,7 +7,7 @@ RSpec.describe "Access to resources restricted to specific users" do
     context "when not logged in" do
       it "results in authentication request" do
         response = website.get("/lit-authn/")
-        expect(response.status).to eq HttpCodes::Unauthorized
+        expect(response.status).to eq HttpCodes::UNAUTHORIZED
       end
     end
 
@@ -17,7 +17,7 @@ RSpec.describe "Access to resources restricted to specific users" do
           req.headers["Authorization"] = basic_auth_bad_user
         end
 
-        expect(response.status).to eq HttpCodes::Forbidden
+        expect(response.status).to eq HttpCodes::FORBIDDEN
       end
     end
   end

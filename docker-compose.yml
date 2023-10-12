@@ -10,8 +10,6 @@ services:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
 #      - gem_cache:/gems
-    env_file:
-      - cli/.env
     command:
       - /bin/bash
       - "-c"
@@ -31,8 +29,6 @@ services:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
       - gem_cache:/gems
-    env_file:
-      - api/.env
 
   mariadb:
     image: bitnami/mariadb

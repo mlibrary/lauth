@@ -1,6 +1,7 @@
 #ifndef _LAUTH_V1_USER_H_
 #define _LAUTH_V1_USER_H_
 
+#include <json.hpp>
 #include <string>
 
 namespace mlibrary::lauth::v1 {
