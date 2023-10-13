@@ -1,0 +1,31 @@
+#saved so that I can have a workflow to try out docker compose github actions in a branch
+name: "Tests"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request: null
+
+jobs:
+  run-suite:
+    name: "Run suite"
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - "lint"
+          - "specs"
+          - "features"
+    steps:
+      - uses: "actions/checkout@v4"
+      - if: matrix.suite != 'features'
+        run: "docker compose build tests"
+      - if: matrix.suite == 'lint'
+        run: "docker compose run tests standardrb"
+      - if: matrix.suite == 'specs'
+        run: "docker compose run tests rspec"
+      - if: matrix.suite == 'features'
+        run: |
+          docker compose build features web
+          docker compose run features

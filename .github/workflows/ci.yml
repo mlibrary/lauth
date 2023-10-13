@@ -65,3 +65,5 @@ jobs:
         run: cd cli && bundle exec rspec
       - name: Run CLI cucumber
         run: cd cli && bundle exec cucumber
+      - name: Run TEST install
+        run:
