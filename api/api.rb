@@ -436,9 +436,17 @@ module Lauth
         authorized!
 
         repo = Lauth::API::Repositories::Network.new(BDD.rom)
+
+        query = if params[:ip]
+          ip = IPAddress.parse params[:ip]
+          repo.include?(ip)
+        else
+          repo.index
+        end
+
         document = {}
         networks = []
-        repo.index.each do |network|
+        query.each do |network|
           networks << network.resource_object
         end
         document[:data] = networks

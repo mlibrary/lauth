@@ -1,10 +1,11 @@
 # Outside dependencies
+require "ipaddress"
+require "mysql2"
 require "rom"
 require "rom-sql"
 require "rom-http"
 require "rom-repository"
 require "rom/transformer"
-require "mysql2"
 
 # Inside dependencies
 require_relative "lauth/version"

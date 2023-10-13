@@ -9,9 +9,8 @@ module Lauth
             unwrap :attributes
             reject_keys [:type]
             rename_keys id: :uniqueIdentifier, cidr: :dlpsCIDRAddress, access: :dlpsAccessSwitch
-            deep_merge lastModifiedTime: Time.now,
-              lastModifiedBy: "root",
-              dlpsDeleted: "f"
+            rename_keys minimum: :dlpsAddressStart, maximum: :dlpsAddressEnd
+            deep_merge lastModifiedTime: Time.now
           end
 
           def clean?

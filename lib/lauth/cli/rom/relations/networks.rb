@@ -15,6 +15,10 @@ module Lauth
           def by_id(id)
             append_path(id)
           end
+
+          def by_ip(ip)
+            with_query_params(ip: ip.address)
+          end
         end
       end
     end

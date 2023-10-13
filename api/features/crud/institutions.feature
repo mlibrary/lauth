@@ -1,4 +1,4 @@
-Feature: Institutions
+Feature: CRUD Institutions
 
   Background:
     Given user "Name" with credentials "user:password"

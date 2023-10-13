@@ -10,9 +10,7 @@ module Lauth
             reject_keys [:type]
             rename_keys id: :userid, name: :surname
             copy_keys surname: :givenName
-            deep_merge lastModifiedTime: Time.now,
-              lastModifiedBy: "root",
-              dlpsDeleted: "f"
+            deep_merge lastModifiedTime: Time.now
           end
 
           def clean?
