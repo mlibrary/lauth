@@ -9,6 +9,7 @@ services:
       - "test"
     depends_on:
       - mariadb
+      - mariadbsetup
     restart: "no"
     hostname: api.lauth.local
     networks:

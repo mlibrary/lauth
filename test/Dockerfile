@@ -8,28 +8,23 @@ ARG GID=1000
 
 LABEL maintainer="dla-staff@umich.edu"
 
-# Install Vim (optional)
-RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
-  vim-tiny
-
 RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
-RUN mkdir -p /lauth/api /lauth/lib
+RUN mkdir -p /lauth/test && chown ${UID}:${GID} /lauth/test
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
 ENV BUNDLE_PATH /gems
+ENV PATH="/lauth/test/bin:${PATH}"
 
-WORKDIR /lauth/api
-COPY --chown=${UID}:${GID} api/Gemfile* /lauth/api
+WORKDIR /lauth/test
+COPY --chown=${UID}:${GID} test/Gemfile* /lauth/test
 
 USER $UNAME
 
 RUN bundle install
 
-COPY api/ /lauth/api
-COPY lib/ /lauth/lib
+COPY --chown=${UID}:${GID} test/ /lauth/test
 
-EXPOSE 9292
-CMD ["bin/rackup", "-o", "0.0.0.0", "-p", "9292"]
+CMD ["rspec"]

@@ -9,7 +9,7 @@ services:
     volumes:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
-#      - gem_cache:/gems
+      # - gem_cache:/gems
     command:
       - /bin/bash
       - "-c"
@@ -28,7 +28,7 @@ services:
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
-      - gem_cache:/gems
+      # - gem_cache:/gems
 
   mariadb:
     image: bitnami/mariadb
@@ -55,23 +55,21 @@ services:
       - ./module:/module
 
   test:
-    image: ruby:3.1
-    # depends_on:
-    #   - api
-    #   - apache
-    #   - db
+    build:
+      context: ./
+      dockerfile: ./test/Dockerfile
+    depends_on:
+      - api
+      - apache
+      - mariadb
     profiles: ["test"]
-    environment:
-      - BUNDLE_PATH=/gems
     volumes:
       - ./test:/test
-      - gem_cache:/gems
-    working_dir: /test
-    command: ["bin/rspec"]
+      # - gem_cache:/gems
 
 
 volumes:
-  gem_cache:
+  # gem_cache:
   mariadb_data:
 
 networks:

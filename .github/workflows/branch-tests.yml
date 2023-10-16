@@ -1,33 +1,18 @@
-#saved so that I can have a workflow to try out docker compose github actions in a branch
-name: "Tests"
+---
+name: Tests
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: tag
-        required: true
 
 jobs:
-  run-suite:
-    name: "Run suite"
-    runs-on: "ubuntu-latest"
+  tests:
+    runs-on: ubuntu-latest
+    name: Tests
     strategy:
       fail-fast: false
-      matrix:
-        suite:
-          - "lint"
-          - "specs"
-          - "features"
+
     steps:
-      - uses: "actions/checkout@v4"
-      - if: matrix.suite != 'features'
-        run: "docker compose build tests"
-      - if: matrix.suite == 'lint'
-        run: "docker compose run tests standardrb"
-      - if: matrix.suite == 'specs'
-        run: "docker compose run tests rspec"
-      - if: matrix.suite == 'features'
+      - uses: actions/checkout@v4
+      - name: Run Tests
         run: |
-          docker compose build features web
-          docker compose run features
+          docker compose run test
