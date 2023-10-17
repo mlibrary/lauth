@@ -203,6 +203,7 @@ GEM
     sequel (5.61.0)
     sqlite3 (1.5.3-aarch64-linux)
     sqlite3 (1.5.3-arm64-darwin)
+    sqlite3 (1.5.3-x86_64-linux)
     standard (1.16.1)
       rubocop (= 1.35.1)
       rubocop-performance (= 1.14.3)
@@ -227,6 +228,7 @@ GEM
 PLATFORMS
   aarch64-linux
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   config (~> 4.0.0)
@@ -251,4 +253,4 @@ DEPENDENCIES
   yabeda-puma-plugin
 
 BUNDLED WITH
-   2.3.7
+   2.3.26

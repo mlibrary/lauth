@@ -3,8 +3,8 @@ name: Build APACHE latest from main (or manually from a selected branch)
 
 on:
   workflow_dispatch:  # This allows to kick-off the action manually from GitHub Actions
-#  push:
-#    branches: [ main ]  # This watches pushes to the "main" branch
+  push:
+    branches: [ main ]  # This watches pushes to the "main" branch
 
 jobs:
   build:
@@ -29,4 +29,4 @@ jobs:
           context: ./module
           push: true
           tags: 'ghcr.io/mlibrary/lauth/lauth-apache:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth-apache:latest'
-          file: .module/Dockerfile
+          file: ./module/Dockerfile
