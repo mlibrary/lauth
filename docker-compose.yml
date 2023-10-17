@@ -19,13 +19,19 @@ services:
       context: ./
       dockerfile: ./api/Dockerfile
     depends_on:
-      - mariadb
+      mariadb:
+        condition: "service_healthy"
     hostname: api.lauth.local
     networks:
       default:
         aliases: ["api"]
     ports:
       - "9292:9292"
+    environment:
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
