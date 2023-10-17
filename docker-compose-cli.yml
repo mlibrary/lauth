@@ -5,10 +5,9 @@ services:
     build:
       context: ./
       dockerfile: ./cli/Dockerfile
-    profiles:
-      - "test"
     depends_on:
       - mariadb
+      - mariadbsetup
       - api
     restart: "no"
     hostname: cli.lauth.local
@@ -35,6 +34,7 @@ services:
       dockerfile: ./api/Dockerfile
     depends_on:
       - mariadb
+      - mariadbsetup
     hostname: api.lauth.local
     networks:
       default:

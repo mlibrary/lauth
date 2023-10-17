@@ -1,14 +1,10 @@
-version: '3'
-
+---
 services:
   api:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
-    profiles:
-      - "test"
     depends_on:
-      - mariadb
       - mariadbsetup
     restart: "no"
     hostname: api.lauth.local
@@ -21,14 +17,14 @@ services:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
     environment:
-      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_HOST=mariadb
       - LAUTH_API_DB_DATABASE=lauth
       - LAUTH_API_DB_USER=lauth
       - LAUTH_API_DB_PASSWORD=lauth
     command:
       - /bin/bash
       - "-c"
-      - "bundle exec rake db:migrate && bin/standardrb && bin/rspec && bin/cucumber"
+      - "sleep 30 && bundle exec rake db:migrate && bin/standardrb && bin/rspec && bin/cucumber"
 
   mariadb:
     image: bitnami/mariadb
@@ -55,7 +51,7 @@ services:
     entrypoint:
       - /bin/bash
       - "-c"
-      - "sleep 20 && /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
+      - "sleep 20 && /sql/setup.sh -u lauth -p lauth -h mariadb lauth"
 
 networks:
   default:
