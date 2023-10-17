@@ -27,12 +27,12 @@ jobs:
       matrix:
         suite:
           - 'api'
-#          - 'cli'
-#          - 'test'
+          - 'cli'
+          - 'test'
         ruby:
 #          - '3.2.2' sqlite3-1.5.3-x86_64-linux requires ruby version < 3.2.dev, >= 2.6, which is incompatible with the current version, ruby 3.2.2p53
           - '3.1.4'
-#          - '3.0.4'
+          - '3.0.4'
 #          - '2.7.6' hanami-api was resolved to 0.2.0, which depends on Ruby (>= 3.0.0)
 
     steps:
