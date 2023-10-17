@@ -159,6 +159,7 @@ GEM
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
     sequel (5.61.0)
+    sqlite3 (1.5.3-aarch64-linux)
     sqlite3 (1.5.3-arm64-darwin)
     sqlite3 (1.5.3-x86_64-linux)
     standard (1.16.1)
@@ -171,6 +172,7 @@ GEM
     zeitwerk (2.6.1)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-21
   x86_64-linux
 
