@@ -1,36 +1,59 @@
-version: '3'
-
+---
 services:
   cli:
     build:
       context: ./
       dockerfile: ./cli/Dockerfile
     profiles: ["test", "cli"]
+    depends_on:
+      api:
+        condition: "service_healthy"
+      mariadb:
+        condition: "service_healthy"
     volumes:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
+      - ./db:/lauth/db
       # - gem_cache:/gems
+    environment:
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     command:
       - /bin/bash
       - "-c"
-      - "bin/standardrb && bin/rspec && bin/cucumber"
+      - "bin/lauth --route=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
     depends_on:
-      - mariadb
+      mariadb:
+        condition: "service_healthy"
     hostname: api.lauth.local
     networks:
       default:
         aliases: ["api"]
     ports:
       - "9292:9292"
+    environment:
+      - LAUTH_API_DB_HOST=db.lauth.local
+      - LAUTH_API_DB_DATABASE=lauth
+      - LAUTH_API_DB_USER=lauth
+      - LAUTH_API_DB_PASSWORD=lauth
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
       # - gem_cache:/gems
+    healthcheck:
+      test: ["CMD", "curl", "--connect-timeout", "1", "http://api.lauth.local:9292"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
 
   mariadb:
     image: bitnami/mariadb
@@ -49,6 +72,13 @@ services:
       - MARIADB_USER=lauth
       - MARIADB_PASSWORD=lauth
       - TZ=America/Detroit
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "-u", "root", "status"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
 
   apache:
     build: ./module
@@ -61,15 +91,25 @@ services:
         aliases: ["apache"]
     volumes:
       - ./module:/module
+    healthcheck:
+      test: ["CMD", "curl", "--connect-timeout", "1", "http://www.lauth.local"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
 
   test:
     build:
       context: ./
       dockerfile: ./test/Dockerfile
     depends_on:
-      - api
-      - apache
-      - mariadb
+      apache:
+        condition: "service_healthy"
+      api:
+        condition: "service_healthy"
+      mariadb:
+        condition: "service_healthy"
     profiles: ["test"]
     volumes:
       - ./test:/test
@@ -79,14 +119,15 @@ services:
     profiles: ["setup"]
     image: bitnami/mariadb
     depends_on:
-      - mariadb
+      mariadb:
+        condition: "service_healthy"
     restart: "no"
     volumes:
       - ./db:/sql
     entrypoint:
       - /bin/bash
       - "-c"
-      - "sleep 10 && /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
+      - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
 
 
 volumes:

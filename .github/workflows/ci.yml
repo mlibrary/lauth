@@ -6,62 +6,42 @@ on:
   push:
   pull_request:
 
-env:
-  LAUTH_API_DB_HOST: 127.0.0.1
-  LAUTH_API_DB_DATABASE: test
-  LAUTH_API_DB_USER: user
-  LAUTH_API_DB_PASSWORD: password
-
 jobs:
 
   ci:
     runs-on: ubuntu-latest
-    name: Ruby ${{ matrix.ruby }}
+    name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
     strategy:
+      fail-fast: false
       matrix:
+        suite:
+          - 'api'
+          - 'cli'
+          - 'test'
         ruby:
-          - '3.1.2'
-          - '3.0.4'
-#          - '2.7.6' hanami-api was resolved to 0.2.0, which depends on Ruby (>= 3.0.0)
-
-    services:
-      mariadb:
-        image: mariadb:10
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-          MYSQL_DATABASE: test
-          MYSQL_ROOT_PASSWORD: password
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+          - '3.2.2'
+#          - '3.1.4'
+#          - '3.0.4'
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-      - name: Run API install
-        run: cd api && bundle install
-      - name: Run DB setup script
-        run: ./db/setup.sh -u user -p password -h 127.0.0.1 test
-      - name: Run DB migration
-        run: cd api && bundle exec rake db:migrate
-      - name: Run API standard
-        run: cd api && bundle exec standardrb
-      - name: Run API rspec
-        run: cd api && bundle exec rspec
-      - name: Run API cucumber
-        run: cd api && bundle exec cucumber
-      - name: Run API rackup
-        run: cd api && bundle exec rackup &
-      - name: Run CLI install
-        run: cd cli && bundle install
-      - name: Run CLI standard
-        run: cd cli && bundle exec standardrb
-      - name: Run CLI rspec
-        run: cd cli && bundle exec rspec
-      - name: Run CLI cucumber
-        run: cd cli && bundle exec cucumber
+      - uses: actions/checkout@v4
+      - name: Setup Database
+        run: docker compose up dbsetup
+
+      - if: matrix.suite == 'api'
+        run: |
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api
+          docker compose run api bundle exec rake db:migrate
+          docker compose run api bin/standardrb
+          docker compose run api bin/rspec
+          docker compose run api bin/cucumber
+      - if: matrix.suite == 'cli'
+        run: |
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api cli
+          docker compose up -d api
+          docker compose exec api bundle exec rake db:migrate
+          docker compose run cli
+      - if: matrix.suite == 'test'
+        run: |
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api apache
+          docker compose run test
