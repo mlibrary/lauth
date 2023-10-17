@@ -48,6 +48,13 @@ services:
       - MARIADB_USER=lauth
       - MARIADB_PASSWORD=lauth
       - TZ=America/Detroit
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "-u", "root", "status"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
 
   apache:
     build: ./module
@@ -78,14 +85,15 @@ services:
     profiles: ["setup"]
     image: bitnami/mariadb
     depends_on:
-      - mariadb
+      mariadb:
+        condition: "service_healthy"
     restart: "no"
     volumes:
       - ./db:/sql
     entrypoint:
       - /bin/bash
       - "-c"
-      - "sleep 10 && /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
+      - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
 
 
 volumes:
