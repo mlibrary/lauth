@@ -3,19 +3,8 @@ name: Continuous Integration
 
 on:
   workflow_dispatch:
-#  push:
-#  pull_request:
-
-#env:
-#  LAUTH_API_DB_HOST: 127.0.0.1
-#  LAUTH_API_DB_DATABASE: test
-#  LAUTH_API_DB_USER: user
-#  LAUTH_API_DB_PASSWORD: password
-#  ALLOW_EMPTY_PASSWORD: yes
-#  MARIADB_DATABASE: test
-#  MARIADB_USER: user
-#  MARIADB_PASSWORD: password
-#  TZ: America/Detroit
+  push:
+  pull_request:
 
 jobs:
 
@@ -43,7 +32,7 @@ jobs:
       - if: matrix.suite == 'api'
         run: |
           rm -f /lauth/api/Gemfile.lock
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }}
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api
           docker compose run api bundle exec rake db:migrate
           docker compose run api bin/standardrb
           docker compose run api bin/rspec
@@ -52,12 +41,13 @@ jobs:
         run: |
           rm -f /lauth/api/Gemfile.lock
           rm -f /lauth/cli/Gemfile.lock
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }}
-          docker compose run api bundle exec rake db:migrate
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api cli
+          docker compose up -d api
+          docker compose exec api bundle exec rake db:migrate
           docker compose run cli
       - if: matrix.suite == 'test'
         run: |
           rm -f /lauth/api/Gemfile.lock
           rm -f /lauth/test/Gemfile.lock
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }}
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api apache
           docker compose run test

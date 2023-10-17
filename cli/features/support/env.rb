@@ -34,7 +34,7 @@ Dir[factories_dir + "/*.rb"].sort.each { |file| require file }
 DatabaseCleaner.strategy = :truncation
 
 BeforeAll do
-  puts `./bin/lauth --user=root --password="!none" --route=http://127.0.0.1:9292 initconfig --force`
+  puts `./bin/lauth --user=root --password="!none" --route=http://api.lauth.local:9292 initconfig --force`
   puts `cat ~/.lauth.rc`
   `#{MYSQL_CMD} < ../db/drop-keys.sql 2> /dev/null`
   DatabaseCleaner.clean

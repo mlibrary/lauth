@@ -23,7 +23,7 @@ services:
     command:
       - /bin/bash
       - "-c"
-      - "bin/lauth --url=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
+      - "bin/lauth --route=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
 
   api:
     build:
@@ -91,6 +91,13 @@ services:
         aliases: ["apache"]
     volumes:
       - ./module:/module
+    healthcheck:
+      test: ["CMD", "curl", "--connect-timeout", "1", "http://www.lauth.local"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
 
   test:
     build:
