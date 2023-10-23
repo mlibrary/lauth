@@ -1,0 +1,70 @@
+:toc: macro
+:toclevels: 5
+:figure-caption!:
+
+= Lauth
+
+toc::[]
+
+== Features
+
+== Screencasts
+
+== Requirements
+
+. link:https://www.ruby-lang.org[Ruby].
+
+== Setup
+
+To set up the project, run:
+
+[source,bash]
+----
+git clone 
+cd lauth
+bin/setup
+----
+
+== Usage
+
+== Development
+
+To contribute, run:
+
+[source,bash]
+----
+git clone 
+cd lauth
+bin/setup
+----
+
+You can also use the IRB console for direct access to all objects:
+
+[source,bash]
+----
+bin/console
+----
+
+== Tests
+
+To test, run:
+
+[source,bash]
+----
+bin/rake
+----
+
+== link:[License]
+
+== link:[Security]
+
+== link:[Code of Conduct]
+
+== link:[Contributions]
+
+== link:[Versions]
+
+== Credits
+
+* Built with link:https://alchemists.io/projects/hanamismith[Hanamismith].
+* Engineered by link:[].
