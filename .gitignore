@@ -3,9 +3,10 @@
 *~
 .bundle/
 .cache/
+.idea/
 coverage/
 log/
-.idea/
+tmp/
 **lauth-secret.yml
 **/.env*
 
