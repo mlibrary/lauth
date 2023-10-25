@@ -1,29 +1,35 @@
-FROM ruby
+ARG RUBY_VERSION=3.2
+FROM ruby:${RUBY_VERSION}
 
-# Docker build arguments/defaults
-ARG UNAME=devenv
-ARG UID=1001
-ARG GID=1001
+ARG BUNDLER_VERSION=2.3
+ARG UNAME=lauth
+ARG UID=1000
+ARG GID=1000
 
-# Simple unix/linux tools
-RUN DEBIAN_FRONTEND=noninteractive \
-    apt-get update && \
-    apt-get -y install --no-install-recommends \
-      git \
-      wget \
-      vim
+LABEL maintainer="dla-staff@umich.edu"
 
-# Create development enviroment user home directory off of root directory
-RUN groupadd -g $GID -o $UNAME && \
-    useradd -m -d /$UNAME -u $UID -g $GID -o -s /bin/bash $UNAME
+# Install Vim (optional)
+RUN apt-get update -yqq && apt-get install -yqq --no-install-recommends \
+  vim-tiny
 
-# Change ownership of home directory (possibly not needed)
-COPY --chown=$UID:$GID . /$UNAME
+RUN gem install bundler:${BUNDLER_VERSION}
+
+RUN groupadd -g ${GID} -o ${UNAME}
+RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
+RUN mkdir -p /lauth/app /lauth/lib
+RUN mkdir -p /gems && chown ${UID}:${GID} /gems
+
+ENV BUNDLE_PATH /gems
+
+WORKDIR /lauth/app
+COPY --chown=${UID}:${GID} app/Gemfile* /lauth/app
 
 USER $UNAME
 
-WORKDIR /$UNAME
+RUN bundle _${BUNDLER_VERSION}_ install
 
-RUN gem install hanamismith
+COPY app/ /lauth/app
+COPY lib/ /lauth/lib
 
-CMD ["sleep", "infinity"]
+EXPOSE 2300
+CMD ["bin/rackup", "-o", "0.0.0.0", "-p", "2300"]
