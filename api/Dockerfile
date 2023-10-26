@@ -1,7 +1,7 @@
-ARG RUBY_VERSION=3.2
+ARG RUBY_VERSION=3.2.2
 FROM ruby:${RUBY_VERSION}
 
-ARG BUNDLER_VERSION=2.3
+ARG BUNDLER_VERSION=2.4.21
 ARG UNAME=lauth
 ARG UID=1000
 ARG GID=1000
@@ -16,6 +16,7 @@ RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
+RUN chown -R ${UID}:${GID} /usr/local/bundle
 RUN mkdir -p /lauth/api /lauth/lib
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
