@@ -29,6 +29,7 @@ services:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
+    profiles: [ "test", "api" ]
     depends_on:
       mariadb:
         condition: "service_healthy"
@@ -68,6 +69,11 @@ services:
         aliases: ["app"]
     ports:
       - "2300:2300"
+    environment:
+#      - DATABASE_URL=mysql2://sql_user:sql_pass@sql_host_name:port/sql_db_name?option1=value1&option2=value2
+      - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth
+#      - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth?encoding=utf8mb4
+#      - DATABASE_URL=mysql2://db.lauth.local/lauth?username=lauth&password=lauth&encoding=utf8mb4
     volumes:
       - ./app:/lauth/app
       - ./lib:/lauth/lib
