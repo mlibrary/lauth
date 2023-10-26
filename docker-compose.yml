@@ -14,7 +14,6 @@ services:
       - ./cli:/lauth/cli
       - ./lib:/lauth/lib
       - ./db:/lauth/db
-      # - gem_cache:/gems
     environment:
       - LAUTH_API_DB_HOST=db.lauth.local
       - LAUTH_API_DB_DATABASE=lauth
@@ -47,7 +46,6 @@ services:
     volumes:
       - ./api:/lauth/api
       - ./lib:/lauth/lib
-      # - gem_cache:/gems
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "1", "http://api.lauth.local:9292"]
       interval: "10s"
@@ -70,14 +68,10 @@ services:
     ports:
       - "2300:2300"
     environment:
-#      - DATABASE_URL=mysql2://sql_user:sql_pass@sql_host_name:port/sql_db_name?option1=value1&option2=value2
       - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth
-#      - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth?encoding=utf8mb4
-#      - DATABASE_URL=mysql2://db.lauth.local/lauth?username=lauth&password=lauth&encoding=utf8mb4
     volumes:
       - ./app:/lauth/app
       - ./lib:/lauth/lib
-      # - gem_cache:/gems
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "1", "http://app.lauth.local:2300"]
       interval: "10s"
@@ -155,7 +149,6 @@ services:
     profiles: ["test"]
     volumes:
       - ./test:/lauth/test
-      # - gem_cache:/gems
 
   dbsetup:
     profiles: ["setup"]
@@ -171,9 +164,7 @@ services:
       - "-c"
       - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
 
-
 volumes:
-  # gem_cache:
   mariadb_data:
   build_cache:
 

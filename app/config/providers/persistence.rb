@@ -8,7 +8,7 @@ Hanami.app.register_provider :persistence, namespace: true do
     require "rom/core"
     require "rom/sql"
 
-    Sequel::Database.extension :constant_sql_override, :pg_enum
+    # Sequel::Database.extension :constant_sql_override, :pg_enum
     Sequel.database_timezone = :utc
     Sequel.application_timezone = :local
 
@@ -21,7 +21,7 @@ Hanami.app.register_provider :persistence, namespace: true do
     configuration.plugin :sql, relations: :auto_restrictions
 
     database = configuration.gateways[:default].connection
-    database.set_constant_sql Sequel::CURRENT_TIMESTAMP, "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')"
+    # database.set_constant_sql Sequel::CURRENT_TIMESTAMP, "(CURRENT_TIMESTAMP AT TIME ZONE 'UTC')"
 
     register "config", configuration
     register "db", database
