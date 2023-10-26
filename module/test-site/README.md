@@ -28,6 +28,6 @@ The meanings are:
  - `lit-ip` - restricted to clients on an authorized network (e.g., campus users)
  - `lit-authn-or-ip` - restricted to authenticated or network users
  - `exempted_toplevel` - unrestricted access under what would be a restricted
-    URL space because of an exemption at the server/module configuration
- - `exempted_toplevel` - unrestricted access under what would be a restricted
-    URL space because of an exemption at the site/virtual host configuration
+   URL space because of an exemption at the server/module configuration
+ - `exempted_vserver` - unrestricted access under what would be a restricted
+   URL space because of an exemption at the site/virtual host configuration

@@ -112,7 +112,7 @@ services:
         condition: "service_healthy"
     profiles: ["test"]
     volumes:
-      - ./test:/test
+      - ./test:/lauth/test
       # - gem_cache:/gems
 
   dbsetup:
