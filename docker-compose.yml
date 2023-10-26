@@ -65,7 +65,7 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./db:/sql
+      - ./db:/lauth/sql
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_DATABASE=lauth
@@ -90,7 +90,7 @@ services:
       default:
         aliases: ["apache"]
     volumes:
-      - ./module:/module
+      - ./module:/lauth/module
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "1", "http://www.lauth.local"]
       interval: "10s"
@@ -112,7 +112,7 @@ services:
         condition: "service_healthy"
     profiles: ["test"]
     volumes:
-      - ./test:/test
+      - ./test:/lauth/test
       # - gem_cache:/gems
 
   dbsetup:
@@ -123,7 +123,7 @@ services:
         condition: "service_healthy"
     restart: "no"
     volumes:
-      - ./db:/sql
+      - ./db:/lauth/sql
     entrypoint:
       - /bin/bash
       - "-c"
