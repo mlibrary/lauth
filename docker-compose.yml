@@ -28,7 +28,6 @@ services:
     build:
       context: ./
       dockerfile: ./api/Dockerfile
-    profiles: [ "test", "api" ]
     depends_on:
       mariadb:
         condition: "service_healthy"
@@ -48,32 +47,6 @@ services:
       - ./lib:/lauth/lib
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "1", "http://api.lauth.local:9292"]
-      interval: "10s"
-      timeout: "10s"
-      retries: 3
-      start_period: "10s"
-      start_interval: "1s"
-
-  app:
-    build:
-      context: ./
-      dockerfile: ./app/Dockerfile
-    depends_on:
-      mariadb:
-        condition: "service_healthy"
-    hostname: app.lauth.local
-    networks:
-      default:
-        aliases: ["app"]
-    ports:
-      - "2300:2300"
-    environment:
-      - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth
-    volumes:
-      - ./app:/lauth/app
-      - ./lib:/lauth/lib
-    healthcheck:
-      test: ["CMD", "curl", "--connect-timeout", "1", "http://app.lauth.local:2300"]
       interval: "10s"
       timeout: "10s"
       retries: 3

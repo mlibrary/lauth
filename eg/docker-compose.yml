@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: ./
-      dockerfile: ./app.dockerfile
+      dockerfile: ./Dockerfile
     depends_on:
       mariadb:
         condition: "service_healthy"
@@ -31,7 +31,7 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./db:/sql
+      - ./sql:/sql
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_DATABASE=lauth
@@ -54,7 +54,7 @@ services:
         condition: "service_healthy"
     restart: "no"
     volumes:
-      - ../db:/sql
+      - ./sql:/sql
     entrypoint:
       - /bin/bash
       - "-c"

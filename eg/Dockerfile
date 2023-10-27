@@ -20,7 +20,7 @@ RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 RUN mkdir -p /lauth/gems && chown ${UID}:${GID} /lauth/gems
 ENV BUNDLE_PATH /lauth/gems
 
-COPY --chown=${UID}:${GID} app/ /lauth/app
+COPY --chown=${UID}:${GID} . /lauth/app
 
 WORKDIR /lauth/app
 USER $UNAME
