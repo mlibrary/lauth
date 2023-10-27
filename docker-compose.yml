@@ -92,7 +92,7 @@ services:
       default:
         aliases: ["apache"]
     volumes:
-      - ./module:/module
+      - ./module:/lauth/module
     healthcheck:
       test: ["CMD", "curl", "--connect-timeout", "1", "http://www.lauth.local"]
       interval: "10s"
