@@ -15,9 +15,11 @@ RUN MACHINE=`gcc -dumpmachine`; if echo $MACHINE | grep -q aarch64; then CPU_ARC
     && cd /tmp/bazel-setup \
     && bazel
 
-WORKDIR /module
-COPY . /module
+RUN mkdir -p /lauth/module
+WORKDIR /lauth/module
+COPY ./module /lauth/module/
+COPY ./test-site /lauth/test-site/
 
 RUN make install clean
-COPY conf/lauth.conf conf/test-site.conf /usr/local/apache2/conf
-RUN echo "Define cpu_arch \"`gcc -dumpmachine`\"\nInclude conf/lauth.conf\nInclude conf/test-site.conf" >> /usr/local/apache2/conf/httpd.conf
+COPY ./module/conf/* /usr/local/apache2/conf/
+RUN echo "Define cpu_arch \"`gcc -dumpmachine`\"" > /usr/local/apache2/conf/cpu_arch.conf

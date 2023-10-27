@@ -86,7 +86,7 @@ TEST(AuthorizerTest, ProtectedWithUnknownUsernameIsForbidden) {
     Authorizer lauth(std::move(system), std::move(client));
     RequestInfo req {
         .uri = "/lit-authn/",
-        .username = "baduser"
+        .username = "lauth-denied"
     };
 
     auto result = lauth.process(req);
@@ -102,7 +102,7 @@ TEST(AuthorizerTest, ProtectedWithAcceptedUsernameIsAllowed) {
     Authorizer lauth(std::move(system), std::move(client));
     RequestInfo req {
         .uri = "/lit-authn/",
-        .username = "gooduser"
+        .username = "lauth-allowed"
     };
 
     auto result = lauth.process(req);

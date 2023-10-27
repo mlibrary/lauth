@@ -12,7 +12,7 @@ RSpec.describe "Access to resources restricted to specific users" do
     end
 
     context "when logged in as an unauthorized user" do
-      xit "is forbidden" do
+      it "is forbidden" do
         response = website.get("/user/") do |req|
           req.headers["Authorization"] = basic_auth_bad_user
         end

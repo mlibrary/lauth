@@ -81,7 +81,9 @@ services:
       start_interval: "1s"
 
   apache:
-    build: ./module
+    build:
+      context: ./
+      dockerfile: ./module/Dockerfile
     # platform: linux/amd64
     ports:
       - "8888:80"

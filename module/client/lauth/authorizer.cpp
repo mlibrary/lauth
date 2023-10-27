@@ -49,7 +49,7 @@ namespace mlibrary::lauth {
         if (username.empty())
             return Result { .status = STATUS_UNAUTHORIZED };
 
-        if (username == "gooduser")
+        if (username == "lauth-allowed")
             return Result { .status = STATUS_ALLOWED };
         else
             return Result { .status = STATUS_FORBIDDEN };
