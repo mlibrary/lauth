@@ -37,7 +37,7 @@ CREATE TABLE aa_user_grp(
 );
 
 CREATE TABLE aa_inst(
-	uniqueIdentifier		INT	NOT NULL,
+	uniqueIdentifier		INT	NOT NULL AUTO_INCREMENT,
 	organizationName		VARCHAR(128)	NOT NULL,
 	manager				INT,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE aa_coll_obj(
 );
 
 CREATE TABLE aa_network(
-	uniqueIdentifier		INT	NOT NULL,
+	uniqueIdentifier		INT	NOT NULL AUTO_INCREMENT,
 	dlpsDNSName			VARCHAR(128),
 	dlpsCIDRAddress			VARCHAR(18),
 	dlpsAddressStart		INT UNSIGNED,
@@ -106,7 +106,7 @@ CREATE TABLE aa_network(
 );
 
 CREATE TABLE aa_may_access(
-	uniqueIdentifier		INT	NOT NULL,
+	uniqueIdentifier		INT	NOT NULL AUTO_INCREMENT,
 	userid				VARCHAR(64),
 	user_grp			INT,
 	inst				INT,

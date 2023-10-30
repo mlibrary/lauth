@@ -135,7 +135,7 @@ services:
     restart: "no"
     volumes:
       - ./db:/sql
-    entrypoint:
+    command:
       - /bin/bash
       - "-c"
       - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
