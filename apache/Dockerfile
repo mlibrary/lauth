@@ -25,6 +25,12 @@ WORKDIR /lauth/apache/module
 RUN make install
 
 ###
+FROM module AS tests
+WORKDIR /lauth/apache/build
+RUN meson configure -Dtests=true && meson compile
+CMD ["meson", "test", "-v"]
+
+###
 FROM httpd:2.4-bullseye AS server
 RUN mkdir -p /lauth
 

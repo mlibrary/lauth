@@ -93,22 +93,22 @@ services:
         aliases: ["apache"]
     healthcheck:
       test: ["CMD", "http-check", "http://www.lauth.local"]
-      interval: "10s"
-      timeout: "10s"
+      interval: "60s"
+      timeout: "2s"
       retries: 3
-      start_period: "10s"
+      start_period: "3s"
       start_interval: "1s"
 
   module:
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
-      target: module
+      target: tests
     profiles: ["dev"]
     volumes:
       - ./apache/client:/lauth/apache/client
       - ./apache/module:/lauth/apache/module
-      # - build_cache:/lauth/apache/build
+      - build_cache:/lauth/apache/build
 
   test:
     build:
