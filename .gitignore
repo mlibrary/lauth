@@ -5,3 +5,10 @@
 .idea/
 **lauth-secret.yml
 
+
+# Meson-related build files
+.cache/
+apache/client/subprojects/*
+!apache/client/subprojects/*.wrap
+
+apache/client/build/
