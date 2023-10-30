@@ -7,36 +7,45 @@ than database-oriented.
 
 The modules are:
 
+ - **[apache/](./apache/)** - Apache module for compatibility
  - **[api/](./api/)** - REST API for authentication/authorization
  - **[cli/](./cli/)** - Command-line client for data management
- - **[module/](./module/)** - Apache module for compatibility
  - **[test/](./test/)** - End-to-end acceptance tests
 
 These modules may be broken out to individual repositories at some time, but
 they are colocated for convenience and shared evolution for now.
 
-# Docker Compose Test Suites
-## docker-compose-api.yml
-### Service Shell
-``` shell
-docker compose --file docker-compose-api.yml up --build
-ctrl-c
-docker compose --file docker-compose-api.yml down
+# Building and Running
+
+Everything is set up to work with Docker Compose through the top-level
+`docker-compose.yml` file. There are health checks and dependencies declared,
+so using `up` or `run` should launch anything that a "service" needs.
+
+## Starting Everything
+
+You can bring up all of the services and ensure that all images are up to date
+with two commands:
+
 ```
-### Test Shell
-``` shell
-docker compose --file docker-compose-api.yml build api
-docker compose --file docker-compose-api.yml run --rm api
+docker compose up dbsetup
+docker compose up --build
 ```
-## docker-compose-cli.yml
-### Service Shell
-``` shell
-docker compose --file docker-compose-cli.yml up --build
-ctrl-c
-docker compose --file docker-compose-cli.yml down
+
+You can run the `build` separately or apply the usual options to `up`, for
+example, to run in the background (with `up -d` or `up --detach`).
+
+## Running System Tests
+
 ```
-### Test Shell
-``` shell
-docker compose --file docker-compose-cli.yml build cli
-docker compose --file docker-compose-cli.yml run --rm cli
+docker compose run --rm test
+```
+
+## Resetting Everything
+
+TODO: These need to be cleaned up/scripted
+
+```
+docker compose down --remove-orphans
+docker rm -sfv
+docker volume rm lauth_mariadb_data
 ```

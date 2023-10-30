@@ -83,23 +83,32 @@ services:
   apache:
     build:
       context: ./
-      dockerfile: ./module/Dockerfile
-    # platform: linux/amd64
+      dockerfile: ./apache/Dockerfile
+      target: server
     ports:
       - "8888:80"
     hostname: "www.lauth.local"
     networks:
       default:
         aliases: ["apache"]
-    volumes:
-      - ./module:/lauth/module
     healthcheck:
-      test: ["CMD", "curl", "--connect-timeout", "1", "http://www.lauth.local"]
+      test: ["CMD", "http-check", "http://www.lauth.local"]
       interval: "10s"
       timeout: "10s"
       retries: 3
       start_period: "10s"
       start_interval: "1s"
+
+  module:
+    build:
+      context: ./
+      dockerfile: ./apache/Dockerfile
+      target: module
+    profiles: ["dev"]
+    volumes:
+      - ./apache/client:/lauth/apache/client
+      - ./apache/module:/lauth/apache/module
+      # - build_cache:/lauth/apache/build
 
   test:
     build:
@@ -135,6 +144,7 @@ services:
 volumes:
   # gem_cache:
   mariadb_data:
+  build_cache:
 
 networks:
   default:
