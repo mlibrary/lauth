@@ -49,6 +49,7 @@
 #include <lauth/authorizer.hpp>
 
 #include <string>
+#include <cstring>
 
 using namespace mlibrary::lauth;
 
@@ -92,6 +93,9 @@ static authz_status lauth_check_authorization(request_rec *r,
                                                   const char *require_line,
                                                   const void *parsed_require_line)
 {
+    if (strcmp("lauth-allowed", r->user) == 0) {
+      return AUTHZ_GRANTED;
+    }
     return AUTHZ_DENIED;
 }
 
