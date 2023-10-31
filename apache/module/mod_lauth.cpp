@@ -40,7 +40,11 @@
 #include "httpd.h"
 #include "http_config.h"
 #include "http_protocol.h"
+#include "http_request.h"
 #include "ap_config.h"
+#include "ap_provider.h"
+
+#include "mod_auth.h"
 
 #include <lauth/authorizer.hpp>
 
@@ -83,9 +87,27 @@ int lauth_handler(request_rec *r)
     return OK;
 }
 
+
+static authz_status lauth_check_authorization(request_rec *r,
+                                                  const char *require_line,
+                                                  const void *parsed_require_line)
+{
+    return AUTHZ_DENIED;
+}
+
+static const authz_provider authz_lauth_provider =
+{
+    &lauth_check_authorization,
+    NULL
+};
+
 void lauth_register_hooks(apr_pool_t *p)
 {
     ap_hook_handler(lauth_handler, NULL, NULL, APR_HOOK_MIDDLE);
+
+    ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "lauth",
+                          AUTHZ_PROVIDER_VERSION,
+                          &authz_lauth_provider, AP_AUTH_INTERNAL_PER_CONF);
 }
 
 
