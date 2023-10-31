@@ -1,0 +1,67 @@
+---
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      mariadb:
+        condition: "service_healthy"
+    hostname: app.lauth.local
+    networks:
+      default:
+        aliases: [ "app" ]
+    environment:
+      - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth
+    volumes:
+      - .:/lauth/app
+    ports:
+      - "2300:2300"
+      - "1234:1234" # RubyMine
+#      - "26162:26162" # RubyMine
+    command: ["sleep", "infinity"]
+
+  mariadb:
+    image: bitnami/mariadb
+    hostname: db.lauth.local
+    networks:
+      default:
+        aliases: ["db"]
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./sql:/sql
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_DATABASE=lauth
+      - MARIADB_USER=lauth
+      - MARIADB_PASSWORD=lauth
+      - TZ=America/Detroit
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "-u", "root", "status"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "10s"
+      start_interval: "1s"
+
+  dbsetup:
+    profiles: ["setup"]
+    image: bitnami/mariadb
+    depends_on:
+      mariadb:
+        condition: "service_healthy"
+    restart: "no"
+    volumes:
+      - ./sql:/sql
+    entrypoint:
+      - /bin/bash
+      - "-c"
+      - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth"
+
+volumes:
+  mariadb_data:
+
+networks:
+  default:

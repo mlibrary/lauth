@@ -2,8 +2,13 @@
 .*.swp
 *~
 .bundle/
+.cache/
 .idea/
+coverage/
+log/
+tmp/
 **lauth-secret.yml
+**/.env*
 
 
 # Meson-related build files

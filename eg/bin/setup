@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+IFS=$'\n\t'
+
+bundle install
+
+bin/hanami db create
+bin/hanami db migrate
+bin/hanami db seed
+
+HANAMI_ENV=test hanami db create
+HANAMI_ENV=test hanami db migrate
