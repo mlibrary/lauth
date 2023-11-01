@@ -19,7 +19,7 @@ lauth_sources = files([
 ])
 lauth_tests = files([
   'test/lauth/authorizer_test.cpp',
-  'test/lauth/request_info_test.cpp'
+  'test/lauth/request_test.cpp'
 ])
 
 liblauth = shared_library(
@@ -35,7 +35,7 @@ liblauth = shared_library(
 
 install_headers(
   'include/lauth/authorizer.hpp',
-  'include/lauth/request_info.hpp',
+  'include/lauth/request.hpp',
   subdir: 'lauth')
 
 if get_option('tests')
