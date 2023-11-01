@@ -28,6 +28,11 @@ jobs:
       - name: Setup Database
         run: docker compose up dbsetup
 
+      - name: Create .env
+        run: |
+          echo "UID=$(id -u)" > .env
+          echo "GID=$(id -g)" >> .env
+
       - if: matrix.suite == 'api'
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api
