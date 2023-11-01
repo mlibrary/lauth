@@ -12,6 +12,7 @@ RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
+RUN chown -R ${UID}:${GID} /usr/local/bundle
 RUN mkdir -p /lauth/test && chown ${UID}:${GID} /lauth/test
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
