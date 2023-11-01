@@ -3,8 +3,8 @@ FROM ruby:${RUBY_VERSION}
 
 ARG BUNDLER_VERSION=2.4.21
 ARG UNAME=lauth
-ARG UID=1001
-ARG GID=1001
+ARG UID=1000
+ARG GID=1000
 
 LABEL maintainer="dla-staff@umich.edu"
 
