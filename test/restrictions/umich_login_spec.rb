@@ -20,6 +20,16 @@ RSpec.describe "Access to resources restricted to specific users" do
         expect(response.status).to eq HttpCodes::FORBIDDEN
       end
     end
+
+    context "when logged in as an authorized user" do
+      it "is allowed" do
+        response = website.get("/user/") do |req|
+          req.headers["Authorization"] = basic_auth_good_user
+        end
+
+        expect(response.status).to eq HttpCodes::OK
+      end
+    end
   end
 
   def website

@@ -1,19 +1,14 @@
+#include <memory>
 #include "lauth/authorizer.hpp"
-#include "lauth/request_info.hpp"
+#include "lauth/request.hpp"
+#include "lauth/api_client.hpp"
 
 #include <gtest/gtest.h>
 
+using mlibrary::lauth::ApiClient;
 using mlibrary::lauth::Authorizer;
 
-TEST(Authorizer, foo_is_12) {
-  Authorizer authorizer;
-  EXPECT_EQ(12, authorizer.foo());
-}
-
-TEST(Authorizer, echoes_input) {
-  Authorizer authorizer;
-  mlibrary::lauth::RequestInfo req {
-    .foo = "baz"
-  };
-  EXPECT_EQ("baz", authorizer.bar(req));
+TEST(Authorizer, inject_api_client) {
+  auto client = std::make_unique<ApiClient>();
+  Authorizer authorizer(std::move(client));
 }
