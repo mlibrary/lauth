@@ -3,11 +3,11 @@
 #include <string>
 
 namespace mlibrary::lauth {
-  int Authorizer::foo() {
-    return 12;
+  bool Authorizer::isPasswordOnly(std::string url) {
+    return false;
   }
 
-  std::string Authorizer::bar(RequestInfo req) {
-    return req.foo;
+  bool Authorizer::isAllowed(Request req) {
+    return false;
   }
 }

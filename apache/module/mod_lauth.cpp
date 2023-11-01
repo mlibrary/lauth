@@ -34,13 +34,21 @@ static authz_status lauth_check_authorization(request_rec *r,
                                                   const char *require_line,
                                                   const void *parsed_require_line)
 {
-    if (!r->user) {
-        return AUTHZ_DENIED_NO_USER;
-    } else if (!strcmp("lauth-denied", r->user)) {
-        return AUTHZ_DENIED;
+    if (!r->ap_auth_type) {
+       return AUTHZ_DENIED_NO_USER;
     }
 
-    return AUTHZ_GRANTED;
+    if (Authorizer().isPasswordOnly(r->uri) && !r->user) {
+      return AUTHZ_DENIED_NO_USER;
+    }
+
+    Request req {
+      .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
+      .uri = r->uri ? std::string(r->uri) : "",
+      .user = r->user ? std::string(r->user) : ""
+    };
+
+    return Authorizer().isAllowed(req) ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
 
 static const authz_provider authz_lauth_provider =

@@ -3,13 +3,13 @@
 
 #include <string>
 
-#include "lauth/request_info.hpp"
+#include "lauth/request.hpp"
 
 namespace mlibrary::lauth {
   class Authorizer {
     public:
-      int foo();
-      std::string bar(RequestInfo req);
+      bool isPasswordOnly(std::string url);
+      bool isAllowed(Request req);
   };
 }
 
