@@ -15,12 +15,13 @@ gmock = subproject('gtest').get_variable('gmock_dep')
 
 lauth_includes = include_directories('include')
 lauth_sources = files([
-  'src/lauth/authorizer.cpp'
+  'src/lauth/api_client.cpp',
+  'src/lauth/authorizer.cpp',
 ])
 lauth_tests = files([
   'test/lauth/api_client_test.cpp',
   'test/lauth/authorizer_test.cpp',
-  'test/lauth/request_test.cpp'
+  'test/lauth/request_test.cpp',
 ])
 
 liblauth = shared_library(
