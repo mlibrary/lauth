@@ -1,0 +1,8 @@
+# Nothing specialized so far, so ignore vscode settings
+.vscode/
+
+# Allow for symlinking compile_commands into main directory for nvim lspserver
+compile_commands.json
+
+# Conventional Meson build dir
+builddir/
