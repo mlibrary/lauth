@@ -11,4 +11,9 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
     t.uniqueIdentifier "lauth-by-username"
     t.association(:locations, :restricted_by_username, count: 1)
   end
+
+  f.trait(:restricted_by_client_ip) do |t|
+    t.uniqueIdentifier "lauth-by-client-ip"
+    t.association(:locations, :restricted_by_client_ip, count: 1)
+  end
 end

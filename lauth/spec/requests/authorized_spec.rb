@@ -1,3 +1,5 @@
+require "ipaddr"
+
 RSpec.describe "/authorized", type: [:request, :database] do
   # known resource, authorized user
   # unknown resource, authorized user
@@ -35,6 +37,25 @@ RSpec.describe "/authorized", type: [:request, :database] do
     it do
       get "/authorized", {user: "lauth-group-member", uri: "/restricted-by-username/"}
 
+      body = JSON.parse(last_response.body, symbolize_names: true)
+      expect(body).to eq({determination: "allowed"})
+    end
+  end
+
+  context "with an authorized client-ip" do
+    let!(:institution) { Factory[:institution] }
+    let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
+    let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
+    let!(:network) do
+      Factory[ :network,
+        :for_institution,
+        institution: institution,
+        dlpsCIDRAddress: "10.1.16.0/24"
+      ]
+    end
+
+    it do
+      get "/authorized", {user: "", uri: "/restricted-by-client-ip", ip: "10.1.16.2"}
       body = JSON.parse(last_response.body, symbolize_names: true)
       expect(body).to eq({determination: "allowed"})
     end

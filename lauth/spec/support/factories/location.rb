@@ -9,4 +9,8 @@ Factory.define(:location, struct_namespace: Lauth) do |f|
   f.trait(:restricted_by_username) do |t|
     t.dlpsPath "/restricted-by-username%"
   end
+
+  f.trait(:restricted_by_client_ip) do |t|
+    t.dlpsPath "/restricted-by-client-ip%"
+  end
 end

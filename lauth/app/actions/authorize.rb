@@ -7,7 +7,9 @@ module Lauth
 
         result = Lauth::Ops::Authorize.new(
           request: Lauth::Access::Request.new(
-            user: request.params[:user], uri: request.params[:uri]
+            user: request.params[:user],
+            uri: request.params[:uri],
+            client_ip: request.params[:ip]
           )
         ).call
 
