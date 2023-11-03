@@ -8,7 +8,6 @@ namespace mlibrary::lauth {
   }
 
   bool Authorizer::isAllowed(Request req) {
-    // return (req.user == "lauth-allowed");
     return client->isAllowed(req);
   }
 }

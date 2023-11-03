@@ -6,7 +6,8 @@
 namespace mlibrary::lauth {
   class ApiClient {
     public:
-      bool isAllowed(Request req);
+      virtual bool isAllowed(Request req);
+      virtual ~ApiClient() = default;
   };
 }
 

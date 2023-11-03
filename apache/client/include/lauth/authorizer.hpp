@@ -13,10 +13,13 @@ namespace mlibrary::lauth {
       Authorizer() : client(std::make_unique<ApiClient>()) {};
       Authorizer(std::unique_ptr<ApiClient>&& client) : client(std::move(client)) {};
       Authorizer(const Authorizer&) = delete;
+      Authorizer& operator=(const Authorizer&) = delete;
       Authorizer(Authorizer&&) = delete;
+      Authorizer& operator=(const Authorizer&&) = delete;
+      virtual ~Authorizer() = default;
 
       bool isPasswordOnly(std::string url);
-      bool isAllowed(Request req);
+      virtual bool isAllowed(Request req);
 
     protected:
       std::unique_ptr<ApiClient> client;
