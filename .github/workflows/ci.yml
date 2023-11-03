@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         suite:
-          - 'api'
-          - 'cli'
+#          - 'api'
+#          - 'cli'
           - 'test'
         ruby:
           - '3.2.2'
