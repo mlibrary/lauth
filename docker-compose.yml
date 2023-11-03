@@ -87,6 +87,13 @@ services:
       - ./apache/module:/lauth/apache/module
       - build_cache:/lauth/apache/build
 
+  client-tests:
+    build:
+      context: ./
+      dockerfile: ./apache/Dockerfile
+      target: client-tests
+    profiles: ["test"]
+
   test:
     profiles: ["test"]
     build:

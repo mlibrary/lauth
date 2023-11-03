@@ -25,6 +25,14 @@ WORKDIR /lauth/apache/module
 RUN make install
 
 ###
+FROM build-base AS client-tests
+COPY ./apache/client /lauth/apache/client/
+RUN meson setup /lauth/apache/client/build /lauth/apache/client
+WORKDIR /lauth/apache/client/build
+RUN meson configure -Dtests=true && meson compile
+CMD ["meson", "test", "-v"]
+
+###
 FROM module AS tests
 WORKDIR /lauth/apache/build
 RUN meson configure -Dtests=true && meson compile

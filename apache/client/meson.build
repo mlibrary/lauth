@@ -17,10 +17,12 @@ lauth_includes = include_directories('include')
 lauth_sources = files([
   'src/lauth/api_client.cpp',
   'src/lauth/authorizer.cpp',
+  'src/lauth/http_client.cpp',
 ])
 lauth_tests = files([
   'test/lauth/api_client_test.cpp',
   'test/lauth/authorizer_test.cpp',
+  'test/lauth/http_client_test.cpp',
   'test/lauth/request_test.cpp',
 ])
 
@@ -38,6 +40,7 @@ liblauth = shared_library(
 install_headers(
   'include/lauth/api_client.hpp',
   'include/lauth/authorizer.hpp',
+  'include/lauth/http_client.hpp',
   'include/lauth/request.hpp',
   subdir: 'lauth')
 
