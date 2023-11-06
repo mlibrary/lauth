@@ -5,9 +5,9 @@ services:
       context: ./
       dockerfile: ./lauth/Dockerfile
       target: development
-    args:
-      UID: ${UID:-1000}
-      GID: ${GID:-1000}
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     ports:
       - "2300:2300"
     depends_on:
@@ -21,9 +21,9 @@ services:
       context: ./
       dockerfile: ./lauth/Dockerfile
       target: development
-    args:
-      UID: ${UID:-1000}
-      GID: ${GID:-1000}
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     volumes:
       - ./lauth:/lauth/lauth
     command: ["rspec"]
