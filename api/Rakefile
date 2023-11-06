@@ -1,9 +1,0 @@
-require_relative "api"
-require "rom/sql/rake_task"
-
-namespace :db do
-  task :setup do
-    configuration = ROM::Configuration.new(:sql, Settings.db.to_h)
-    ROM::SQL::RakeSupport.env = configuration
-  end
-end

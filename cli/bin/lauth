@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-require "bundler/setup"
-require_relative "../cli"
-# puts $LOAD_PATH.unshift(File.expand_path(".", __FILE__))
-exit Lauth::CLI::APP.run(ARGV)

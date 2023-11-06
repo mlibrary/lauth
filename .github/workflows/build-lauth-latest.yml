@@ -1,5 +1,6 @@
 ---
-name: Build API latest from main (or manually from a selected branch)
+name: Build Lauth webapp
+description: Builds the webapp (api and admin) from main or manually from a selected branch
 
 on:
   workflow_dispatch:  # This allows to kick-off the action manually from GitHub Actions
@@ -11,22 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image and push to GitHub Container Registry
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: 'ghcr.io/mlibrary/lauth/lauth-api:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth-api:latest'
-          file: api/Dockerfile.prod
+          tags: 'ghcr.io/mlibrary/lauth/lauth:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth:latest'
+          file: lauth/Dockerfile
+          target: production

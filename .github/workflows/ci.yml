@@ -15,8 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         suite:
-#          - 'api'
-#          - 'cli'
+          - 'app'
           - 'test'
         ruby:
           - '3.2.2'
@@ -33,20 +32,14 @@ jobs:
           echo "UID=$(id -u)" > .env
           echo "GID=$(id -g)" >> .env
 
-      - if: matrix.suite == 'api'
+      - if: matrix.suite == 'app'
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api
-          docker compose run api bundle exec rake db:migrate
-          docker compose run api bin/standardrb
-          docker compose run api bin/rspec
-          docker compose run api bin/cucumber
-      - if: matrix.suite == 'cli'
-        run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api cli
-          docker compose up -d api
-          docker compose exec api bundle exec rake db:migrate
-          docker compose run cli
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app
+          # docker compose run app bundle exec rake db:migrate
+          # docker compose run app-dev bin/standardrb
+          docker compose run app-dev
+          # docker compose run api bin/cucumber
       - if: matrix.suite == 'test'
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} api apache
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app apache
           docker compose run test
