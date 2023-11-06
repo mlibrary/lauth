@@ -1,63 +1,26 @@
 ---
 services:
-  cli:
+  app:
     build:
       context: ./
-      dockerfile: ./cli/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-    profiles: ["test", "cli"]
-    depends_on:
-      api:
-        condition: "service_healthy"
-      mariadb:
-        condition: "service_healthy"
-    volumes:
-      - ./cli:/lauth/cli
-      - ./lib:/lauth/lib
-      - ./db:/lauth/db
-    environment:
-      - LAUTH_API_DB_HOST=db.lauth.local
-      - LAUTH_API_DB_DATABASE=lauth
-      - LAUTH_API_DB_USER=lauth
-      - LAUTH_API_DB_PASSWORD=lauth
-    command:
-      - /bin/bash
-      - "-c"
-      - "bin/lauth --route=http://api.lauth.local:9292 initconfig && bin/standardrb && bin/rspec && bin/cucumber"
-
-  api:
-    build:
-      context: ./
-      dockerfile: ./api/Dockerfile
-      args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1000}
-    depends_on:
-      mariadb:
-        condition: "service_healthy"
-    hostname: api.lauth.local
-    networks:
-      default:
-        aliases: ["api"]
+      dockerfile: ./lauth/Dockerfile
+      target: development
     ports:
-      - "9292:9292"
-    environment:
-      - LAUTH_API_DB_HOST=db.lauth.local
-      - LAUTH_API_DB_DATABASE=lauth
-      - LAUTH_API_DB_USER=lauth
-      - LAUTH_API_DB_PASSWORD=lauth
+      - "2300:2300"
+    depends_on:
+      mariadb:
+        condition: "service_healthy"
     volumes:
-      - ./api:/lauth/api
-      - ./lib:/lauth/lib
-    healthcheck:
-      test: ["CMD", "curl", "--connect-timeout", "1", "http://api.lauth.local:9292"]
-      interval: "10s"
-      timeout: "10s"
-      retries: 3
-      start_period: "10s"
-      start_interval: "1s"
+      - ./lauth:/lauth/lauth
+
+  app-dev:
+    build:
+      context: ./
+      dockerfile: ./lauth/Dockerfile
+      target: development
+    volumes:
+      - ./lauth:/lauth/lauth
+    command: ["rspec"]
 
   mariadb:
     image: bitnami/mariadb
@@ -123,8 +86,6 @@ services:
         GID: ${GID:-1000}
     depends_on:
       apache:
-        condition: "service_healthy"
-      api:
         condition: "service_healthy"
       mariadb:
         condition: "service_healthy"
