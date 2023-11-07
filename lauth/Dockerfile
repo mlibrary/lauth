@@ -85,6 +85,7 @@ FROM gems AS production
 
 COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
+RUN bundle config set path /gems
 
 ENV HANAMI_ENV=production
 
@@ -98,6 +99,7 @@ FROM dev-gems AS development
 
 COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
+RUN bundle config set path /gems
 
 EXPOSE 2300
 USER $UNAME
