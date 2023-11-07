@@ -83,7 +83,7 @@ RUN --mount=type=cache,sharing=locked,target=/gemcache \
 #############
 FROM gems AS production
 
-COPY . .
+COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
 
 ENV HANAMI_ENV=production
@@ -96,7 +96,7 @@ CMD ["bin/puma"]
 ############
 FROM dev-gems AS development
 
-COPY . .
+COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
 
 EXPOSE 2300
