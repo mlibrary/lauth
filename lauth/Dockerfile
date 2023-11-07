@@ -99,8 +99,6 @@ FROM dev-gems AS development
 COPY . .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
 
-ENV HANAMI_ENV=development
-
 EXPOSE 2300
 USER $UNAME
 CMD ["hanami", "server"]
