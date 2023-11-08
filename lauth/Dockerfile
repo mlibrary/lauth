@@ -14,92 +14,97 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
     > /etc/apt/apt.conf.d/keep-cache
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt update && apt-get --no-install-recommends install -y \
+    apt update && apt-get --no-install-recommends install -yq \
       build-essential \
       libmariadb-dev \
       curl \
       git \
       unzip
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    --mount=type=cache,sharing=locked,target=/var/lib/apt \
     curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
     ./nsolid_setup_deb.sh ${NODE_VERSION} && \
-    apt-get install nodejs -y
+    apt-get install nodejs -yq
 
-RUN gem install foreman bundler:${BUNDLER_VERSION}
+RUN gem install bundler:${BUNDLER_VERSION}
 
 RUN groupadd -g ${GID} -o ${UNAME}
 RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
-# RUN chown -R ${UID}:${GID} /usr/local/bundle
-# RUN mkdir -p /lauth/api /lauth/lib
-# RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
+ENV PATH="/lauth/lauth/bin:$PATH"
 WORKDIR /lauth/lauth
 COPY ./lauth/Gemfile* .
 
-ENV PATH="/lauth/lauth/bin:$PATH"
-
-############
-FROM base AS gems
-RUN --mount=type=cache,sharing=locked,target=/gemcache \
-    --mount=type=cache,sharing=locked,target=/gembuild \
-    mkdir -p /gems && \
-    unset BUNDLE_APP_CONFIG && \
-    bundle config set app_config .bundle && \
-    bundle config set path /gembuild && \
-    bundle config set cache_path /gemcache && \
-    bundle config set without 'development test' && \
-    bundle cache && \
-    bundle clean && \
-    bundle config set path /gems && \
-    bundle config unset cache_path && \
-    cp -ar /gembuild/* /gems
-
 
 #############
-FROM gems AS dev-gems
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt update && apt-get --no-install-recommends install -yq \
+FROM base AS base-dev
+
+RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
+    --mount=type=cache,sharing=locked,target=/var/lib/apt \
+    apt-get --no-install-recommends install -yq \
       fd-find \
       less \
       ripgrep \
       vim-tiny
 
-RUN --mount=type=cache,sharing=locked,target=/gemcache \
-    --mount=type=cache,sharing=locked,target=/gembuild-dev \
-    bundle config set path /gembuild-dev && \
-    bundle config set cache_path /gemcache && \
-    bundle config set without '' && \
-    bundle cache && \
+RUN gem install foreman
+
+
+############
+FROM base AS gems-prod
+
+RUN --mount=type=cache,id=lauth-bundle-prod,sharing=locked,target=/vendor/bundle \
+    --mount=type=cache,sharing=locked,target=/vendor/cache \
+    bundle config set path /vendor/bundle && \
+    bundle config set cache_path /vendor/cache && \
+    bundle config set cache_all true && \
+    bundle config set without 'development test' && \
+    bundle cache --no-install && \
+    bundle install --local && \
     bundle clean && \
-    bundle config set path /gems && \
     bundle config unset cache_path && \
-    cp -ar /gembuild-dev/* /gems
+    bundle config set path /gems && \
+    mkdir -p /gems && \
+    cp -ar /vendor/bundle/* /gems
 
 
 #############
-FROM gems AS production
+FROM base-dev AS gems-dev
+
+RUN --mount=type=cache,id=lauth-bundle-dev,sharing=locked,target=/vendor/bundle \
+    --mount=type=cache,sharing=locked,target=/vendor/cache \
+    bundle config set path /vendor/bundle && \
+    bundle config set cache_path /vendor/cache && \
+    bundle config set cache_all true && \
+    bundle cache --no-install && \
+    bundle install --local && \
+    bundle clean && \
+    bundle config unset cache_path && \
+    bundle config set path /gems && \
+    mkdir -p /gems && \
+    cp -ar /vendor/bundle/* /gems
+
+
+#############
+FROM gems-prod AS production
 
 COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
-RUN bundle config set path /gems
 
 ENV HANAMI_ENV=production
 
 EXPOSE 2300
 USER $UNAME
-CMD ["bin/puma"]
+CMD ["puma"]
 
 
 ############
-FROM dev-gems AS development
+FROM gems-dev AS development
 
 COPY ./lauth .
 RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
-RUN bundle config set path /gems
 
 EXPOSE 2300
 USER $UNAME

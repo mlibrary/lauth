@@ -1,3 +1,4 @@
+.bundle/
 apache/client/build/
 apache/client/builddir/
 apache/client/.cache/

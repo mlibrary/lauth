@@ -17,6 +17,7 @@ services:
       - ./lauth:/lauth/lauth
 
   app-dev:
+    profiles: ["test"]
     build:
       context: ./
       dockerfile: ./lauth/Dockerfile
@@ -24,6 +25,9 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+    depends_on:
+      mariadb:
+        condition: "service_healthy"
     volumes:
       - ./lauth:/lauth/lauth
     command: ["rspec"]
@@ -84,6 +88,7 @@ services:
       - build_cache:/lauth/apache/build
 
   test:
+    profiles: ["test"]
     build:
       context: ./
       dockerfile: ./test/Dockerfile
@@ -95,7 +100,6 @@ services:
         condition: "service_healthy"
       mariadb:
         condition: "service_healthy"
-    profiles: ["test"]
     volumes:
       - ./test:/lauth/test
 
