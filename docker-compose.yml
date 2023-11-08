@@ -94,7 +94,7 @@ services:
       target: tests
     profiles: ["integration"]
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     command: ["./http-service", "9000"]
 
   client-tests:
