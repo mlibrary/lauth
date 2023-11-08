@@ -22,8 +22,11 @@ lauth_sources = files([
 lauth_tests = files([
   'test/lauth/api_client_test.cpp',
   'test/lauth/authorizer_test.cpp',
-  'test/lauth/http_client_test.cpp',
   'test/lauth/request_test.cpp',
+])
+
+lauth_integration_tests = files([
+  'test/lauth/http_client_test.cpp',
 ])
 
 liblauth = shared_library(
@@ -57,7 +60,20 @@ if get_option('tests')
     ]
   )
 
+  integration_tests = executable(
+    'lauth-integration-test',
+    lauth_sources + lauth_integration_tests,
+    include_directories: lauth_includes,
+    dependencies: [
+      cpp_httplib,
+      json,
+      gtest,
+      gmock
+    ]
+  )
+
   test('lauth-test', tests)
+  test('lauth-integration-test', integration_tests)
 endif
 
 os = host_machine.system()
@@ -69,7 +85,7 @@ endif
 
 executable(
   'http-service',
-  files(['test/lauth/mock_service.cpp']),
+  files(['test/mock_service.cpp']),
   dependencies: [
     cpp_httplib,
   ],

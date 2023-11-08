@@ -87,6 +87,16 @@ services:
       - ./apache/module:/lauth/apache/module
       - build_cache:/lauth/apache/build
 
+  mock-api:
+    build:
+      context: ./
+      dockerfile: ./apache/Dockerfile
+      target: tests
+    profiles: ["integration"]
+    ports:
+      - "9000:9000"
+    command: ["./http-service", "9000"]
+
   client-tests:
     build:
       context: ./
