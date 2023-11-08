@@ -3,16 +3,33 @@
 
 using testing::_;
 
+#include <httplib.h>
+
 #include "lauth/http_client.hpp"
 #include "lauth/request.hpp"
 
 using namespace mlibrary::lauth;
 
-TEST(HttpClientTest, a_request_with_authorized_user_is_allowed) {
-  HttpClient client;
-  Request request;
+TEST(HttpClientTest, mock_service_response_with_is_allowed) {
+  std::string host = "";
+  uint16_t port = 0;
+  HttpClient client(host, port);
 
-  request.user = "authorized";
-  bool result = client.isAllowed(request);
+  Request req;
+  req.user = "authorized";
+
+  bool result = client.isAllowed(req);
   EXPECT_THAT(result, true);
+}
+
+TEST(HttpClientTest, mock_service_response_with_is_not_allowed) {
+  std::string host = "";
+  uint16_t port = 0;
+  HttpClient client(host, port);
+
+  Request req;
+  req.user = "authorized";
+
+  bool result = client.isAllowed(req);
+  EXPECT_THAT(result, false);
 }

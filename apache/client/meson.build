@@ -62,16 +62,25 @@ endif
 
 os = host_machine.system()
 if os == 'darwin'
-  http_check_links = []
+  httplib_links = []
 else
-  http_check_links = ['-lssl', '-lcrypto']
+  httplib_links = ['-lssl', '-lcrypto']
 endif
 
-http_check = executable(
+executable(
+  'http-service',
+  files(['test/lauth/mock_service.cpp']),
+  dependencies: [
+    cpp_httplib,
+  ],
+  link_args: httplib_links
+)
+
+executable(
   'http-check',
   files(['src/http_check.cpp']),
   dependencies: [
     cpp_httplib,
   ],
-  link_args: http_check_links
+  link_args: httplib_links
 )

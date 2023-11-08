@@ -6,6 +6,7 @@
 namespace mlibrary::lauth {
   class HttpClient {
     public:
+      HttpClient(std::string host = "", uint16_t port = 0);
       virtual ~HttpClient() = default;
       
       virtual bool isAllowed(Request req);
