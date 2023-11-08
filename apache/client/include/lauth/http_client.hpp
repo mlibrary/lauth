@@ -10,6 +10,8 @@ namespace mlibrary::lauth {
       virtual ~HttpClient() = default;
 
       virtual bool isAllowed(Request req);
+      virtual std::string get(const std::string& url); 
+
 
     protected:
       const std::string baseUrl;
