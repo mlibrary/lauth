@@ -18,6 +18,7 @@ namespace mlibrary::lauth {
       Authorizer& operator=(const Authorizer&&) = delete;
       virtual ~Authorizer() = default;
 
+      bool isPasswordOnly(std::string url);
       virtual bool isAllowed(Request req);
 
     protected:
