@@ -13,6 +13,7 @@ class MockApiClient : public ApiClient {
 
 class MockHttpClient : public HttpClient {
     public:
+    MockHttpClient() : HttpClient("http://localhost:9000") {};
     MOCK_METHOD(bool, isAllowed, (Request), (override));
 };
 

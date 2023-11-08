@@ -10,10 +10,10 @@ using testing::_;
 
 using namespace mlibrary::lauth;
 
+const std::string api_url = "http://localhost:9000";
+
 TEST(HttpClientTest, mock_service_response_with_is_allowed) {
-  std::string host = "";
-  uint16_t port = 0;
-  HttpClient client(host, port);
+  HttpClient client(api_url);
 
   Request req;
   req.user = "authorized";
@@ -23,9 +23,7 @@ TEST(HttpClientTest, mock_service_response_with_is_allowed) {
 }
 
 TEST(HttpClientTest, mock_service_response_with_is_not_allowed) {
-  std::string host = "";
-  uint16_t port = 0;
-  HttpClient client(host, port);
+  HttpClient client(api_url);
 
   Request req;
   req.user = "authorized";

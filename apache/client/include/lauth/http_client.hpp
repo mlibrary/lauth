@@ -6,10 +6,13 @@
 namespace mlibrary::lauth {
   class HttpClient {
     public:
-      HttpClient(std::string host = "", uint16_t port = 0);
+      HttpClient(const std::string& baseUrl) : baseUrl(baseUrl) {};
       virtual ~HttpClient() = default;
-      
+
       virtual bool isAllowed(Request req);
+
+    protected:
+      const std::string baseUrl;
   };
 }
 
