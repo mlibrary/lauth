@@ -1,13 +1,14 @@
 #include "lauth/http_client.hpp"
 
+#include <httplib.h>
+
 namespace mlibrary::lauth {
+  std::string HttpClient::get(const std::string& path) {
+    httplib::Client client(baseUrl);
 
-  bool HttpClient::isAllowed(Request req) {
-    return (req.user == "authorized");
-  }
+    auto res = client.Get(path);
 
-  std::string HttpClient::get(const std::string& url) {
-    return "Root";
+    return res->body;
   }
 }
 

@@ -18,6 +18,10 @@ int main(int argc, char **argv) {
     res.set_content("Root", "text/plain");
   });
 
+  server.Get("/ping", [](const Request &req, Response &res) {
+    res.set_content("pong", "text/plain");
+  });
+
   server.Get("/stop", [&](const Request &req, Response &res) {
     res.set_content("Shutting down server...", "text/plain");
     server.stop();

@@ -12,10 +12,16 @@ using namespace mlibrary::lauth;
 
 const std::string api_url = "http://localhost:9000";
 
-TEST(HttpClientTest, mock_service_response) {
+TEST(HttpClient, get_request_returns_body) {
   HttpClient client(api_url);
 
   std::string response = client.get("/");
   EXPECT_THAT(response, "Root");
 }
 
+TEST(HttpClient, get_request_with_path_returns_body) {
+  HttpClient client(api_url);
+
+  std::string response = client.get("/ping");
+  EXPECT_THAT(response, "pong");
+}
