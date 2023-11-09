@@ -10,7 +10,37 @@ using ::testing::Return;
 
 using namespace mlibrary::lauth;
 
-TEST(ApiClientTest, allowed_by_mock) {
+TEST(ApiClient, allowed_by_mock_http_client) {
+  auto client = std::make_unique<MockHttpClient>();
+  EXPECT_CALL(*client, get("/users/authorized/is_allowed")).WillOnce(Return("yes"));
+  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
+  ApiClient api_client(std::move(client));
+
+  Request req {
+    .user = "authorized",
+  };
+
+  auto allowed = api_client.isAllowed(req);
+
+  EXPECT_THAT(allowed, true);
+}
+
+TEST(ApiClient, denied_by_mock_http_client) {
+  auto client = std::make_unique<MockHttpClient>();
+  EXPECT_CALL(*client, get("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
+  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
+  ApiClient api_client(std::move(client));
+
+  Request req {
+    .user = "unauthorized",
+  };
+
+  auto allowed = api_client.isAllowed(req);
+
+  EXPECT_THAT(allowed, false);
+}
+
+TEST(ApiClient, allowed_by_mock) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
   ApiClient api_client(std::move(client));
@@ -22,7 +52,7 @@ TEST(ApiClientTest, allowed_by_mock) {
   EXPECT_THAT(allowed, true);
 }
 
-TEST(ApiClientTest, denied_by_mock) {
+TEST(ApiClient, denied_by_mock) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
   ApiClient api_client(std::move(client));
@@ -34,7 +64,7 @@ TEST(ApiClientTest, denied_by_mock) {
   EXPECT_THAT(allowed, false);
 }
 
-TEST(ApiClientTest, a_request_with_no_user_is_denied) {
+TEST(ApiClient, a_request_with_no_user_is_denied) {
   ApiClient client;
   Request request;
 
@@ -43,7 +73,7 @@ TEST(ApiClientTest, a_request_with_no_user_is_denied) {
 }
 
 
-TEST(ApiClientTest, a_request_with_authorized_user_is_allowed) {
+TEST(ApiClient, a_request_with_authorized_user_is_allowed) {
   ApiClient client;
   Request request;
 
@@ -52,7 +82,7 @@ TEST(ApiClientTest, a_request_with_authorized_user_is_allowed) {
   EXPECT_THAT(result, true);
 }
 
-TEST(ApiClientTest, a_request_with_unauthorized_user_is_denied) {
+TEST(ApiClient, a_request_with_unauthorized_user_is_denied) {
   ApiClient client;
   Request request;
 

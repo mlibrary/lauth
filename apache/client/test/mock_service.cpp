@@ -22,6 +22,14 @@ int main(int argc, char **argv) {
     res.set_content("pong", "text/plain");
   });
 
+  server.Get("/users/authorized/is_allowed", [](const Request &req, Response &res) {
+    res.set_content("yes", "text/plain");
+  });
+
+  server.Get("/users/unauthorized/is_allowed", [](const Request &req, Response &res) {
+    res.set_content("no", "text/plain");
+  });
+
   server.Get("/stop", [&](const Request &req, Response &res) {
     res.set_content("Shutting down server...", "text/plain");
     server.stop();

@@ -3,6 +3,8 @@
 
 #include "lauth/request.hpp"
 
+#include <string>
+
 namespace mlibrary::lauth {
   class HttpClient {
     public:
