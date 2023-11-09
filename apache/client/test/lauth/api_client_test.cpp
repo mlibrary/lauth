@@ -13,7 +13,6 @@ using namespace mlibrary::lauth;
 TEST(ApiClient, allowed_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, get("/users/authorized/is_allowed")).WillOnce(Return("yes"));
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
   ApiClient api_client(std::move(client));
 
   Request req {
@@ -28,36 +27,11 @@ TEST(ApiClient, allowed_by_mock_http_client) {
 TEST(ApiClient, denied_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, get("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
   ApiClient api_client(std::move(client));
 
   Request req {
     .user = "unauthorized",
   };
-
-  auto allowed = api_client.isAllowed(req);
-
-  EXPECT_THAT(allowed, false);
-}
-
-TEST(ApiClient, allowed_by_mock) {
-  auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
-  ApiClient api_client(std::move(client));
-
-  Request req {};
-
-  auto allowed = api_client.isAllowed(req);
-
-  EXPECT_THAT(allowed, true);
-}
-
-TEST(ApiClient, denied_by_mock) {
-  auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
-  ApiClient api_client(std::move(client));
-
-  Request req {};
 
   auto allowed = api_client.isAllowed(req);
 

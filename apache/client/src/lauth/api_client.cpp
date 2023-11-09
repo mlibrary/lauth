@@ -8,6 +8,6 @@ namespace mlibrary::lauth {
     std::stringstream url;
     url << "/users/" << req.user << "/is_allowed";
     std::string result = client->get(url.str());
-    return client->isAllowed(req);
+    return result == "yes";
   }
 }
