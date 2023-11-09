@@ -77,32 +77,32 @@ services:
       start_interval: "1s"
 
   module:
+    profiles: [ "dev" ]
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
-    profiles: ["dev"]
     volumes:
       - ./apache/client:/lauth/apache/client
       - ./apache/module:/lauth/apache/module
       - build_cache:/lauth/apache/build
 
   mock-api:
+    profiles: [ "integration" ]
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
-    profiles: ["integration"]
     ports:
       - "127.0.0.1:9000:9000"
     command: ["./http-service", "9000"]
 
   client-tests:
+    profiles: [ "test" ]
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: client-tests
-    profiles: ["test"]
 
   test:
     profiles: ["test"]
