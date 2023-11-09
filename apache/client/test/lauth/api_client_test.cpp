@@ -39,7 +39,7 @@ TEST(ApiClient, denied_by_mock_http_client) {
 }
 
 TEST(ApiClient, a_request_with_no_user_is_denied) {
-  ApiClient client;
+  ApiClient client("http://localhost:9000");
   Request request;
 
   bool result = client.isAllowed(request);
@@ -48,7 +48,7 @@ TEST(ApiClient, a_request_with_no_user_is_denied) {
 
 
 TEST(ApiClient, a_request_with_authorized_user_is_allowed) {
-  ApiClient client;
+  ApiClient client("http://localhost:9000");
   Request request;
 
   request.user = "authorized";
@@ -57,7 +57,7 @@ TEST(ApiClient, a_request_with_authorized_user_is_allowed) {
 }
 
 TEST(ApiClient, a_request_with_unauthorized_user_is_denied) {
-  ApiClient client;
+  ApiClient client("http://localhost:9000");
   Request request;
 
   request.user = "unauthorized";

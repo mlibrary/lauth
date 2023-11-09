@@ -8,7 +8,7 @@ namespace mlibrary::lauth {
 
     auto res = client.Get(path);
 
-    return res->body;
+    return res ? res->body : "";
   }
 }
 

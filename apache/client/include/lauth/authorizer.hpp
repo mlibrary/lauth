@@ -10,7 +10,7 @@
 namespace mlibrary::lauth {
   class Authorizer {
     public:
-      Authorizer() : client(std::make_unique<ApiClient>()) {};
+      Authorizer(const std::string& url) : client(std::make_unique<ApiClient>(url)) {};
       Authorizer(std::unique_ptr<ApiClient>&& client) : client(std::move(client)) {};
       Authorizer(const Authorizer&) = delete;
       Authorizer& operator=(const Authorizer&) = delete;

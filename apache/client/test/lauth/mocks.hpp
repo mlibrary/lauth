@@ -8,6 +8,7 @@ using namespace mlibrary::lauth;
 
 class MockApiClient : public ApiClient {
     public:
+    MockApiClient() : ApiClient("http://localhost:9000") {};
     MOCK_METHOD(bool, isAllowed, (Request), (override));
 };
 

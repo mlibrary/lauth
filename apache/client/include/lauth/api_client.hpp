@@ -9,7 +9,7 @@
 namespace mlibrary::lauth {
   class ApiClient {
     public:
-      ApiClient() : client(std::make_unique<HttpClient>("http://localhost:9000")) {};
+      ApiClient(const std::string& url) : client(std::make_unique<HttpClient>(url)) {};
       ApiClient(std::unique_ptr<HttpClient>&& client) : client(std::move(client)) {};
       ApiClient(const ApiClient&) = delete;
       ApiClient& operator=(const ApiClient&) = delete;
