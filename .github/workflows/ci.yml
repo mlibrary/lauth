@@ -16,6 +16,7 @@ jobs:
       matrix:
         suite:
           - 'app'
+          - 'client-tests'
           - 'test'
         ruby:
           - '3.2.2'
@@ -36,6 +37,10 @@ jobs:
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app-dev
           docker compose run app-dev
+      - if: matrix.suite == 'client-tests'
+        run: |
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} client-tests
+          docker compose run client-tests
       - if: matrix.suite == 'test'
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app apache
