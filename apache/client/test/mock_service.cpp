@@ -14,15 +14,23 @@ int main(int argc, char **argv) {
     port = server.bind_to_any_port(address);
   }
 
-  server.Get("/", [](const Request &req, Response &res) {
+  server.Get("/", [](const Request &, Response &res) {
     res.set_content("Root", "text/plain");
   });
 
-  server.Get("/ping", [](const Request &req, Response &res) {
+  server.Get("/ping", [](const Request &, Response &res) {
     res.set_content("pong", "text/plain");
   });
 
-  server.Get("/stop", [&](const Request &req, Response &res) {
+  server.Get("/users/authorized/is_allowed", [](const Request &, Response &res) {
+    res.set_content("yes", "text/plain");
+  });
+
+  server.Get("/users/unauthorized/is_allowed", [](const Request &, Response &res) {
+    res.set_content("no", "text/plain");
+  });
+
+  server.Get("/stop", [&](const Request &, Response &res) {
     res.set_content("Shutting down server...", "text/plain");
     server.stop();
   });

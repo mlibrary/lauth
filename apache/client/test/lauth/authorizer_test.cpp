@@ -22,7 +22,9 @@ TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
   Authorizer authorizer(std::move(client));
 
   Request req {
-    .user = "lauth-allowed"
+    .ip = "",
+    .uri = "",
+    .user = "lauth-allowed",
   };
   auto allowed = authorizer.isAllowed(req);
 
@@ -35,7 +37,9 @@ TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
   Authorizer authorizer(std::move(client));
 
   Request req {
-    .user = "lauth-denied"
+    .ip = "",
+    .uri = "",
+    .user = "lauth-denied",
   };
   auto allowed = authorizer.isAllowed(req);
 

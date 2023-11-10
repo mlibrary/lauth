@@ -10,32 +10,40 @@ using ::testing::Return;
 
 using namespace mlibrary::lauth;
 
-TEST(ApiClientTest, allowed_by_mock) {
+TEST(ApiClient, allowed_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
+  EXPECT_CALL(*client, get("/users/authorized/is_allowed")).WillOnce(Return("yes"));
   ApiClient api_client(std::move(client));
 
-  Request req {};
+  Request req {
+    .ip = "",
+    .uri = "",
+    .user = "authorized",
+  };
 
   auto allowed = api_client.isAllowed(req);
 
   EXPECT_THAT(allowed, true);
 }
 
-TEST(ApiClientTest, denied_by_mock) {
+TEST(ApiClient, denied_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
+  EXPECT_CALL(*client, get("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
   ApiClient api_client(std::move(client));
 
-  Request req {};
+  Request req {
+    .ip = "",
+    .uri = "",
+    .user = "unauthorized",
+  };
 
   auto allowed = api_client.isAllowed(req);
 
   EXPECT_THAT(allowed, false);
 }
 
-TEST(ApiClientTest, a_request_with_no_user_is_denied) {
-  ApiClient client;
+TEST(ApiClient, a_request_with_no_user_is_denied) {
+  ApiClient client("http://localhost:9000");
   Request request;
 
   bool result = client.isAllowed(request);
@@ -43,8 +51,8 @@ TEST(ApiClientTest, a_request_with_no_user_is_denied) {
 }
 
 
-TEST(ApiClientTest, a_request_with_authorized_user_is_allowed) {
-  ApiClient client;
+TEST(ApiClient, a_request_with_authorized_user_is_allowed) {
+  ApiClient client("http://localhost:9000");
   Request request;
 
   request.user = "authorized";
@@ -52,8 +60,8 @@ TEST(ApiClientTest, a_request_with_authorized_user_is_allowed) {
   EXPECT_THAT(result, true);
 }
 
-TEST(ApiClientTest, a_request_with_unauthorized_user_is_denied) {
-  ApiClient client;
+TEST(ApiClient, a_request_with_unauthorized_user_is_denied) {
+  ApiClient client("http://localhost:9000");
   Request request;
 
   request.user = "unauthorized";
