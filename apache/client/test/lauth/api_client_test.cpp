@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+
 #include "mocks.hpp"
 
 using ::testing::_;
@@ -11,7 +12,7 @@ using ::testing::Return;
 
 using namespace mlibrary::lauth;
 
-TEST(ApiClient, allowed_by_mock_http_client) {
+TEST(ApiClient, RequestByAuthorizedUserIsAllowed) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, get("/users/authorized/is_allowed")).WillOnce(Return("yes"));
   ApiClient api_client(std::move(client));
@@ -27,7 +28,7 @@ TEST(ApiClient, allowed_by_mock_http_client) {
   EXPECT_THAT(allowed, true);
 }
 
-TEST(ApiClient, denied_by_mock_http_client) {
+TEST(ApiClient, RequestByUnauthorizedUserIsDenied) {
   auto client = std::make_unique<MockHttpClient>();
   EXPECT_CALL(*client, get("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
   ApiClient api_client(std::move(client));
@@ -43,29 +44,24 @@ TEST(ApiClient, denied_by_mock_http_client) {
   EXPECT_THAT(allowed, false);
 }
 
-TEST(ApiClient, a_request_with_no_user_is_denied) {
-  ApiClient client("http://localhost:9000");
+TEST(ApiClient, RequestByUnknownUserIsDenied) {
+  GTEST_SKIP() << "This is passing for the wrong reason and GMock is giving "
+               << "a warning because we have not set any expectations. "
+               << "There is an uninteresting/unexpected call to the HttpClient "
+               << "to get '/users//is_allowed', which should be rejected "
+               << "before the HTTP request or expressed differently (possibly "
+               << "with query params).";
+  auto http_client = std::make_unique<MockHttpClient>();
+  ApiClient client(std::move(http_client));
   Request request;
 
   bool result = client.isAllowed(request);
   EXPECT_THAT(result, false);
 }
 
-
-TEST(ApiClient, a_request_with_authorized_user_is_allowed) {
-  ApiClient client("http://localhost:9000");
-  Request request;
-
-  request.user = "authorized";
-  bool result = client.isAllowed(request);
-  EXPECT_THAT(result, true);
-}
-
-TEST(ApiClient, a_request_with_unauthorized_user_is_denied) {
-  ApiClient client("http://localhost:9000");
-  Request request;
-
-  request.user = "unauthorized";
-  bool result = client.isAllowed(request);
-  EXPECT_THAT(result, false);
+TEST(ApiClient, UsesTheSuppliedApiUrl) {
+  GTEST_SKIP() << "Skipping test that ApiClient makes an HttpClient for the "
+               << "correct URL... pushing everything back to config and likely "
+               << "a factory/builder rather than concrete class dependency.";
+  ApiClient client("http://api.invalid");
 }

@@ -8,16 +8,16 @@
 
 using namespace mlibrary::lauth;
 
-class MockApiClient : public ApiClient {
-    public:
-    MockApiClient() : ApiClient("http://localhost:9000") {};
-    MOCK_METHOD(bool, isAllowed, (Request), (override));
-};
-
 class MockHttpClient : public HttpClient {
     public:
-    MockHttpClient() : HttpClient("http://localhost:9000") {};
+    MockHttpClient() : HttpClient("http://api.invalid") {};
     MOCK_METHOD(std::optional<std::string>, get, (const std::string&), (override));
+};
+
+class MockApiClient : public ApiClient {
+    public:
+    MockApiClient() : ApiClient(std::make_unique<MockHttpClient>()) {};
+    MOCK_METHOD(bool, isAllowed, (Request), (override));
 };
 
 #endif
