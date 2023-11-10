@@ -88,17 +88,28 @@ services:
       - build_cache:/lauth/apache/build
 
   mock-api:
-    profiles: [ "integration" ]
+    profiles: [ "test", "integration" ]
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
     ports:
       - "127.0.0.1:9000:9000"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://127.0.0.1:9000", "--output", "/dev/null", "--silent" ]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2s"
+      start_interval: "1s"
     command: ["./http-service", "9000"]
 
   client-tests:
     profiles: [ "test" ]
+    depends_on:
+      mock-api:
+        condition:
+          "service_healthy"
     build:
       context: ./
       dockerfile: ./apache/Dockerfile

@@ -16,6 +16,8 @@ TEST(ApiClient, allowed_by_mock_http_client) {
   ApiClient api_client(std::move(client));
 
   Request req {
+    .ip = "",
+    .uri = "",
     .user = "authorized",
   };
 
@@ -30,6 +32,8 @@ TEST(ApiClient, denied_by_mock_http_client) {
   ApiClient api_client(std::move(client));
 
   Request req {
+    .ip = "",
+    .uri = "",
     .user = "unauthorized",
   };
 
