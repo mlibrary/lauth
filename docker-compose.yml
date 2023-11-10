@@ -82,6 +82,8 @@ services:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
+    environment:
+      - LAUTH_TEST_API_URL=http://mock-api:9000
     volumes:
       - ./apache/client:/lauth/apache/client
       - ./apache/module:/lauth/apache/module

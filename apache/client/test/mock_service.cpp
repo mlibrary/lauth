@@ -15,18 +15,22 @@ int main(int argc, char **argv) {
   }
 
   server.Get("/", [](const Request &, Response &res) {
+    std::cout << "GET /" << std::endl;
     res.set_content("Root", "text/plain");
   });
 
   server.Get("/ping", [](const Request &, Response &res) {
+    std::cout << "GET /ping" << std::endl;
     res.set_content("pong", "text/plain");
   });
 
   server.Get("/users/authorized/is_allowed", [](const Request &, Response &res) {
+    std::cout << "GET /users/authorized/is_allowed" << std::endl;
     res.set_content("yes", "text/plain");
   });
 
   server.Get("/users/unauthorized/is_allowed", [](const Request &, Response &res) {
+    std::cout << "GET /users/unauthorized/is_allowed" << std::endl;
     res.set_content("no", "text/plain");
   });
 
@@ -37,7 +41,8 @@ int main(int argc, char **argv) {
 
   server.Get("/users/:id/is_allowed", [](const Request &req, Response &res) {
     auto user_id = req.path_params.at("id");
-    std::cout << "Got request for /users/:id/is_allowed" << std::endl;
+    std::cout << "GET /users/:id/is_allowed -- "
+              << "binding :id as '" << user_id << "'" << std::endl;
     res.set_content("no", "text/plain");
   });
 
