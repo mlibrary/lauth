@@ -10,7 +10,7 @@ namespace mlibrary::lauth {
       HttpClient(const std::string& baseUrl) : baseUrl(baseUrl) {};
       virtual ~HttpClient() = default;
 
-      virtual std::optional<std::string> getOptional(const std::string &path);
+      virtual std::optional<std::string> get(const std::string &path);
 
     protected:
       const std::string baseUrl;

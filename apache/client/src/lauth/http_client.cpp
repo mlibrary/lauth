@@ -5,7 +5,7 @@
 #include <optional>
 
 namespace mlibrary::lauth {
-  std::optional<std::string> HttpClient::getOptional(const std::string& path) {
+  std::optional<std::string> HttpClient::get(const std::string& path) {
     httplib::Client client(baseUrl);
 
     auto res = client.Get(path);

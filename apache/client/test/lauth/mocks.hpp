@@ -17,7 +17,7 @@ class MockApiClient : public ApiClient {
 class MockHttpClient : public HttpClient {
     public:
     MockHttpClient() : HttpClient("http://localhost:9000") {};
-    MOCK_METHOD(std::optional<std::string>, getOptional, (const std::string&), (override));
+    MOCK_METHOD(std::optional<std::string>, get, (const std::string&), (override));
 };
 
 #endif
