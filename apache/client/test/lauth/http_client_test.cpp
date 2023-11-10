@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 using testing::_;
+using testing::Eq;
 using testing::IsTrue;
 
 #include <httplib.h>
@@ -34,7 +35,7 @@ TEST(HttpClient, get_request_returns_body) {
   HttpClient client(TEST_API());
 
   auto response = client.getOptional("/");
-  EXPECT_THAT(response, "Root");
+  EXPECT_THAT(response, Eq("Root"));
 }
 
 TEST(HttpClient, get_request_with_path_returns_body) {

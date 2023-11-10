@@ -4,6 +4,8 @@
 #include "lauth/api_client.hpp"
 #include "lauth/http_client.hpp"
 
+#include <optional>
+
 using namespace mlibrary::lauth;
 
 class MockApiClient : public ApiClient {
@@ -15,7 +17,7 @@ class MockApiClient : public ApiClient {
 class MockHttpClient : public HttpClient {
     public:
     MockHttpClient() : HttpClient("http://localhost:9000") {};
-    MOCK_METHOD(std::string, get, (const std::string&), (override));
+    MOCK_METHOD(std::optional<std::string>, getOptional, (const std::string&), (override));
 };
 
 #endif

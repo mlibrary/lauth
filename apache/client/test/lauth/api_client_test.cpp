@@ -3,6 +3,7 @@
 #include "mocks.hpp"
 
 using ::testing::_;
+using ::testing::AnyNumber;
 using ::testing::Return;
 
 #include "lauth/api_client.hpp"
@@ -12,7 +13,7 @@ using namespace mlibrary::lauth;
 
 TEST(ApiClient, allowed_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, get("/users/authorized/is_allowed")).WillOnce(Return("yes"));
+  EXPECT_CALL(*client, getOptional("/users/authorized/is_allowed")).Times(AnyNumber()).WillOnce(Return("yes"));
   ApiClient api_client(std::move(client));
 
   Request req {
@@ -28,7 +29,7 @@ TEST(ApiClient, allowed_by_mock_http_client) {
 
 TEST(ApiClient, denied_by_mock_http_client) {
   auto client = std::make_unique<MockHttpClient>();
-  EXPECT_CALL(*client, get("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
+  EXPECT_CALL(*client, getOptional("/users/unauthorized/is_allowed")).WillOnce(Return("no"));
   ApiClient api_client(std::move(client));
 
   Request req {
