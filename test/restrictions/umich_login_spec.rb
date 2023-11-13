@@ -21,7 +21,7 @@ RSpec.describe "Access to resources restricted to specific users" do
       end
     end
 
-    xcontext "when logged in as an authorized user" do
+    context "when logged in as an authorized user" do
       it "is allowed" do
         response = website.get("/user/") do |req|
           req.headers["Authorization"] = basic_auth_good_user

@@ -44,7 +44,7 @@ static authz_status lauth_check_authorization(request_rec *r,
       .user = r->user ? std::string(r->user) : ""
     };
 
-    return Authorizer("http://mock-api:9000").isAllowed(req) ? AUTHZ_GRANTED : AUTHZ_DENIED;
+    return Authorizer("http://app.lauth.local:2300").isAllowed(req) ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
 
 static const authz_provider authz_lauth_provider =
