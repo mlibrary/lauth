@@ -17,7 +17,7 @@ namespace mlibrary::lauth {
       ApiClient& operator=(const ApiClient&&) = delete;
       virtual ~ApiClient() = default;
 
-      virtual bool isAllowed(Request req);
+      virtual bool authorized(Request req);
 
     protected:
       std::unique_ptr<HttpClient> client;

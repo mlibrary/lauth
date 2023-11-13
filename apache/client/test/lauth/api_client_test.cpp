@@ -12,12 +12,13 @@ using ::testing::Return;
 
 using namespace mlibrary::lauth;
 
-TEST(ApiClient, RequestByAuthorizedUserIsAllowed) {
+TEST(ApiClient, HttpRequestByApiClientIsCorrect) {
   auto client = std::make_unique<MockHttpClient>();
+
   Request req {
     .ip = "127.0.0.1",
-    .uri = "/resource-restricted-to-authorized-users",
-    .user = "authorized-user",
+    .uri = "/resource",
+    .user = "username",
   };
 
   HttpParams params {
@@ -25,33 +26,24 @@ TEST(ApiClient, RequestByAuthorizedUserIsAllowed) {
       {"user", req.user}
   };
 
-  EXPECT_CALL(*client, get("/authorized", params)).WillOnce(Return("yes"));
+  auto body = R"({"any":"thing"})";
+
+  EXPECT_CALL(*client, get("/authorized", params)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  auto allowed = api_client.isAllowed(req);
-
-  EXPECT_THAT(allowed, true);
+  api_client.authorized(req);
 }
 
-TEST(ApiClient, RequestByUnauthorizedUserIsDenied) {
+TEST(ApiClient, ResponseByApiClientIsCorrect) {
   auto client = std::make_unique<MockHttpClient>();
-  Request req {
-    .ip = "127.0.0.1",
-    .uri = "/resource-restricted-to-authorized-users",
-    .user = "unauthorized-user",
-  };
 
-  HttpParams params {
-    {"uri", req.uri},
-    {"user", req.user}
-  };
+  auto body = R"({"result":"allowed"})";
 
-  EXPECT_CALL(*client, get("/authorized", params)).WillOnce(Return("no"));
+  EXPECT_CALL(*client, get(_, _)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  auto allowed = api_client.isAllowed(req);
-
-  EXPECT_THAT(allowed, false);
+  auto allowed = api_client.authorized(Request());
+  EXPECT_THAT(allowed, true);
 }
 
 TEST(ApiClient, RequestByUnknownUserIsDenied) {
@@ -65,7 +57,7 @@ TEST(ApiClient, RequestByUnknownUserIsDenied) {
   ApiClient client(std::move(http_client));
   Request request;
 
-  bool result = client.isAllowed(request);
+  bool result = client.authorized(request);
   EXPECT_THAT(result, false);
 }
 

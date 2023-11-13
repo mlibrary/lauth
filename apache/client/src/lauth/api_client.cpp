@@ -2,15 +2,20 @@
 
 #include <sstream>
 #include <string>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace mlibrary::lauth {
-  bool ApiClient::isAllowed(Request req) {
+  bool ApiClient::authorized(Request req) {
     HttpParams params {
       {"uri", req.uri},
       {"user", req.user}
     };
 
     auto result = client->get("/authorized", params);
-    return result == "yes";
+    json rvalue = json::parse(*result);
+
+    return rvalue["result"] == "allowed";
   }
 }

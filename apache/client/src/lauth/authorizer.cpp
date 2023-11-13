@@ -4,6 +4,6 @@
 
 namespace mlibrary::lauth {
   bool Authorizer::isAllowed(Request req) {
-    return client->isAllowed(req);
+    return client->authorized(req);
   }
 }

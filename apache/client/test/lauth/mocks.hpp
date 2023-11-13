@@ -19,7 +19,7 @@ class MockHttpClient : public HttpClient {
 class MockApiClient : public ApiClient {
     public:
     MockApiClient() : ApiClient(std::make_unique<MockHttpClient>()) {};
-    MOCK_METHOD(bool, isAllowed, (Request), (override));
+    MOCK_METHOD(bool, authorized, (Request), (override));
 };
 
 #endif

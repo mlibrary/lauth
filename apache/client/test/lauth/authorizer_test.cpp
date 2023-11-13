@@ -18,11 +18,11 @@ using mlibrary::lauth::Authorizer;
 
 TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
   auto client = std::make_unique<MockApiClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(true));
+  EXPECT_CALL(*client, authorized(_)).WillOnce(Return(true));
   Authorizer authorizer(std::move(client));
 
   Request req {
-    .ip = "",
+    .ip = "127.0.0.1",
     .uri = "/user/",
     .user = "lauth-allowed",
   };
@@ -33,11 +33,11 @@ TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
 
 TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
   auto client = std::make_unique<MockApiClient>();
-  EXPECT_CALL(*client, isAllowed(_)).WillOnce(Return(false));
+  EXPECT_CALL(*client, authorized(_)).WillOnce(Return(false));
   Authorizer authorizer(std::move(client));
 
   Request req {
-    .ip = "",
+    .ip = "127.0.0.1",
     .uri = "/user/",
     .user = "lauth-denied",
   };
