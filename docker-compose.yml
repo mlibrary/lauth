@@ -8,6 +8,10 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
+    hostname: app.lauth.local
+    networks:
+      default:
+        aliases: ["app"]
     ports:
       - "127.0.0.1:2300:2300"
     depends_on:
