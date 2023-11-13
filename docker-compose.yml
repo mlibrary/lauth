@@ -82,6 +82,8 @@ services:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
+    environment:
+      - LAUTH_TEST_API_URL=http://mock-api:9000
     volumes:
       - ./apache/client:/lauth/apache/client
       - ./apache/module:/lauth/apache/module
@@ -93,6 +95,10 @@ services:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: tests
+    hostname: mock-api.lauth.local
+    networks:
+      default:
+        aliases: ["mock-api"]
     ports:
       - "127.0.0.1:9000:9000"
     healthcheck:
@@ -105,15 +111,17 @@ services:
     command: ["./http-service", "9000"]
 
   client-tests:
-    profiles: [ "test" ]
-    depends_on:
-      mock-api:
-        condition:
-          "service_healthy"
+    profiles: [ "test", "integration" ]
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
       target: client-tests
+    depends_on:
+      mock-api:
+        condition:
+          "service_healthy"
+    environment:
+      - LAUTH_TEST_API_URL=http://mock-api.lauth.local:9000
 
   test:
     profiles: ["test"]

@@ -1,6 +1,7 @@
 #ifndef __LAUTH_HTTP_CLIENT_HPP__
 #define __LAUTH_HTTP_CLIENT_HPP__
 
+#include <optional>
 #include <string>
 
 namespace mlibrary::lauth {
@@ -9,7 +10,7 @@ namespace mlibrary::lauth {
       HttpClient(const std::string& baseUrl) : baseUrl(baseUrl) {};
       virtual ~HttpClient() = default;
 
-      virtual std::string get(const std::string& path); 
+      virtual std::optional<std::string> get(const std::string &path);
 
     protected:
       const std::string baseUrl;
