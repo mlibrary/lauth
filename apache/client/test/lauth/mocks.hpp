@@ -3,6 +3,7 @@
 
 #include "lauth/api_client.hpp"
 #include "lauth/http_client.hpp"
+#include "lauth/http_params.hpp"
 
 #include <optional>
 
@@ -12,6 +13,7 @@ class MockHttpClient : public HttpClient {
     public:
     MockHttpClient() : HttpClient("http://api.invalid") {};
     MOCK_METHOD(std::optional<std::string>, get, (const std::string&), (override));
+    MOCK_METHOD(std::optional<std::string>, get, (const std::string&, const HttpParams&), (override));
 };
 
 class MockApiClient : public ApiClient {

@@ -5,9 +5,12 @@
 
 namespace mlibrary::lauth {
   bool ApiClient::isAllowed(Request req) {
-    std::stringstream url;
-    url << "/users/" << req.user << "/is_allowed";
-    auto result = client->get(url.str());
+    HttpParams params {
+      {"uri", req.uri},
+      {"user", req.user}
+    };
+
+    auto result = client->get("/authorized", params);
     return result == "yes";
   }
 }

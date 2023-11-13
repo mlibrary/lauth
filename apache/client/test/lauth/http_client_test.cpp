@@ -6,6 +6,7 @@
 #include "mocks.hpp"
 
 #include "lauth/http_client.hpp"
+#include "lauth/http_params.hpp"
 #include "lauth/request.hpp"
 
 #include <string>
@@ -50,4 +51,25 @@ TEST(HttpClient, get_request_with_path_returns_body) {
 
   auto response = client.get("/ping");
   EXPECT_THAT(response, "pong");
+}
+
+TEST(HttpClient, GetRequestWithOneParameterEncodesIt) {
+  HttpClient client(MOCK_API_URL());
+
+  HttpParams params;
+  params.emplace("foo", "bar");
+  auto response = client.get("/echo", params);
+
+  EXPECT_THAT(*response, Eq(R"({"foo":"bar"})"));
+}
+
+TEST(HttpClient, GetRequestWithMultipleParametersEncodesThem) {
+  HttpClient client(MOCK_API_URL());
+
+  HttpParams params;
+  params.emplace("foo", "bar");
+  params.emplace("something", "else");
+  auto response = client.get("/echo", params);
+
+  EXPECT_THAT(*response, Eq(R"({"foo":"bar","something":"else"})"));
 }

@@ -1,4 +1,7 @@
 #include <httplib.h>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 int main(int argc, char **argv) {
   using namespace httplib;
@@ -22,6 +25,14 @@ int main(int argc, char **argv) {
   server.Get("/ping", [](const Request &, Response &res) {
     std::cout << "GET /ping" << std::endl;
     res.set_content("pong", "text/plain");
+  });
+
+  // Echo GET query parameters as sorted json object
+  server.Get("/echo", [](const Request &req, Response &res) {
+    json params(req.params);
+
+    std::cout << "GET /echo" << std::endl;
+    res.set_content(params.dump().c_str(), "application/json");
   });
 
   server.Get("/users/authorized/is_allowed", [](const Request &, Response &res) {

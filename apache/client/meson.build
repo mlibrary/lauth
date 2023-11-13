@@ -44,6 +44,7 @@ install_headers(
   'include/lauth/api_client.hpp',
   'include/lauth/authorizer.hpp',
   'include/lauth/http_client.hpp',
+  'include/lauth/http_params.hpp',
   'include/lauth/request.hpp',
   subdir: 'lauth')
 
@@ -88,6 +89,7 @@ executable(
   files(['test/mock_service.cpp']),
   dependencies: [
     cpp_httplib,
+    json,
   ],
   link_args: httplib_links
 )
