@@ -17,6 +17,11 @@ services:
     depends_on:
       mariadb:
         condition: "service_healthy"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://app.lauth.local:2300", "--output", "/dev/null", "--silent" ]
+      interval: "5s"
+      timeout: "2s"
+      retries: 3
     volumes:
       - ./lauth:/lauth/lauth
 
@@ -58,8 +63,6 @@ services:
       interval: "10s"
       timeout: "10s"
       retries: 3
-      start_period: "2s"
-      start_interval: "1s"
 
   apache:
     build:
@@ -74,11 +77,9 @@ services:
         aliases: ["apache"]
     healthcheck:
       test: ["CMD", "http-check", "http://www.lauth.local"]
-      interval: "60s"
+      interval: "5s"
       timeout: "2s"
       retries: 3
-      start_period: "3s"
-      start_interval: "1s"
 
   module:
     profiles: [ "dev" ]
@@ -110,8 +111,6 @@ services:
       interval: "10s"
       timeout: "10s"
       retries: 3
-      start_period: "2s"
-      start_interval: "1s"
     command: ["./http-service", "9000"]
 
   client-tests:
@@ -137,6 +136,8 @@ services:
         GID: ${GID:-1000}
     depends_on:
       apache:
+        condition: "service_healthy"
+      app:
         condition: "service_healthy"
       mariadb:
         condition: "service_healthy"
