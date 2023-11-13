@@ -34,7 +34,7 @@ TEST(ApiClient, HttpRequestByApiClientIsCorrect) {
   api_client.authorized(req);
 }
 
-TEST(ApiClient, ResponseByApiClientIsCorrect) {
+TEST(ApiClient, ResponseOfAllowedReturnsTrue) {
   auto client = std::make_unique<MockHttpClient>();
 
   auto body = R"({"result":"allowed"})";
@@ -46,24 +46,14 @@ TEST(ApiClient, ResponseByApiClientIsCorrect) {
   EXPECT_THAT(allowed, true);
 }
 
-TEST(ApiClient, RequestByUnknownUserIsDenied) {
-  GTEST_SKIP() << "This is passing for the wrong reason and GMock is giving "
-               << "a warning because we have not set any expectations. "
-               << "There is an uninteresting/unexpected call to the HttpClient "
-               << "to get '/users//is_allowed', which should be rejected "
-               << "before the HTTP request or expressed differently (possibly "
-               << "with query params).";
-  auto http_client = std::make_unique<MockHttpClient>();
-  ApiClient client(std::move(http_client));
-  Request request;
+TEST(ApiClient, ResponseOfDeniedReturnsFalse) {
+  auto client = std::make_unique<MockHttpClient>();
 
-  bool result = client.authorized(request);
-  EXPECT_THAT(result, false);
-}
+  auto body = R"({"result":"denied"})";
 
-TEST(ApiClient, UsesTheSuppliedApiUrl) {
-  GTEST_SKIP() << "Skipping test that ApiClient makes an HttpClient for the "
-               << "correct URL... pushing everything back to config and likely "
-               << "a factory/builder rather than concrete class dependency.";
-  ApiClient client("http://api.invalid");
+  EXPECT_CALL(*client, get(_, _)).WillOnce(Return(body));
+  ApiClient api_client(std::move(client));
+
+  auto allowed = api_client.authorized(Request());
+  EXPECT_THAT(allowed, false);
 }
