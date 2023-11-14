@@ -108,4 +108,4 @@ RUN chown -R ${UID}:${GID} /gems && chown -R ${UID}:${GID} /lauth/lauth
 
 EXPOSE 2300
 USER $UNAME
-CMD ["hanami", "server"]
+CMD ["bin/dev"]
