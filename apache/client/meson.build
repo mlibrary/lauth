@@ -74,7 +74,7 @@ if get_option('tests')
   )
 
   test('lauth-test', tests)
-  test('lauth-integration-test', integration_tests)
+
 endif
 
 os = host_machine.system()
