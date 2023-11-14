@@ -1,1 +1,2 @@
 option('tests', type : 'boolean', value : false)
+option('integration-tests', type: 'boolean', value : false)

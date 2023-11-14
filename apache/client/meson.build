@@ -17,11 +17,13 @@ lauth_includes = include_directories('include')
 lauth_sources = files([
   'src/lauth/api_client.cpp',
   'src/lauth/authorizer.cpp',
+  'src/lauth/authorization_result.cpp',
   'src/lauth/http_client.cpp',
 ])
 lauth_tests = files([
   'test/lauth/api_client_test.cpp',
   'test/lauth/authorizer_test.cpp',
+  'test/lauth/authorization_result_test.cpp',
   'test/lauth/request_test.cpp',
 ])
 
@@ -61,7 +63,10 @@ if get_option('tests')
       gmock
     ]
   )
+  test('lauth-test', tests)
+endif
 
+if get_option('integration-tests')
   integration_tests = executable(
     'lauth-integration-test',
     lauth_sources + lauth_integration_tests,
@@ -71,10 +76,8 @@ if get_option('tests')
       json,
       gtest,
       gmock
-    ]
-  )
-
-  test('lauth-test', tests)
+      ]
+    )
   test('lauth-integration-test', integration_tests)
 endif
 
