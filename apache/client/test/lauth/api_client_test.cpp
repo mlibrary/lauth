@@ -27,34 +27,32 @@ TEST(ApiClient, HttpRequestByApiClientIsCorrect) {
       {"user", req.user}
   };
 
-  auto body = R"({"any":"thing"})";
+  auto body = R"({"determination":"allowed"})";
 
   EXPECT_CALL(*client, get("/authorized", params)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  api_client.authorized(req);
+  api_client.authorize(req);
 }
 
 TEST(ApiClient, ResponseOfAllowedReturnsTrue) {
   auto client = std::make_unique<MockHttpClient>();
-
-  auto body = R"({"result":"allowed"})";
+  auto body = R"({"determination":"allowed"})";
 
   EXPECT_CALL(*client, get(_, _)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  auto allowed = api_client.authorized(Request());
-  EXPECT_THAT(allowed, true);
+  auto result = api_client.authorize(Request());
+  EXPECT_THAT(result.determination, "allowed");
 }
 
 TEST(ApiClient, ResponseOfDeniedReturnsFalse) {
   auto client = std::make_unique<MockHttpClient>();
-
-  auto body = R"({"result":"denied"})";
+  auto body = R"({"determination":"denied"})";
 
   EXPECT_CALL(*client, get(_, _)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  auto authorized = api_client.authorize(Request());
-  EXPECT_THAT(authorized.determination, "denied");
+  auto result = api_client.authorize(Request());
+  EXPECT_THAT(result.determination, "denied");
 }
