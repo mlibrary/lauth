@@ -42,6 +42,7 @@ liblauth = shared_library(
 
 install_headers(
   'include/lauth/api_client.hpp',
+  'include/lauth/authorization_result.hpp',
   'include/lauth/authorizer.hpp',
   'include/lauth/http_client.hpp',
   'include/lauth/http_params.hpp',

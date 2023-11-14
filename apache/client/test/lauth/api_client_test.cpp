@@ -9,6 +9,7 @@ using ::testing::Return;
 
 #include "lauth/api_client.hpp"
 #include "lauth/request.hpp"
+#include "lauth/authorization_result.hpp"
 
 using namespace mlibrary::lauth;
 
@@ -54,6 +55,6 @@ TEST(ApiClient, ResponseOfDeniedReturnsFalse) {
   EXPECT_CALL(*client, get(_, _)).WillOnce(Return(body));
   ApiClient api_client(std::move(client));
 
-  auto allowed = api_client.authorized(Request());
-  EXPECT_THAT(allowed, false);
+  auto authorized = api_client.authorize(Request());
+  EXPECT_THAT(authorized.determination, "denied");
 }

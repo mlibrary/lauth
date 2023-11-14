@@ -5,6 +5,7 @@
 
 #include "lauth/http_client.hpp"
 #include "lauth/request.hpp"
+#include "lauth/authorization_result.hpp"
 
 namespace mlibrary::lauth {
   class ApiClient {
@@ -18,6 +19,7 @@ namespace mlibrary::lauth {
       virtual ~ApiClient() = default;
 
       virtual bool authorized(Request req);
+      virtual AuthorizationResult authorize(Request req);
 
     protected:
       std::unique_ptr<HttpClient> client;

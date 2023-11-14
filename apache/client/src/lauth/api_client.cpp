@@ -18,4 +18,16 @@ namespace mlibrary::lauth {
 
     return rvalue["result"] == "allowed";
   }
+
+  AuthorizationResult ApiClient::authorize(Request req) {
+    HttpParams params {
+      {"uri", req.uri},
+      {"user", req.user}
+    };
+
+    auto result = client->get("/authorized", params);
+    json rvalue = json::parse(*result);
+
+    return AuthorizationResult{.determination = "denied"};
+  }
 }
