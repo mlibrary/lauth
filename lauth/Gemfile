@@ -2,12 +2,14 @@
 
 source "https://rubygems.org"
 
-gem "hanami", "~> 2.1.0.beta"
-gem "hanami-router", "~> 2.1.0.beta"
-gem "hanami-controller", "~> 2.1.0.beta"
-gem "hanami-validations", "~> 2.1.0.beta"
-gem "hanami-view", "~> 2.1.0.beta"
-gem "hanami-assets", "~> 2.1.0.beta"
+HANAMI_VERSION = "2.1.0.rc2"
+
+gem "hanami", "~> #{HANAMI_VERSION}"
+gem "hanami-router", "~> #{HANAMI_VERSION}"
+gem "hanami-controller", "~> #{HANAMI_VERSION}"
+gem "hanami-validations", "~> #{HANAMI_VERSION}"
+gem "hanami-view", "~> #{HANAMI_VERSION}"
+gem "hanami-assets", "~> #{HANAMI_VERSION}"
 
 gem "dry-types", "~> 1.0", ">= 1.6.1"
 gem "puma"
@@ -18,7 +20,7 @@ gem "rom-sql", "~> 3.6"
 gem "mysql2"
 
 group :development do
-  gem "hanami-webconsole", "~> 2.1.0.beta"
+  gem "hanami-webconsole", "~> #{HANAMI_VERSION}"
   gem "guard-puma"
 end
 
@@ -27,11 +29,11 @@ group :development, :test do
 end
 
 group :cli, :development do
-  gem "hanami-reloader", "~> 2.1.0.beta"
+  gem "hanami-reloader", "~> #{HANAMI_VERSION}"
 end
 
 group :cli, :development, :test do
-  gem "hanami-rspec", "~> 2.1.0.beta"
+  gem "hanami-rspec", "~> #{HANAMI_VERSION}"
 end
 
 group :test do

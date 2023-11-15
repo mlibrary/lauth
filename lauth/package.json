@@ -1,18 +1,11 @@
 {
   "name": "lauth",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "assets": "node config/assets.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "hanami-assets": "^2.1.0-beta.2"
+    "hanami-assets": "^2.1.0-rc.2"
   }
 }
