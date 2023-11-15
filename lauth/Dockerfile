@@ -35,6 +35,9 @@ RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 
 ENV PATH="/lauth/lauth/bin:$PATH"
 WORKDIR /lauth/lauth
+COPY package.json package-lock.json ./
+RUN npm install
+
 COPY ./lauth/Gemfile* .
 
 
