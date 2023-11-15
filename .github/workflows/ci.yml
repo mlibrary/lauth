@@ -10,74 +10,185 @@ on:
 
 jobs:
 
-  ###
-  apache:
+  build_env:
     runs-on: ubuntu-latest
-    name: Build Apache images
+    name: Get Runner UID and GID
+    outputs:
+      uid: ${{ steps.values.outputs.uid }}
+      gid: ${{ steps.values.outputs.gid }}
+    steps:
+      - id: values
+        run: |
+          echo "uid=$(id -u)" >> $GITHUB_OUTPUT
+          echo "gid=$(id -g)" >> $GITHUB_OUTPUT
+
+  apache_build:
+    runs-on: ubuntu-latest
+    needs: build_env
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build server image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apache/Dockerfile
+          target: server
+          tags: mlibrary/lauth-apache:latest
+          build-args: |
+            UID=${{needs.build_env.outputs.uid}}
+            GID=${{needs.build_env.outputs.gid}}
+          outputs: type=docker,dest=/tmp/lauth-apache.tar
+      - name: Upload server image
+        uses: actions/upload-artifact@v3
+        with:
+          name: lauth-apache
+          path: /tmp/lauth-apache.tar
+      - name: Build integration test image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apache/Dockerfile
+          target: client-tests
+          tags: mlibrary/lauth-liblauth:unstable-dev
+          build-args: |
+            UID=${{needs.build_env.UID}}
+            GID=${{needs.build_env.GID}}
+          outputs: type=docker,dest=/tmp/lauth-liblauth.tar
+      - name: Upload integration test image
+        uses: actions/upload-artifact@v3
+        with:
+          name: lauth-liblauth
+          path: /tmp/lauth-liblauth.tar
 
-      - name: Build images
-        run: docker compose build apache mock-api client-tests
-
+  ###
+  apache_tests:
+    runs-on: ubuntu-latest
+    needs: apache_build
+    name: Run liblauth tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download image
+        uses: actions/download-artifact@v3
+        with:
+          name: lauth-liblauth
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/lauth-liblauth.tar
+          docker image ls -a
       - name: Run tests
         run: docker compose run client-tests
 
   ###
-  dbsetup:
+  app_build:
     runs-on: ubuntu-latest
-    name: Set up environment
+    name: Build Lauth webapp image
+    needs: build_env
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build app image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./lauth/Dockerfile
+          target: development
+          tags: lauth-app:unstable-dev-3.2.2-slim
+          build-args: |
+            UID=${{needs.build_env.outputs.uid}}
+            GID=${{needs.build_env.outputs.gid}}
+            RUBY_VERSION=3.2.2
+          outputs: type=docker,dest=/tmp/lauth-app.tar
+      - name: Upload app image
+        uses: actions/upload-artifact@v3
+        with:
+          name: lauth-app
+          path: /tmp/lauth-app.tar
 
+  app_tests:
+    runs-on: ubuntu-latest
+    needs: app_build
+    name: Run Lauth app tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download image
+        uses: actions/download-artifact@v3
+        with:
+          name: lauth-app
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/lauth-app.tar
+          docker image ls -a
+      - name: Run tests
+        run: docker compose run app-dev
+
+  ###
+  dbsetup:
+    runs-on: ubuntu-latest
+    name: Start and set up database
+    steps:
+      - uses: actions/checkout@v4
       - name: Run dbsetup
         run: docker compose up dbsetup
 
-  ###
-  ruby_images:
+  end_to_end_build:
     runs-on: ubuntu-latest
-    name: Build images - Ruby ${{ matrix.ruby }}
-    strategy:
-      fail-fast: false
-      matrix:
-        ruby:
-          - '3.2.2'
-
+    needs: build_env
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build system tests image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./test/Dockerfile
+          target: development
+          tags: lauth-test:unstable-3.2.2-slim
+          build-args: |
+            UID=${{needs.build_env.outputs.uid}}
+            GID=${{needs.build_env.outputs.gid}}
+            RUBY_VERSION=3.2.2
+          outputs: type=docker,dest=/tmp/lauth-test.tar
+      - name: Upload app image
+        uses: actions/upload-artifact@v3
+        with:
+          name: lauth-test
+          path: /tmp/lauth-test.tar
 
-      - name: Create .env
-        run: |
-          echo "UID=$(id -u)" > .env
-          echo "GID=$(id -g)" >> .env
-
-      - name: Build ruby images
-        run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app test
-
-  ###
-  ruby_tests:
+  end_to_end_services:
     runs-on: ubuntu-latest
-    name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
-    needs: [apache, ruby_images, dbsetup]
-    strategy:
-      fail-fast: false
-      matrix:
-        suite:
-          - 'app'
-          - 'system-tests'
-        ruby:
-          - '3.2.2'
-#          - '3.1.4'
-#          - '3.0.4'
-
+    needs: [apache_build, app_build, dbsetup]
     steps:
       - uses: actions/checkout@v4
-      - name: Create .env
+      - name: Download Apache server image
+        uses: actions/download-artifact@v3
+        with:
+          name: lauth-apache
+          path: /tmp
+      - name: Load image
         run: |
-          echo "UID=$(id -u)" > .env
-          echo "GID=$(id -g)" >> .env
-      - if: matrix.suite == 'app'
-        run: docker compose run app-dev
-      - if: matrix.suite == 'system-tests'
+          docker load --input /tmp/lauth-apache.tar
+          docker image ls -a
+      - name: Download Lauth webapp image
+        uses: actions/download-artifact@v3
+        with:
+          name: lauth-lauth
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/lauth-lauth.tar
+          docker image ls -a
+      - name: Start Test Site (Apache with mod_lauth)
+        run: docker compose up -d apache
+      - name: Start Test App
+        run: docker compose up -d app
+
+  end_to_end_tests:
+    runs-on: ubuntu-latest
+    needs: [end_to_end_services]
+    steps:
+      - uses: actions/checkout@v4
+      - name: End to End Tests
         run: docker compose run test

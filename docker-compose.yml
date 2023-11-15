@@ -100,7 +100,7 @@ services:
 
   mock-api:
     profiles: [ "test", "integration" ]
-    image: lauth-apache:unstable-dev
+    image: lauth-liblauth:unstable-dev
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
