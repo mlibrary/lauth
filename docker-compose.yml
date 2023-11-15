@@ -50,7 +50,7 @@ services:
     ports:
       - "127.0.0.1:3306:3306"
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb_data:/bitnami/mariadb
       - ./db:/sql
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
