@@ -10,6 +10,20 @@ on:
 
 jobs:
 
+  ###
+  apache:
+    runs-on: ubuntu-latest
+    name: Build Apache images
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build images
+        run: docker compose build apache mock-api client-tests
+
+      - name: Run tests
+        run: docker compose run client-tests
+
+  ###
   dbsetup:
     runs-on: ubuntu-latest
     name: Set up environment
@@ -19,21 +33,15 @@ jobs:
       - name: Run dbsetup
         run: docker compose up dbsetup
 
-  ci:
+  ###
+  ruby_images:
     runs-on: ubuntu-latest
-    name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
-    needs: dbsetup
+    name: Build images - Ruby ${{ matrix.ruby }}
     strategy:
       fail-fast: false
       matrix:
-        suite:
-          - 'app'
-          - 'client-tests'
-          - 'system-tests'
         ruby:
           - '3.2.2'
-#          - '3.1.4'
-#          - '3.0.4'
 
     steps:
       - uses: actions/checkout@v4
@@ -43,18 +51,33 @@ jobs:
           echo "UID=$(id -u)" > .env
           echo "GID=$(id -g)" >> .env
 
-      - name: Build images
+      - name: Build ruby images
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} apache app client-tests test
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app test
 
+  ###
+  ruby_tests:
+    runs-on: ubuntu-latest
+    name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
+    needs: [apache, ruby_images, dbsetup]
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - 'app'
+          - 'system-tests'
+        ruby:
+          - '3.2.2'
+#          - '3.1.4'
+#          - '3.0.4'
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create .env
+        run: |
+          echo "UID=$(id -u)" > .env
+          echo "GID=$(id -g)" >> .env
       - if: matrix.suite == 'app'
-        run: |
-          docker compose run app-dev
-
-      - if: matrix.suite == 'client-tests'
-        run: |
-          docker compose run client-tests
-
+        run: docker compose run app-dev
       - if: matrix.suite == 'system-tests'
-        run: |
-          docker compose run test
+        run: docker compose run test

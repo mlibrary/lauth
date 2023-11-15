@@ -1,6 +1,7 @@
 ---
 services:
   app:
+    image: lauth-app:unstable-dev-${RUBY_VERSION:-3.2.2}${RUBY_SLIM:--slim}
     build:
       context: ./
       dockerfile: ./lauth/Dockerfile
@@ -26,6 +27,7 @@ services:
       - ./lauth:/lauth/lauth
 
   app-dev:
+    image: lauth-app:unstable-dev-${RUBY_VERSION:-3.2.2}${RUBY_SLIM:--slim}
     profiles: ["test"]
     build:
       context: ./
@@ -65,6 +67,7 @@ services:
       retries: 3
 
   apache:
+    image: lauth-apache:unstable
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
@@ -83,6 +86,7 @@ services:
 
   module:
     profiles: [ "dev" ]
+    image: lauth-mod-lauth:unstable-dev
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
@@ -96,6 +100,7 @@ services:
 
   mock-api:
     profiles: [ "test", "integration" ]
+    image: lauth-apache:unstable-dev
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
@@ -115,6 +120,7 @@ services:
 
   client-tests:
     profiles: [ "test", "integration" ]
+    image: lauth-liblauth:unstable-dev
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
@@ -128,6 +134,7 @@ services:
 
   test:
     profiles: ["test"]
+    image: lauth-test:unstable-${RUBY_VERSION:-3.2.2}${RUBY_SLIM:--slim}
     build:
       context: ./
       dockerfile: ./test/Dockerfile
