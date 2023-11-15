@@ -24,6 +24,7 @@ jobs:
 
   apache_build:
     runs-on: ubuntu-latest
+    name: Build Apache module and test site
     needs: build_env
     steps:
       - uses: actions/checkout@v4
