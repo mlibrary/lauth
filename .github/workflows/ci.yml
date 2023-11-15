@@ -10,16 +10,26 @@ on:
 
 jobs:
 
+  dbsetup:
+    runs-on: ubuntu-latest
+    name: Set up environment
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run dbsetup
+        run: docker compose up dbsetup
+
   ci:
     runs-on: ubuntu-latest
     name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
+    needs: dbsetup
     strategy:
       fail-fast: false
       matrix:
         suite:
           - 'app'
           - 'client-tests'
-          - 'test'
+          - 'system-tests'
         ruby:
           - '3.2.2'
 #          - '3.1.4'
@@ -27,24 +37,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Database
-        run: docker compose up dbsetup
 
       - name: Create .env
         run: |
           echo "UID=$(id -u)" > .env
           echo "GID=$(id -g)" >> .env
 
+      - name: Build images
+        run: |
+          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} apache app client-tests test
+
       - if: matrix.suite == 'app'
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app-dev
           docker compose run app-dev
+
       - if: matrix.suite == 'client-tests'
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} client-tests
           docker compose run client-tests
-      - if: matrix.suite == 'test'
+
+      - if: matrix.suite == 'system-tests'
         run: |
-          docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app apache
-          docker compose up api
-          # docker compose run test
+          docker compose run test
