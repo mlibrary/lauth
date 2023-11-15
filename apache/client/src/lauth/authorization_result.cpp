@@ -1,6 +1,10 @@
 #include "lauth/authorization_result.hpp"
+
 #include <string>
+
 #include <nlohmann/json.hpp>
+
+#include "lauth/json_conversions.hpp"
 
 using json = nlohmann::json;
 

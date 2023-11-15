@@ -4,6 +4,8 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
+#include "lauth/json_conversions.hpp"
+
 using json = nlohmann::json;
 
 namespace mlibrary::lauth {

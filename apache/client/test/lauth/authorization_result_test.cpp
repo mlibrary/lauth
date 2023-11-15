@@ -1,8 +1,12 @@
 #include "lauth/authorization_result.hpp"
+
+#include <string>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <string>
 #include <nlohmann/json.hpp>
+
+#include "lauth/json_conversions.hpp"
 
 using namespace mlibrary::lauth;
 using json = nlohmann::json;

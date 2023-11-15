@@ -48,6 +48,7 @@ install_headers(
   'include/lauth/authorizer.hpp',
   'include/lauth/http_client.hpp',
   'include/lauth/http_params.hpp',
+  'include/lauth/json_conversions.hpp',
   'include/lauth/request.hpp',
   subdir: 'lauth')
 
