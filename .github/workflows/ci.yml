@@ -144,7 +144,6 @@ jobs:
         with:
           context: .
           file: ./test/Dockerfile
-          target: development
           tags: lauth-test:unstable-3.2.2-slim
           build-args: |
             UID=${{needs.build_env.outputs.uid}}
