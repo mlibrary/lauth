@@ -167,11 +167,11 @@ jobs:
       - name: Download Lauth webapp image
         uses: actions/download-artifact@v3
         with:
-          name: lauth-lauth
+          name: lauth-app
           path: /tmp
       - name: Load webapp image
         run: |
-          docker load --input /tmp/lauth-lauth.tar
+          docker load --input /tmp/lauth-app.tar
           docker image ls -a
       - name: Download system test image
         uses: actions/download-artifact@v3
