@@ -36,7 +36,7 @@ RUN useradd -m -d /lauth -u ${UID} -g ${GID} -o -s /bin/bash ${UNAME}
 ENV PATH="/lauth/lauth/bin:$PATH"
 WORKDIR /lauth/lauth
 COPY ./lauth/package*.json .
-RUN npm install
+RUN npm install && mv node_modules ..
 
 COPY ./lauth/Gemfile* .
 
