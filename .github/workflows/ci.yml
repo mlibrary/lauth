@@ -51,7 +51,7 @@ jobs:
           context: .
           file: ./apache/Dockerfile
           target: client-tests
-          tags: mlibrary/lauth-liblauth:unstable-dev
+          tags: mlibrary/lauth-liblauth:latest
           build-args: |
             UID=${{needs.build_env.UID}}
             GID=${{needs.build_env.GID}}
@@ -95,7 +95,7 @@ jobs:
           context: .
           file: ./lauth/Dockerfile
           target: development
-          tags: lauth-app:unstable-dev-3.2.2-slim
+          tags: mlibrary/lauth-app:3.2.2-slim
           build-args: |
             UID=${{needs.build_env.outputs.uid}}
             GID=${{needs.build_env.outputs.gid}}
@@ -139,7 +139,7 @@ jobs:
         with:
           context: .
           file: ./test/Dockerfile
-          tags: lauth-test:unstable-3.2.2-slim
+          tags: mlibrary/lauth-test:3.2.2-slim
           build-args: |
             UID=${{needs.build_env.outputs.uid}}
             GID=${{needs.build_env.outputs.gid}}
