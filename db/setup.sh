@@ -33,6 +33,6 @@ mariadb -u root --host=$host --port=$port -e "CREATE DATABASE ${database} DEFAUL
 mariadb -u root --host=$host --port=$port -e "GRANT ALL ON ${database}.* TO ${user}@'%' IDENTIFIED by '${password}'"
 
 mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/tables.sql"
-mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/root.sql"
-mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/keys.sql"
-mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/test-fixture.sql"
+# mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/root.sql"
+# mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/keys.sql"
+# mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/test-fixture.sql"
