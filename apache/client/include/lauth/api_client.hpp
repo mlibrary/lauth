@@ -18,7 +18,6 @@ namespace mlibrary::lauth {
       ApiClient& operator=(const ApiClient&&) = delete;
       virtual ~ApiClient() = default;
 
-      virtual bool authorized(Request req);
       virtual AuthorizationResult authorize(Request req);
 
     protected:

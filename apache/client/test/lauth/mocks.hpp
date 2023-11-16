@@ -2,6 +2,7 @@
 #define _LAUTH_TEST_MOCKS_HPP_
 
 #include "lauth/api_client.hpp"
+#include "lauth/authorization_result.hpp"
 #include "lauth/http_client.hpp"
 #include "lauth/http_params.hpp"
 
@@ -19,7 +20,7 @@ class MockHttpClient : public HttpClient {
 class MockApiClient : public ApiClient {
     public:
     MockApiClient() : ApiClient(std::make_unique<MockHttpClient>()) {};
-    MOCK_METHOD(bool, authorized, (Request), (override));
+    MOCK_METHOD(AuthorizationResult, authorize, (Request), (override));
 };
 
 #endif

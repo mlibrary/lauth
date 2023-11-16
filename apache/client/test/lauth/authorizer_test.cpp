@@ -18,7 +18,8 @@ using mlibrary::lauth::Authorizer;
 
 TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
   auto client = std::make_unique<MockApiClient>();
-  EXPECT_CALL(*client, authorized(_)).WillOnce(Return(true));
+  auto result = AuthorizationResult { .determination = "allowed" };
+  EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
   Authorizer authorizer(std::move(client));
 
   Request req {
@@ -33,7 +34,8 @@ TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
 
 TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
   auto client = std::make_unique<MockApiClient>();
-  EXPECT_CALL(*client, authorized(_)).WillOnce(Return(false));
+  auto result = AuthorizationResult { .determination = "denied" };
+  EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
   Authorizer authorizer(std::move(client));
 
   Request req {
