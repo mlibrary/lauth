@@ -4,12 +4,11 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <nlohmann/json.hpp>
 
+#include "lauth/json.hpp"
 #include "lauth/json_conversions.hpp"
 
 using namespace mlibrary::lauth;
-using json = nlohmann::json;
 
 TEST(AuthorizationResultTest, FromJson) {
   std::string stringBody = R"({"determination":"allowed"})";
