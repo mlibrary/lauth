@@ -14,8 +14,18 @@ namespace mlibrary::lauth {
     };
 
     auto result = client->get("/authorized", params);
-    json jsonBody = json::parse(*result);
 
-    return jsonBody.template get<AuthorizationResult>();
+    try
+    {
+      json jsonBody = json::parse(*result);
+      return jsonBody.template get<AuthorizationResult>();
+    }
+    catch (const json::exception &e)
+    {
+      return AuthorizationResult{
+        .determination = "denied"
+      };
+    }
+
   }
 }
