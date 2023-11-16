@@ -188,6 +188,6 @@ jobs:
       - name: Start Test Site (Apache with mod_lauth)
         run: docker compose up -d apache
       - name: Start Test App
-        run: docker compose up -d app
+        run: docker compose up app
       - name: Run to End Tests
         run: docker compose run test
