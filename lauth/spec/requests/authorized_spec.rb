@@ -11,10 +11,12 @@ RSpec.describe "/authorized", type: [:request, :database] do
 
   context "with an authorized user" do
     let!(:user) { Factory[:user, userid: "lauth-allowed"] }
+    let!(:collection) { Factory[:collection, :restricted_to_users, uniqueIdentifier: "lauth-user"] }
 
     it do
       get "/authorized?user=lauth-allowed&uri=%2Fuser%2F"
       body = JSON.parse(last_response.body, symbolize_names: true)
+
       expect(body).to eq({determination: "allowed"})
     end
   end
