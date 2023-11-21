@@ -26,6 +26,10 @@ module Lauth
           attribute :lastModifiedBy, Types::String.default("root".freeze)
           # attribute :dlpsExpiryTime, Types::DateTime.default { DateTime.now }
           attribute :dlpsDeleted, Types::String.default("f".freeze)
+
+          associations do
+            has_many :aa_may_access, as: :grants, relation: :grants, foreign_key: :userid
+          end
         end
 
         struct_namespace Entities

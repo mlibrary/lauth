@@ -3,8 +3,8 @@ module Lauth
     module Relations
       class Collections < ROM::Relation[:sql]
         schema(:aa_coll, infer: true, as: :collections) do
-          # attribute :uniqueIdentifier, Types::Integer.default { AutoIncrement.id }
-          # attribute :commonName, Types::String
+          # attribute :uniqueIdentifier, Types::String.default { AutoIncrement.id }
+          # attribute :commonName, Types::String.default("commonName".freeze)
           attribute :description, Types::String.default("description".freeze)
           attribute :dlpsClass, Types::String.default("class".freeze)
           attribute :dlpsSource, Types::String.default("source".freeze)
@@ -17,7 +17,8 @@ module Lauth
           attribute :dlpsDeleted, Types::String.default("f".freeze)
 
           associations do
-            has_many :locations, foreign_key: :coll
+            has_many :aa_coll_obj, as: :locations, relation: :locations, foreign_key: :coll
+            has_many :aa_may_access, as: :grants, relation: :grants, foreign_key: :coll
           end
         end
 
