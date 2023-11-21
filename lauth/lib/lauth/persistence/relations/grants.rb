@@ -14,8 +14,8 @@ module Lauth
           attribute :dlpsDeleted, Types::String.default("f".freeze)
 
           associations do
-            belongs_to :aa_user, as: :user, relation: :users, foreign_key: :userid
-            belongs_to :aa_coll, as: :collection, relation: :collections, foreign_key: :coll
+            belongs_to :user, foreign_key: :userid
+            belongs_to :collection, foreign_key: :coll
           end
         end
 

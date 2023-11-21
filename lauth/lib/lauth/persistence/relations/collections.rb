@@ -17,8 +17,8 @@ module Lauth
           attribute :dlpsDeleted, Types::String.default("f".freeze)
 
           associations do
-            has_many :aa_coll_obj, as: :locations, relation: :locations, foreign_key: :coll
-            has_many :aa_may_access, as: :grants, relation: :grants, foreign_key: :coll
+            has_many :locations, foreign_key: :coll
+            has_many :grants, foreign_key: :coll
           end
         end
 

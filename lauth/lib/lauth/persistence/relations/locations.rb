@@ -4,7 +4,7 @@ module Lauth
       class Locations < ROM::Relation[:sql]
         schema(:aa_coll_obj, infer: true, as: :locations) do
           associations do
-            belongs_to :aa_coll, as: :collection, relation: :collections, foreign_key: :coll
+            belongs_to :collection, foreign_key: :coll
           end
         end
 
