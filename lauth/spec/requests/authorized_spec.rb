@@ -15,7 +15,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
     let!(:grant) { Factory[:grant, user: user, collection: collection] }
 
     it do
-      get "/authorized?user=lauth-allowed&uri=%2Fuser%2F"
+      get "/authorized", {user: "lauth-allowed", uri: "/user/"}
       body = JSON.parse(last_response.body, symbolize_names: true)
 
       expect(body).to eq({determination: "allowed"})
