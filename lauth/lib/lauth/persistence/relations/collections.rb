@@ -22,6 +22,10 @@ module Lauth
           end
         end
 
+        def with_locations
+          join(:locations)
+        end
+
         struct_namespace Entities
         auto_struct true
       end
