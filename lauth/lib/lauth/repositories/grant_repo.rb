@@ -8,6 +8,19 @@ module Lauth
         grants.where(uniqueIdentifier: id).one
       end
 
+      def for_user_and_uri(username, uri)
+        ds = grants
+          .dataset
+          .join(collections.name.dataset, uniqueIdentifier: :coll)
+          .join(locations.name.dataset, coll: :uniqueIdentifier)
+          .join(users.name.dataset, userid: grants[:userid])
+          .where(users[:userid] => username)
+          .where(Sequel.ilike(uri, locations[:dlpsPath]))
+
+        rel = grants.class.new(ds)
+        rel.combine(:user, collection: :locations).to_a
+      end
+
       def for_uri(uri)
         ds = grants
           .dataset
@@ -16,7 +29,7 @@ module Lauth
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
 
         rel = grants.class.new(ds)
-        rel.combine(collection: :locations).to_a
+        rel.combine(:user, collection: :locations).to_a
       end
     end
   end
