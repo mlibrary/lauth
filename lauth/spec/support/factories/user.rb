@@ -1,4 +1,4 @@
-Factory.define(:user, struct_namespace: Lauth::Persistence::Entities) do |f|
+Factory.define(:user, struct_namespace: Lauth) do |f|
   f.sequence(:userid) { |n| "user#{n}" }
   f.sequence(:givenName) { |n| "Given#{n}" }
   f.sequence(:surname) { |n| "Surname#{n}" }

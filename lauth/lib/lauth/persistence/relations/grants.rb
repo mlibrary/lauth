@@ -19,7 +19,7 @@ module Lauth
           end
         end
 
-        struct_namespace Entities
+        struct_namespace Lauth
         auto_struct true
       end
     end

@@ -1,4 +1,4 @@
-Factory.define(:collection, struct_namespace: Lauth::Persistence::Entities) do |f|
+Factory.define(:collection, struct_namespace: Lauth) do |f|
   f.sequence(:uniqueIdentifier) { |n| "Identifier#{n}" }
   f.sequence(:commonName) { |n| "Name#{n}" }
   f.association(:locations, count: 0)

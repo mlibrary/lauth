@@ -1,4 +1,4 @@
-Factory.define(:location, struct_namespace: Lauth::Persistence::Entities) do |f|
+Factory.define(:location, struct_namespace: Lauth) do |f|
   f.dlpsServer "some.host"
   f.dlpsPath "/s/somecoll%"
   f.association(:collection)

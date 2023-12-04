@@ -1,7 +1,7 @@
 # require "hanami_helper"
 
-RSpec.describe Lauth::Persistence::Repositories::GrantRepo, type: :database do
-  subject(:repo) { Lauth::Persistence::Repositories::GrantRepo.new }
+RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
+  subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
   xcontext "with one grant" do
     let!(:grant) { Factory[:grant] }
