@@ -11,28 +11,22 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
     end
   end
 
-  context "with a grant for one user to one collection" do
+  context "with a grant for one user to a collection restricted by username" do
     let!(:collection) { Factory[:collection, :restricted_to_users] }
     let!(:grant) { Factory[:grant, collection: collection] }
 
-    context "for a non-contained resource" do
-      it "finds no grants" do
-        grant = repo.for_uri("/nonexistent/").one
-
-        expect(grant).to be_nil
-      end
-    end
-
-    it "finds the grant" do
-      # collection = Factory[:collection, :restricted_to_users]
-      # Factory[:grant, collection: collection]
-      # repo = Lauth::Persistence::Repositories::GrantRepo.new
-
-      grant = repo.for_uri("/user/").one
+    it "finds the grant for a resource within the collection" do
+      grant = repo.for_uri("/user/").first
 
       expect(grant.collection.commonName).to match(/Name/)
       expect(grant.collection.locations.first.dlpsServer).to eq "some.host"
       expect(grant.collection.locations.first.dlpsPath).to eq "/user%"
+    end
+
+    it "find no grants for a resource not in the collection" do
+      grant = repo.for_uri("/something-else/")
+
+      expect(grant).to eq []
     end
   end
   # grant_repo.for_uri("/user/").for_user(username: "lauth-allowed")

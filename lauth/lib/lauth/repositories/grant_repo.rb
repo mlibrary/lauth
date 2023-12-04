@@ -9,7 +9,14 @@ module Lauth
       end
 
       def for_uri(uri)
-        grants.combine(collection: :locations)
+        ds = grants
+          .dataset
+          .join(collections.name.dataset, uniqueIdentifier: :coll)
+          .join(locations.name.dataset, coll: :uniqueIdentifier)
+          .where(Sequel.ilike(uri, locations[:dlpsPath]))
+
+        rel = grants.class.new(ds)
+        rel.combine(collection: :locations).to_a
       end
     end
   end
