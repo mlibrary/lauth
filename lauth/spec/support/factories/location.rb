@@ -1,4 +1,4 @@
-Factory.define(:location, struct_namespace: Lauth::Persistence::Entities) do |f|
+Factory.define(:location, struct_namespace: Lauth) do |f|
   f.dlpsServer "some.host"
   f.dlpsPath "/s/somecoll%"
   f.association(:collection)
@@ -6,7 +6,7 @@ Factory.define(:location, struct_namespace: Lauth::Persistence::Entities) do |f|
   f.lastModifiedBy "root"
   f.dlpsDeleted "f"
 
-  f.trait(:restricted_to_users) do |t|
-    t.dlpsPath "/user%"
+  f.trait(:restricted_by_username) do |t|
+    t.dlpsPath "/restricted-by-username%"
   end
 end
