@@ -1,9 +1,13 @@
 module Lauth
   module Actions
     class Authorize < Lauth::Action
+      include Deps["repositories.grant_repo"]
       def handle(request, response)
         response.format = :json
-        response.body = if request.params[:user] == "lauth-allowed"
+
+        grants = grant_repo.for_user_and_uri(request.params[:user], request.params[:uri])
+
+        response.body = if grants.any?
           {determination: "allowed"}.to_json
         else
           {determination: "denied"}.to_json

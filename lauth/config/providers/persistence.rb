@@ -7,6 +7,8 @@ Hanami.app.register_provider :persistence, namespace: true do
     }
     config = ROM::Configuration.new(:sql, target["settings"].database_url, opts)
 
+    config.auto_registration("lauth/repositories", namespace: "Lauth")
+
     register "config", config
     register "db", config.gateways[:default].connection
   end
