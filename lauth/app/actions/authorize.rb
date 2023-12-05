@@ -29,7 +29,7 @@ module Lauth
         response.body = Authz.new("made_elsewhere?").authorization(
           Request.new(
             user: params[:user],
-            uri: params[:uri],
+            uri: params[:uri]
           )
         ).to_h.to_json
       end
