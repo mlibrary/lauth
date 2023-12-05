@@ -5,13 +5,13 @@ module Lauth
       def handle(request, response)
         response.format = :json
 
-        grants = grant_repo.for_user_and_uri(request.params[:user], request.params[:uri])
+        result = Lauth::Ops::Authorize.new(
+          request: Lauth::Access::Request.new(
+            user: request.params[:user], uri: request.params[:uri]
+          )
+        ).call
 
-        response.body = if grants.any?
-          {determination: "allowed"}.to_json
-        else
-          {determination: "denied"}.to_json
-        end
+        response.body = result.to_h.to_json
       end
 
       def never_handle_this_is_just_notes

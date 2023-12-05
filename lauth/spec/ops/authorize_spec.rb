@@ -1,7 +1,7 @@
-RSpec.describe Lauth::Ops::Authorize do
+RSpec.describe Lauth::Ops::Authorize, type: :database do
   it do
     request = Lauth::Access::Request.new(
-      uri: "/user/",
+      uri: "/restricted-by-username/",
       user: "cool_dude",
       client_ip: "111.2.3.4"
     )
@@ -13,7 +13,7 @@ RSpec.describe Lauth::Ops::Authorize do
   context "with an unknown user" do
     it "denies access" do
       request = Lauth::Access::Request.new(
-        uri: "/user/",
+        uri: "/restricted-by-username/",
         user: "",
         client_ip: "111.2.3.4"
       )
@@ -24,15 +24,19 @@ RSpec.describe Lauth::Ops::Authorize do
     end
   end
 
-  xcontext "with an authorized user" do
-    it "denies access" do
+  context "with an authorized user" do
+    let!(:user) { Factory[:user, userid: "lauth-allowed"] }
+    let!(:collection) { Factory[:collection, :restricted_by_username] }
+    let!(:grant) { Factory[:grant, user: user, collection: collection] }
+
+    it "allows access" do
       request = Lauth::Access::Request.new(
-        uri: "/user/",
+        uri: "/restricted-by-username/",
         user: "lauth-allowed",
         client_ip: "111.2.3.4"
       )
 
-      result = Lauth::Ops::Authorize.call(request: request)
+      result = Lauth::Ops::Authorize.new(request: request).call
 
       expect(result.determination).to eq "allowed"
     end

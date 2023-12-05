@@ -1,7 +1,10 @@
 module Lauth
   module Ops
     class Authorize
-      def initialize(request:)
+      include Deps["repositories.grant_repo"]
+
+      def initialize(request:, grant_repo: nil)
+        super(grant_repo:)
         @request = request
       end
 
@@ -10,8 +13,17 @@ module Lauth
       end
 
       def call
-        Lauth::Access::Result.new(determination: "denied")
+        determination = if grant_repo.for_user_and_uri(request.user, request.uri).any?
+          "allowed"
+        else
+          "denied"
+        end
+        Lauth::Access::Result.new(determination:)
       end
+
+      private
+
+      attr_reader :request
     end
   end
 end
