@@ -4,13 +4,14 @@ name: Continuous Integration
 on:
   workflow_dispatch:
   push:
+  pull_request:
     branches:
       - 'main'
-  pull_request:
 
 jobs:
-
   ci:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.merged == true }}
+
     runs-on: ubuntu-latest
     name: ${{ matrix.suite }} - Ruby ${{ matrix.ruby }}
     strategy:
@@ -22,13 +23,9 @@ jobs:
           - 'test'
         ruby:
           - '3.2.2'
-#          - '3.1.4'
-#          - '3.0.4'
 
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Database
-        run: docker compose up dbsetup
 
       - name: Create .env
         run: |
@@ -38,11 +35,15 @@ jobs:
       - if: matrix.suite == 'app'
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app-dev
+          docker compose run app-dev standardrb
+          docker compose up dbsetup
           docker compose run app-dev
+
       - if: matrix.suite == 'client-tests'
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} client-tests
           docker compose run client-tests
+
       - if: matrix.suite == 'test'
         run: |
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app apache
