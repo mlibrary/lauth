@@ -24,11 +24,21 @@ INSERT INTO aa_coll VALUES(
 
 INSERT INTO aa_coll_obj VALUES(
   'www.lauth.local', -- server hostname, not vhost
-  '/lauth/test-site/web/restricted-by-username%', -- dlpsPath (on disk, not URL)
+  '/restricted-by-username%', -- dlpsPath (URL as Apache sees it for <Location>)
   'lauth-by-username', -- coll.uniqueIdentifier
   CURRENT_TIMESTAMP, 'root', -- modified info
   'f' -- deleted
 );
+
+-- Add a test case for full local file path via <Directory>
+------------- !!!! -----------------
+-- INSERT INTO aa_coll_obj VALUES(
+--   'www.lauth.local', -- server hostname, not vhost
+--   '/lauth/test-site/web/restricted-by-username%', -- dlpsPath (path on disk, for Apache <Directory>)
+--   'lauth-by-username', -- coll.uniqueIdentifier
+--   CURRENT_TIMESTAMP, 'root', -- modified info
+--   'f' -- deleted
+-- );
 
 INSERT INTO aa_may_access VALUES(
   NULL,
@@ -70,4 +80,11 @@ INSERT INTO aa_user VALUES(
 
 INSERT INTO aa_is_member_of_inst VALUES(
   'lauth-allowed', @test_inst_id, CURRENT_TIMESTAMP, 'root', 'f'
+);
+
+-- Individual grant to the by-username collection; may want to differentiate
+-- the institutional user from individual user at some point
+INSERT INTO aa_may_access VALUES(
+  NULL,
+  'lauth-allowed', NULL, NULL, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
 );
