@@ -24,7 +24,7 @@ TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
 
   Request req {
     .ip = "127.0.0.1",
-    .uri = "/user/",
+    .uri = "/restricted-by-username/",
     .user = "lauth-allowed",
   };
   auto allowed = authorizer.isAllowed(req);
@@ -40,7 +40,7 @@ TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
 
   Request req {
     .ip = "127.0.0.1",
-    .uri = "/user/",
+    .uri = "/restricted-by-username/",
     .user = "lauth-denied",
   };
   auto allowed = authorizer.isAllowed(req);

@@ -9,8 +9,8 @@ INSERT INTO aa_inst VALUES(
 SET @test_inst_id = LAST_INSERT_ID();
 
 INSERT INTO aa_coll VALUES(
-  'lauth-user', -- uniqueIdentifier
-  'lauth-user', -- commonName
+  'lauth-by-username', -- uniqueIdentifier
+  'lauth-by-username', -- commonName
   'auth system testing: user authentication',
   'lauth-test', -- dlpsClass
   'none', -- dlpsSource (unused)
@@ -24,8 +24,8 @@ INSERT INTO aa_coll VALUES(
 
 INSERT INTO aa_coll_obj VALUES(
   'www.lauth.local', -- server hostname, not vhost
-  '/lauth/test-site/web/user%', -- dlpsPath (on disk, not URL)
-  'lauth-user', -- coll.uniqueIdentifier
+  '/lauth/test-site/web/restricted-by-username%', -- dlpsPath (on disk, not URL)
+  'lauth-by-username', -- coll.uniqueIdentifier
   CURRENT_TIMESTAMP, 'root', -- modified info
   'f' -- deleted
 );
@@ -34,7 +34,7 @@ INSERT INTO aa_may_access VALUES(
   NULL,
   -- uniqueIdentifier; normally auto-inc, but keys are disabled
   -- so we can set the inst id explicitly
-  NULL, NULL, @test_inst_id, 'lauth-user', CURRENT_TIMESTAMP, 'root', NULL, 'f'
+  NULL, NULL, @test_inst_id, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
 );
 
 ------ TODO: Discuss network ranges
