@@ -4,7 +4,7 @@ module Lauth
 
       DENIED = "denied"
 
-      def type
+      def self.type
         DENIED
       end
 

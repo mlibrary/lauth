@@ -4,7 +4,7 @@ module Lauth
 
       ALLOWED = "allowed"
 
-      def type
+      def self.type
         ALLOWED
       end
 

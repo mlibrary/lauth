@@ -20,7 +20,7 @@ RSpec.describe Lauth::Ops::Authorize, type: :database do
 
       result = Lauth::Ops::Authorize.call(request: request)
 
-      expect(result.determination).to eq Lauth::Determination::Denied.new
+      expect(result.determination).to eq Lauth::Determination::Denied
     end
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Lauth::Ops::Authorize, type: :database do
 
       result = Lauth::Ops::Authorize.new(request: request).call
 
-      expect(result.determination).to eq Lauth::Determination::Allowed.new
+      expect(result.determination).to eq Lauth::Determination::Allowed
     end
   end
 end

@@ -2,26 +2,32 @@ module Lauth
   module Determination
     class Base
 
-      def type
-        raise NotImplementedError
+      class << self
+        def type
+          raise NotImplementedError
+        end
+
+        def eql?(other)
+          type == other.to_s
+        end
+        alias == eql?
+
+        def to_s
+          to_str
+        end
+
+        def to_str
+          type
+        end
+
+        def inspect
+          to_s
+        end
       end
 
-      def eql?(other)
-        type == other.to_s
-      end
-      alias == eql?
+      private
 
-      def to_s
-        to_str
-      end
-
-      def to_str
-        type
-      end
-
-      def inspect
-        to_s
-      end
+      def new; end
 
     end
   end

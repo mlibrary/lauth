@@ -9,10 +9,6 @@ RSpec.describe Lauth::Determination do
       expect(determination).to eq string.to_sym
     end
 
-    it "equals itself" do
-      expect(determination).to eq determination.class.new
-    end
-
     it "prints as a string" do
       expect(determination.to_s).to eql string
     end
@@ -24,12 +20,12 @@ RSpec.describe Lauth::Determination do
   end
 
   describe Lauth::Determination::Allowed do
-    let(:determination) { Lauth::Determination::Allowed.new }
+    let(:determination) { Lauth::Determination::Allowed}
     include_examples "a determination", "allowed"
   end
 
   describe Lauth::Determination::Denied do
-    let(:determination) { Lauth::Determination::Denied.new }
+    let(:determination) { Lauth::Determination::Denied}
     include_examples "a determination", "denied"
   end
 
