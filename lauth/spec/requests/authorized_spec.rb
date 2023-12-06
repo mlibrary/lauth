@@ -18,7 +18,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
       get "/authorized", {user: "lauth-allowed", uri: "/restricted-by-username/"}
       body = JSON.parse(last_response.body, symbolize_names: true)
 
-      expect(body).to eq({determination: "allowed"})
+      expect(body).to eq({determination: Lauth::Determination::Allowed.new})
     end
   end
 end

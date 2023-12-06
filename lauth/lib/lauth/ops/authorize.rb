@@ -14,9 +14,9 @@ module Lauth
 
       def call
         determination = if grant_repo.for_user_and_uri(request.user, request.uri).any?
-          "allowed"
+          Determination::Allowed.new
         else
-          "denied"
+          Determination::Denied.new
         end
         Lauth::Access::Result.new(determination:)
       end
