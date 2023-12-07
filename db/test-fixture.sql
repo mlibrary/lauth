@@ -78,12 +78,31 @@ INSERT INTO aa_user VALUES(
   'f'
 );
 
-INSERT INTO aa_is_member_of_inst VALUES(
-  'lauth-allowed', @test_inst_id, CURRENT_TIMESTAMP, 'root', 'f'
+---------- setup for user allowed via institution membership ----------
+INSERT INTO aa_user VALUES(
+  'lauth-inst-member',NULL,'Lauth',NULL,'Test-inst-mem','lauth-inst-member',
+  NULL, -- org unit
+  'Library auth system test user - this user is an institution member',
+  'Ann Arbor','MI','48109-119',NULL,NULL,'Staff',NULL,
+  '!none', -- umich id, !none
+  '@umich.edu', -- password, @umich.edu MAY signify SSO
+  0,NULL,
+  CURRENT_TIMESTAMP,'root', -- modified
+  NULL, -- expiry
+  'f'
 );
 
--- Individual grant to the by-username collection; may want to differentiate
--- the institutional user from individual user at some point
+INSERT INTO aa_is_member_of_inst VALUES(
+  'lauth-inst-member', @test_inst_id, CURRENT_TIMESTAMP, 'root', 'f'
+);
+
+INSERT INTO aa_may_access VALUES(
+  NULL,
+  NULL, NULL, @test_inst_id, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
+);
+-----------------------------------------------------------------------------
+
+-- Individual grant to the by-username collection
 INSERT INTO aa_may_access VALUES(
   NULL,
   'lauth-allowed', NULL, NULL, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'

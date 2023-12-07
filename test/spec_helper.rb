@@ -11,11 +11,15 @@ end
 
 module BasicAuth
   def basic_auth_bad_user
-    "Basic #{Base64.urlsafe_encode64("lauth-denied:denied")}"
+    "Basic #{Base64.urlsafe_encode64("lauth-denied:lauth-denied")}"
   end
 
   def basic_auth_good_user
-    "Basic #{Base64.urlsafe_encode64("lauth-allowed:allowed")}"
+    "Basic #{Base64.urlsafe_encode64("lauth-allowed:lauth-allowed")}"
+  end
+
+  def basic_auth_inst_member
+    "Basic #{Base64.urlsafe_encode64("lauth-inst-member:lauth-inst-member")}"
   end
 end
 
