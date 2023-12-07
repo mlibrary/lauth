@@ -24,17 +24,17 @@ INSERT INTO aa_coll VALUES(
 
 INSERT INTO aa_coll_obj VALUES(
   'www.lauth.local', -- server hostname, not vhost
-  '/restricted-by-username%', -- dlpsPath (URL as Apache sees it for <Location>)
+  '/lauth/test-site/web/restricted-by-username%', -- dlpsPath (path on disk, for Apache <Directory>)
   'lauth-by-username', -- coll.uniqueIdentifier
   CURRENT_TIMESTAMP, 'root', -- modified info
   'f' -- deleted
 );
 
--- Add a test case for full local file path via <Directory>
+-- Our "proxied" tests will covered URI-based locations
 ------------- !!!! -----------------
 -- INSERT INTO aa_coll_obj VALUES(
 --   'www.lauth.local', -- server hostname, not vhost
---   '/lauth/test-site/web/restricted-by-username%', -- dlpsPath (path on disk, for Apache <Directory>)
+--   '/restricted-by-username%', -- dlpsPath (URL as Apache sees it for <Location>)
 --   'lauth-by-username', -- coll.uniqueIdentifier
 --   CURRENT_TIMESTAMP, 'root', -- modified info
 --   'f' -- deleted

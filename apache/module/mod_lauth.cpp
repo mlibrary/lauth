@@ -40,7 +40,7 @@ static authz_status lauth_check_authorization(request_rec *r,
 
     Request req {
       .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
-      .uri = r->uri ? std::string(r->uri) : "",
+      .uri = r->filename ? std::string(r->filename) : "",
       .user = r->user ? std::string(r->user) : ""
     };
 
