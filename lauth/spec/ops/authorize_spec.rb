@@ -27,7 +27,7 @@ RSpec.describe Lauth::Ops::Authorize, type: :database do
   context "with an authorized user" do
     let!(:user) { Factory[:user, userid: "lauth-allowed"] }
     let!(:collection) { Factory[:collection, :restricted_by_username] }
-    let!(:grant) { Factory[:grant, user: user, collection: collection] }
+    let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }
 
     it "allows access" do
       request = Lauth::Access::Request.new(

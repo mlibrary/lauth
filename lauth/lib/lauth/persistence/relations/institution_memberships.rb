@@ -1,13 +1,8 @@
 module Lauth
   module Persistence
     module Relations
-      class Grants < ROM::Relation[:sql]
-        schema(:aa_may_access, infer: true, as: :grants) do
-          # attribute :uniqueIdentifier, Types::Integer.default { AutoIncrement.id }
-          # attribute :userid, Types::String.default("userid".freeze)
-          # attribute :user_grp, Types::Integer.default(0)
-          # attribute :inst, Types::Integer.default(0)
-          # attribute :coll, Types::String.default("coll".freeze)
+      class InstitutionMemberships < ROM::Relation[:sql]
+        schema(:aa_is_member_of_inst, infer: true, as: :institution_memberships) do
           # attribute :lastModifiedTime, Types::Time.default { Time.now }
           attribute :lastModifiedBy, Types::String.default("root".freeze)
           # attribute :dlpsExpiryTime, Types::Time.default { Time.now }
@@ -15,7 +10,6 @@ module Lauth
 
           associations do
             belongs_to :user, foreign_key: :userid
-            belongs_to :collection, foreign_key: :coll
             belongs_to :institution, foreign_key: :inst
           end
         end
