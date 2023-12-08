@@ -13,12 +13,16 @@ module Lauth
           .dataset
           .join(collections.name.dataset, uniqueIdentifier: :coll)
           .join(locations.name.dataset, coll: :uniqueIdentifier)
-          .join(users.name.dataset, userid: grants[:userid])
-          .where(users[:userid] => username)
+          .left_join(users.name.dataset, userid: grants[:userid])
+          .left_join(institution_memberships.name.dataset, inst: grants[:inst])
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
+          .where(Sequel.or({
+            users[:userid] => username,
+            institution_memberships[:userid] => username
+          }))
 
         rel = grants.class.new(ds)
-        rel.combine(:user, collection: :locations).to_a
+        rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
       end
 
       def for_uri(uri)

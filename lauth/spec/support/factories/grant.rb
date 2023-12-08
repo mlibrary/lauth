@@ -1,9 +1,16 @@
 Factory.define(:grant, struct_namespace: Lauth) do |f|
   f.sequence(:uniqueIdentifier) { |n| n }
-  f.association(:user)
   f.association(:collection)
   f.lastModifiedTime Time.now
   f.lastModifiedBy "root"
   f.dlpsExpiryTime Time.now
   f.dlpsDeleted "f"
+
+  f.trait(:for_user) do |t|
+    t.association(:user)
+  end
+
+  f.trait(:for_institution) do |t|
+    t.association(:institution)
+  end
 end
