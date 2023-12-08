@@ -10,9 +10,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -24,6 +27,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Build image and push to GitHub Container Registry
         uses: docker/build-push-action@v5
         with:
@@ -32,3 +38,8 @@ jobs:
           tags: 'ghcr.io/mlibrary/lauth/lauth:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth:latest'
           file: lauth/Dockerfile
           target: production
+          platforms: linux/amd64, linux/arm64
+
+      - name: Image digest
+        run: |
+          echo '${{ steps.docker_build.outputs.digest }}'
