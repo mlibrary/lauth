@@ -62,7 +62,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
       let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
 
       it "finds that member's grant" do
-        grant_ids = repo.for_member_and_uri("lauth-inst-member", "/restricted-by-username/")
+        grant_ids = repo.for_user_and_uri("lauth-inst-member", "/restricted-by-username/")
           .map(&:uniqueIdentifier)
 
         expect(grant_ids).to contain_exactly(grant.uniqueIdentifier)

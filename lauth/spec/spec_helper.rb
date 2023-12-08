@@ -11,6 +11,10 @@ require_relative "support/rspec"
 require_relative "support/requests"
 require_relative "support/database_cleaner"
 
+if ENV["ROM_DEBUG"]
+  Hanami.app["persistence.rom"].gateways[:default].use_logger Logger.new($stderr)
+end
+
 Factory = ROM::Factory.configure do |config|
   config.rom = Hanami.app["persistence.rom"]
 end
