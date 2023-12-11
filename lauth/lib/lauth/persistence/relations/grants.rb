@@ -17,6 +17,7 @@ module Lauth
             belongs_to :user, foreign_key: :userid
             belongs_to :collection, foreign_key: :coll
             belongs_to :institution, foreign_key: :inst
+            belongs_to :group, foreign_key: :user_grp
           end
         end
 

@@ -21,4 +21,22 @@ RSpec.describe "/authorized", type: [:request, :database] do
       expect(body).to eq({determination: "allowed"})
     end
   end
+
+  context "with an authorized group" do
+    let!(:user) { Factory[:user, userid: "lauth-group-member"] }
+    let!(:collection) { Factory[:collection, :restricted_by_username] }
+    let!(:group) {
+      Factory[:group]
+      relations.groups.last
+    }
+    let!(:group_membership) { Factory[:group_membership, group: group, user: user] }
+    let!(:grant) { Factory[:grant, :for_group, group: group, collection: collection] }
+
+    it do
+      get "/authorized", {user: "lauth-group-member", uri: "/restricted-by-username/"}
+
+      body = JSON.parse(last_response.body, symbolize_names: true)
+      expect(body).to eq({determination: "allowed"})
+    end
+  end
 end

@@ -15,6 +15,7 @@ module Lauth
           .join(locations.name.dataset, coll: :uniqueIdentifier)
           .left_join(users.name.dataset, userid: grants[:userid])
           .left_join(institution_memberships.name.dataset, inst: grants[:inst])
+          .left_join(group_memberships.name.dataset, user_grp: grants[:user_grp])
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
           .where(
             Sequel.|(
@@ -25,6 +26,10 @@ module Lauth
               Sequel.&(
                 Sequel.~(institution_memberships[:userid] => nil),
                 {institution_memberships[:userid] => username}
+              ),
+              Sequel.&(
+                Sequel.~(group_memberships[:userid] => nil),
+                {group_memberships[:userid] => username}
               )
             )
           )

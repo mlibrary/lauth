@@ -13,4 +13,8 @@ Factory.define(:grant, struct_namespace: Lauth) do |f|
   f.trait(:for_institution) do |t|
     t.association(:institution)
   end
+
+  f.trait(:for_group) do |t|
+    t.association(:group)
+  end
 end
