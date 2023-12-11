@@ -54,7 +54,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   end
 
   context "when authorizing locations within a collection using identity-only authentication" do
-    context "for a member of an authorized institution" do
+    context "with a member of an authorized institution" do
       let!(:collection) { Factory[:collection, :restricted_by_username] }
       let!(:institution) { Factory[:institution] }
       let!(:user) { Factory[:user, userid: "lauth-inst-member"] }
@@ -66,6 +66,24 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
           .map(&:uniqueIdentifier)
 
         expect(grant_ids).to contain_exactly(grant.uniqueIdentifier)
+      end
+
+      it "finds nothing for a nonmember" do
+        grants = repo.for_user_and_uri("lauth-denied", "/restricted-by-username/")
+
+        expect(grants).to be_empty
+      end
+
+      it "finds nothing for an empty user" do
+        grants = repo.for_user_and_uri("", "/restricted-by-username/")
+
+        expect(grants).to be_empty
+      end
+
+      it "finds nothing for a nil user" do
+        grants = repo.for_user_and_uri(nil, "/restricted-by-username/")
+
+        expect(grants).to be_empty
       end
     end
   end

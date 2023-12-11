@@ -16,10 +16,18 @@ module Lauth
           .left_join(users.name.dataset, userid: grants[:userid])
           .left_join(institution_memberships.name.dataset, inst: grants[:inst])
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
-          .where(Sequel.or({
-            users[:userid] => username,
-            institution_memberships[:userid] => username
-          }))
+          .where(
+            Sequel.|(
+              Sequel.&(
+                Sequel.~(users[:userid] => nil),
+                {users[:userid] => username}
+              ),
+              Sequel.&(
+                Sequel.~(institution_memberships[:userid] => nil),
+                {institution_memberships[:userid] => username}
+              )
+            )
+          )
 
         rel = grants.class.new(ds)
         rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
