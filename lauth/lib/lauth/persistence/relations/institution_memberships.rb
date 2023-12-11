@@ -5,7 +5,6 @@ module Lauth
         schema(:aa_is_member_of_inst, infer: true, as: :institution_memberships) do
           # attribute :lastModifiedTime, Types::Time.default { Time.now }
           attribute :lastModifiedBy, Types::String.default("root".freeze)
-          # attribute :dlpsExpiryTime, Types::Time.default { Time.now }
           attribute :dlpsDeleted, Types::String.default("f".freeze)
 
           associations do

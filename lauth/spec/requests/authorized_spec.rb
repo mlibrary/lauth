@@ -9,7 +9,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
   # coll_obj (Location): /restricted-by-username/
   # aa_may_access (Grant): lauth-allowed -> lauth-by-username: GOOD
 
-  context "with an authorized user" do
+  context "with an authorized individual" do
     let!(:user) { Factory[:user, userid: "lauth-allowed"] }
     let!(:collection) { Factory[:collection, :restricted_by_username] }
     let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }

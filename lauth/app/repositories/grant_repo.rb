@@ -32,17 +32,6 @@ module Lauth
         rel = grants.class.new(ds)
         rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
       end
-
-      def for_uri(uri)
-        ds = grants
-          .dataset
-          .join(collections.name.dataset, uniqueIdentifier: :coll)
-          .join(locations.name.dataset, coll: :uniqueIdentifier)
-          .where(Sequel.ilike(uri, locations[:dlpsPath]))
-
-        rel = grants.class.new(ds)
-        rel.combine(:user, collection: :locations).to_a
-      end
     end
   end
 end

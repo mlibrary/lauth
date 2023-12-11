@@ -18,7 +18,7 @@ module Lauth
         else
           "denied"
         end
-        Lauth::Access::Result.new(determination:)
+        Lauth::Access::Result.new(determination: determination)
       end
 
       private
