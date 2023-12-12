@@ -70,5 +70,41 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         expect(grants).to be_empty
       end
     end
+
+    context "with a member of an authorized group" do
+      let!(:collection) { Factory[:collection, :restricted_by_username] }
+      let!(:user) { Factory[:user, userid: "lauth-group-member"] }
+      let!(:group) {
+        Factory[:group]
+        relations.groups.last
+      }
+      let!(:membership) { Factory[:group_membership, user: user, group: group] }
+      let!(:grant) { Factory[:grant, :for_group, group: group, collection: collection] }
+
+      it "finds that member's grant" do
+        grant_ids = repo.for_user_and_uri("lauth-group-member", "/restricted-by-username/")
+          .map(&:uniqueIdentifier)
+
+        expect(grant_ids).to contain_exactly(grant.uniqueIdentifier)
+      end
+
+      it "finds nothing for a nonmember" do
+        grants = repo.for_user_and_uri("lauth-denied", "/restricted-by-username/")
+
+        expect(grants).to be_empty
+      end
+
+      it "finds nothing for an empty user" do
+        grants = repo.for_user_and_uri("", "/restricted-by-username/")
+
+        expect(grants).to be_empty
+      end
+
+      it "finds nothing for a nil user" do
+        grants = repo.for_user_and_uri(nil, "/restricted-by-username/")
+
+        expect(grants).to be_empty
+      end
+    end
   end
 end
