@@ -23,6 +23,7 @@ TEST(ApiClient, HttpRequestByApiClientIsCorrect) {
   };
 
   HttpParams params {
+      {"ip", req.ip},
       {"uri", req.uri},
       {"user", req.user}
   };

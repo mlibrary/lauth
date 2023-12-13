@@ -9,6 +9,7 @@
 namespace mlibrary::lauth {
   AuthorizationResult ApiClient::authorize(Request req) {
     HttpParams params {
+      {"ip", req.ip},
       {"uri", req.uri},
       {"user", req.user}
     };
