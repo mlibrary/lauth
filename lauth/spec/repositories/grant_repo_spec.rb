@@ -3,30 +3,41 @@
 RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
-  def cidr_range(x)
-    (32 - Math.log2((x.to_range.last.to_i - x.to_range.first.to_i) + 1)).to_i
-  end
-
-  def build_network(cidr, institution)
+  # Convenience for building networks.
+  # Requires 'institution' be set in a let block.
+  # @param access [String] Either 'allow' or 'deny'
+  # @param cidr [String] A IPv4 CIDR range.
+  def build_network(access, cidr)
     ip_range = IPAddr.new(cidr)
     Factory[
-      :network,
-      :for_institution,
-      institution: institution,
-      dlpsCIDRAddress: [ip_range, cidr_range(ip_range).to_s].join("/"),
+      :network, :for_institution, institution: institution,
+      dlpsAccessSwitch: access,
+      dlpsCIDRAddress: cidr,
       dlpsAddressStart: ip_range.to_range.first.to_i,
       dlpsAddressEnd: ip_range.to_range.last.to_i,
     ]
   end
 
   context "when authorizing locations within a collection using only client_ip" do
-    context "within the network" do
-      let!(:institution) { Factory[:institution] }
-      let!(:network) { build_network("10.1.16.0/24", institution) }
-      let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
-      let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
-      it "finds the network grant" do
-        repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.16.1")
+    let!(:institution) { Factory[:institution] }
+    let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
+    let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
+    context "(allow,deny) given a denied enclave within an allowed network" do
+      let!(:network) { build_network("allow", "10.1.6.0/24") }
+      let!(:enclave) { build_network("deny", "10.1.6.2/31") }
+      it "finds no grant for a client_ip within the denied enclave" do
+        grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.6.3")
+
+        expect(grants).to eq []
+      end
+    end
+    context "(deny,allow) given an allowed enclave within a denied network" do
+      let!(:network) { build_network("deny", "10.1.7.0/24") }
+      let!(:enclave) { build_network("allow", "10.1.7.8/29") }
+      it "finds the grant for a client_ip within the allowed enclave" do
+        grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.7.14")
+
+        expect(grants.first.uniqueIdentifier).to eq grant.uniqueIdentifier
       end
     end
   end

@@ -15,7 +15,7 @@ module Lauth
           .where { dlpsAddressStart <= ip }
           .where { dlpsAddressEnd >= ip }
           .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
-          .order(Sequel.desc(:block_size)).limit(1)
+          .order(Sequel.asc(:block_size)).limit(1)
 
         ds = grants
           .dataset
