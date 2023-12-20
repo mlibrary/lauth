@@ -3,6 +3,16 @@
 RSpec.describe "Soft Delete", type: :database do
   subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
+  it "location" do
+    collection = Factory[:collection, :restricted_by_username]
+    Hanami.app["persistence.rom"]["relations"].locations.by_pk(collection.locations.first.dlpsServer).changeset(:update, dlpsDeleted: "t").commit
+    collection = Hanami.app["persistence.rom"]["relations"].collections.combine(:locations).by_pk(collection.uniqueIdentifier).one
+    user = Factory[:user, userid: "lauth-allowed"]
+    _grant = Factory[:grant, :for_user, user: user, collection: collection]
+    grants = repo.for_user_and_uri("lauth-allowed", "/restricted-by-username/")
+    expect(grants).to eq []
+  end
+
   context "when authorizing locations within a collection using identity-only authentication" do
     context "with an authorized individual" do
       subject(:grants) { repo.for_user_and_uri("lauth-allowed", "/restricted-by-username/") }

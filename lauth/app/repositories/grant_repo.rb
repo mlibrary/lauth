@@ -21,7 +21,7 @@ module Lauth
           .dataset
           .where(grants[:dlpsDeleted] => "f")
           .join(collections.name.dataset, uniqueIdentifier: :coll, dlpsDeleted: "f")
-          .join(locations.name.dataset, coll: :uniqueIdentifier) # , dlpsDeleted: "f") TODO: fix this
+          .join(locations.name.dataset, coll: :uniqueIdentifier, dlpsDeleted: "f")
           .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
           .left_join(institution_memberships.name.dataset, inst: grants[:inst], dlpsDeleted: "f")
           .left_join(institutions.name.dataset, uniqueIdentifier: institution_memberships[:inst], dlpsDeleted: "f")
