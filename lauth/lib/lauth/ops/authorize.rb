@@ -13,7 +13,12 @@ module Lauth
       end
 
       def call
-        determination = if grant_repo.for_user_and_uri(request.user, request.uri).any?
+        relevant_grants = grant_repo.for(
+          username: request.user,
+          uri: request.uri,
+          client_ip: request.client_ip
+        )
+        determination = if relevant_grants.any?
           "allowed"
         else
           "denied"

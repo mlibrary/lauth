@@ -8,7 +8,15 @@ module Lauth
         grants.where(uniqueIdentifier: id).one
       end
 
-      def for_user_and_uri(username, uri)
+      def for(username:, uri:, client_ip: nil)
+        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
+        smallest_network = networks
+          .dataset
+          .where { dlpsAddressStart <= ip }
+          .where { dlpsAddressEnd >= ip }
+          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
+          .order(Sequel.asc(:block_size)).limit(1)
+
         ds = grants
           .dataset
           .join(collections.name.dataset, uniqueIdentifier: :coll)
@@ -16,6 +24,7 @@ module Lauth
           .left_join(users.name.dataset, userid: grants[:userid])
           .left_join(institution_memberships.name.dataset, inst: grants[:inst])
           .left_join(group_memberships.name.dataset, user_grp: grants[:user_grp])
+          .left_join(Sequel.as(smallest_network, :smallest), inst: grants[:inst])
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
           .where(
             Sequel.|(
@@ -30,6 +39,10 @@ module Lauth
               Sequel.&(
                 Sequel.~(group_memberships[:userid] => nil),
                 {group_memberships[:userid] => username}
+              ),
+              Sequel.&(
+                Sequel.~(Sequel[:smallest][:inst] => nil),
+                {Sequel[:smallest][:dlpsAccessSwitch] => "allow"}
               )
             )
           )

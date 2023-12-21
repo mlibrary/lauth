@@ -42,4 +42,5 @@ if [[ $all == "true" ]]; then
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/root.sql"
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/keys.sql"
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/test-fixture.sql"
+  mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/network.sql"
 fi

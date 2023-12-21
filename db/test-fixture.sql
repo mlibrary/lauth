@@ -47,10 +47,6 @@ INSERT INTO aa_may_access VALUES(
   NULL, NULL, @test_inst_id, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
 );
 
------- TODO: Discuss network ranges
--- INSERT INTO aa_network VALUES(
---   NULL, NULL, '10.1.1.1/24', 167837953, 167838207, 'allow', NULL, @test_inst_id, CURRENT_TIMESTAMP, 'root', 'f'
--- );
 
 INSERT INTO aa_user VALUES(
   'lauth-allowed',NULL,'Lauth',NULL,'Tester-Allowed','lauth-allowed@umich.edu',
