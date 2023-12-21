@@ -1,5 +1,3 @@
-require "ipaddr"
-
 RSpec.describe "/authorized", type: [:request, :database] do
   # known resource, authorized user
   # unknown resource, authorized user
@@ -55,7 +53,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
     end
 
     it do
-      get "/authorized", {user: "", uri: "/restricted-by-client-ip", ip: "10.1.16.2"}
+      get "/authorized", {user: "", uri: "/restricted-by-client-ip/", ip: "10.1.16.2"}
       body = JSON.parse(last_response.body, symbolize_names: true)
       expect(body).to eq({determination: "allowed"})
     end

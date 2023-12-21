@@ -7,7 +7,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   # Requires 'institution' be set in a let block.
   # @param access [String] Either 'allow' or 'deny'
   # @param cidr [String] A IPv4 CIDR range.
-  def build_network(access, cidr)
+  def create_network(access, cidr)
     ip_range = IPAddr.new(cidr)
     Factory[
       :network, :for_institution, institution: institution,
@@ -23,8 +23,8 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
     let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
     let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
     context "(allow,deny) given a denied enclave within an allowed network" do
-      let!(:network) { build_network("allow", "10.1.6.0/24") }
-      let!(:enclave) { build_network("deny", "10.1.6.2/31") }
+      let!(:network) { create_network("allow", "10.1.6.0/24") }
+      let!(:enclave) { create_network("deny", "10.1.6.2/31") }
       it "finds no grant for a client_ip within the denied enclave" do
         grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.6.3")
 
@@ -32,8 +32,8 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
       end
     end
     context "(deny,allow) given an allowed enclave within a denied network" do
-      let!(:network) { build_network("deny", "10.1.7.0/24") }
-      let!(:enclave) { build_network("allow", "10.1.7.8/29") }
+      let!(:network) { create_network("deny", "10.1.7.0/24") }
+      let!(:enclave) { create_network("allow", "10.1.7.8/29") }
       it "finds the grant for a client_ip within the allowed enclave" do
         grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.7.14")
 
