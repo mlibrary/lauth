@@ -20,6 +20,10 @@ RUN meson setup /lauth/apache/build /lauth/apache/client
 WORKDIR /lauth/apache/build
 RUN meson install
 
+COPY ./apache/remoteuser /lauth/apache/remoteuser/
+WORKDIR /lauth/apache/remoteuser
+RUN make install
+
 COPY ./apache/module /lauth/apache/module/
 WORKDIR /lauth/apache/module
 RUN make install
@@ -40,12 +44,16 @@ CMD ["meson", "test", "-v"]
 
 ###
 FROM httpd:2.4-bullseye AS server
+RUN sed -i '1c#!/usr/bin/perl' /usr/local/apache2/cgi-bin/printenv
+RUN chmod +x /usr/local/apache2/cgi-bin/printenv
+
 RUN mkdir -p /lauth
 
 COPY --from=module /lauth/apache/build/http-check /usr/local/bin/
 COPY --from=module /usr/local/ /usr/local/
 RUN ldconfig
 
+COPY --from=module /usr/lib/apache2/modules/mod_authn_remoteuser.so /usr/local/apache2/modules/
 COPY --from=module /usr/lib/apache2/modules/mod_lauth.so /usr/local/apache2/modules/
 
 COPY ./test-site /lauth/test-site/
