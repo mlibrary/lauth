@@ -49,6 +49,18 @@ INSERT INTO aa_may_access VALUES(
   'f'
 );
 
+INSERT INTO aa_may_access VALUES(
+  NULL, -- uniqueIdentifier
+  NULL, -- userid
+  NULL, -- user_grp
+  @enclave_inst_id, -- inst
+  'lauth-by-client-ip', -- coll
+  CURRENT_TIMESTAMP,
+  'root',
+  NULL,
+  'f'
+);
+
 ------A full /24 allowed campus network-------
 -- allow campus 10.1.16.0/24 (255 - 0)
 INSERT INTO aa_network --
@@ -61,3 +73,59 @@ VALUES (
 
 -- keep this range free of rules!
 -- null 10.1.8.0/24 (255)
+
+----Campus net with a single blocked ip and an allowed enclave----
+-- allow campus 10.1.6.0/24 (255)
+-- deny one ip 10.1.6.2/32 (1)
+-- allow enclave 10.1.6.8/29 (8)
+INSERT INTO aa_network -- campus network
+VALUES (
+  NULL, NULL,
+  '10.1.6.0/24', 167839232, 167839487,
+  'allow', NULL, @big_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
+INSERT INTO aa_network -- blocked ip
+VALUES (
+  NULL, NULL,
+  '10.1.6.2/32', 167839234, 167839234,
+  'deny', NULL, @big_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
+INSERT INTO aa_network -- allowed enclave
+VALUES (
+  NULL, NULL,
+  '10.1.6.8/29', 167839240, 167839247,
+  'allow', NULL, @enclave_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
+
+----An allowed enclave within a denied campus-----
+-- deny campus 10.1.7.0/24 (255 - 8)
+-- allow enclave 10.1.7.8/29 (-8)
+INSERT INTO aa_network -- campus network, denied
+VALUES (
+  NULL, NULL,
+  '10.1.7.0/24', 167839488, 167839743,
+  'deny', NULL, @big_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
+INSERT INTO aa_network -- allowed enclave
+VALUES (
+  NULL, NULL,
+  '10.1.7.8/29', 167839496, 167839503,
+  'allow', NULL, @enclave_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
+
+
+
+------A full /24 denied campus network-------
+-- deny campus 10.1.17.0/24 (255 - 0)
+INSERT INTO aa_network
+VALUES (
+  NULL, NULL,
+  '10.1.17.0/24', 167842048, 167842303,
+  'deny', NULL, @big_inst_id,
+  CURRENT_TIMESTAMP, 'root', 'f'
+);
