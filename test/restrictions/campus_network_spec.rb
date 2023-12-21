@@ -1,102 +1,71 @@
 RSpec.describe "Access to resources restricted to a known network" do
-  # These resources should require that the client IP address is within an
-  # authorized range (implying use of an authorized institution's computing
-  # resources).
-  #
-  # We should test inside and outside of a contiguous range and within a denied
-  # subnet inside a larger network.
-  # We test inside and outside of a contiguous range and within a denied
-  # subnet inside a larger network.
-  #
-  # Thus, there are three cases
-  # in_range?   in_subnet?
-  # yes         no
-  # yes         yes
-  # no          n/a
-  #
-  # outer   inner
-  # allow  allow "law school can access regular campus stuff
-  # allow  deny  "block some stupid law school computer
-  # deny   allow "let the law school access more stuff
-  # deny   deny  "no.
-  #
-  # Additionally, we should test that the ip range code is bypassed for a
-  # user that is logged in. This can be done by
+  include BasicAuth
 
-  # TODO:
-  # so here's what we need:
-  # an institution in aa_inst
-  # a collection in aa_coll.
-  # a 'location' in aa_coll_obj that actually points to our test site (lit-ip)...?
-  # two network entries:
-  #   1. big allowed one
-  #   2. smaller denied one bisecting [1]
-  # an aa_may_access entry that specifies coll, inst; leaves userid, user_group null
-  # (and an institution granted access to the collection),
+  let(:content) { "allowed by authorized network" }
 
-  let(:ip_content) { "allowed by authorized network" }
-  let(:path) { "/restricted-by-network/" }
+  context "given a collection configured for 'ip' auth" do
+    context "given an allowed network only" do
+      it "allows an unknown user within the network" do
+        response = request_from("10.1.16.22")
+        expect(response.status).to eq HttpCodes::OK
+        expect(response.body).to include content
+      end
 
-  # for a collection configured for ip auth
-  # a known user who is a member of an institution
-  # that has access to the collection
-  # given they are outside the configured networks,
-  # then they are denied
-
-  context "given a collection open to a campus network" do
-
-    it "is allowed within the campus network" do
-      response = site.get(path) { |req| req.headers["X-Client-IP"] = "10.1.16.44" }
-      expect(response.status).to eq HttpCodes::OK
-      expect(response.body).to include ip_content
+      it "denies an unknown user outside the network" do
+        response = request_from("10.1.17.30")
+        expect(response.status).to eq HttpCodes::FORBIDDEN
+      end
     end
 
-    it "is denied outside the campus network" do
-      response = site.get(path) { |req| req.headers["X-Client-IP"] = "10.1.8.30" }
-      expect(response.status).to eq HttpCodes::FORBIDDEN
+    context "given a denied enclave within an allowed network" do
+      it "denies an unknown user within the enclave" do
+        response = request_from("10.1.6.2")
+        expect(response.status).to eq HttpCodes::FORBIDDEN
+      end
+      it "allows an unknown user outside the enclave" do
+        response = request_from("10.1.6.44")
+        expect(response.status).to eq HttpCodes::OK
+        expect(response.body).to include content
+      end
     end
 
-  end
+    context "given an allowed enclave within a denied network" do
+      it "allows an unknown user within the enclave" do
+        response = request_from("10.1.7.14")
+        expect(response.status).to eq HttpCodes::OK
+        expect(response.body).to include content
+      end
+      it "denies an unknown user outside the enclave" do
+        response = request_from("10.1.7.63")
+        expect(response.status).to eq HttpCodes::FORBIDDEN
+      end
+    end
 
-  xit "does not deny an authorized user" do
-    response = site.get("/user/") { |req| req.headers["X-Client-IP"] = "17.17.17.1" }
-    expect(response.status).to eq HttpCodes::OK
-    expect(response.body).to include user_content
-  end
-
-  xit "is denied by default" do
-    response = site.get(path) { |req| req.headers["X-Client-IP"] = "3.3.3.3" }
-    expect(response.status).to eq HttpCodes::UNAUTHORIZED # forbidden?
-  end
-
-  xit "is allowd within specified ranges (<)" do
-    response = site.get(path) { |req| req.headers["X-Client-IP"] = "6.1.1.1" }
-    expect(response.status).to eq HttpCodes::OK
-    expect(response.body).to include ip_content
-  end
-
-  # ensure assigning 6.1.1.2/32 respects the 32 cidr
-  xit "is allowd within specified ranges (>)" do
-    response = site.get(path) { |req| req.headers["X-Client-IP"] = "6.1.1.3" }
-    expect(response.status).to eq HttpCodes::OK
-    expect(response.body).to include ip_content
-  end
-
-  xit "is denied within nested allow>deny ranges" do
-    response = site.get(path) { |req| req.headers["X-Client-IP"] = "6.1.1.2" }
-    expect(response.status).to eq HttpCodes::UNAUTHORIZED # forbidden?
-  end
-
-  xit "is allowd within nested deny>allow ranges" do
-    response = site.get(path) { |req| req.headers["X-Client-IP"] = "7.1.1.9" }
-    expect(response.status).to eq HttpCodes::OK
-    expect(response.body).to include ip_content
+    context "given a denied network only" do
+      it "denies an unknown user within the network" do
+        response = request_from("10.1.17.2")
+        expect(response.status).to eq HttpCodes::FORBIDDEN
+      end
+    end
   end
 
   private
 
-  def site
-    @site ||= Faraday.new(TestSite::URL)
+  def website
+    @website ||= Faraday.new(TestSite::URL)
   end
+
+  # Request the location from the provided ip address
+  # @param ip [String]
+  # @return response
+  def request_from(ip)
+    website.get("/restricted-by-network/") do |req|
+      # We set the bad user because it is a user without grants, and at present
+      # we must supply a user with the apache config.
+      req.headers["Authorization"] = basic_auth_bad_user
+      req.headers["X-Client-IP"] = ip
+    end
+  end
+
 
 end
