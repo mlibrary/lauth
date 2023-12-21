@@ -23,7 +23,7 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
   let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
   let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
 
-  context "(allow,null) given an allowed network only" do
+  context "(allow>none) given an allowed network only" do
     let!(:network) { build_network("allow", "10.1.16.0/24") }
 
     it "is allowed within the network" do
@@ -35,18 +35,18 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     end
   end
 
-  context "(allow,allow) given an allowed enclave within an allowed network" do
+  context "(allow>allow) given an allowed enclave within an allowed network" do
     let!(:network) { build_network("allow", "10.1.6.0/24") }
     let!(:enclave) { build_network("allow", "10.1.6.8/29") }
     it "is allowed within the enclave" do
-      expect(request_from("10.1.6.31")).to eq({determination: "allowed"})
+      expect(request_from("10.1.6.9")).to eq({determination: "allowed"})
     end
     it "is allowed outside the enclave" do
-      expect(request_from("10.1.6.9")).to eq({determination: "allowed"})
+      expect(request_from("10.1.6.7")).to eq({determination: "allowed"})
     end
   end
 
-  context "(allow,deny) given a denied enclave within an allowed network" do
+  context "(allow>deny) given a denied enclave within an allowed network" do
     let!(:network) { build_network("allow", "10.1.6.0/24") }
     let!(:enclave) { build_network("deny", "10.1.6.2/32") }
     it "is denied within the enclave" do
@@ -57,7 +57,7 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     end
   end
 
-  context "(deny,allow) given an allowed enclave within a denied network" do
+  context "(deny>allow) given an allowed enclave within a denied network" do
     let!(:network) { build_network("deny", "10.1.7.0/24") }
     let!(:enclave) { build_network("allow", "10.1.7.8/29") }
     it "is allowed within the enclave" do
@@ -68,7 +68,7 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     end
   end
 
-  context "(deny,deny) given a denied enclave within a denied network" do
+  context "(deny>deny) given a denied enclave within a denied network" do
     let!(:network) { build_network("deny", "10.1.17.0/24") }
     let!(:enclave) { build_network("deny", "10.1.17.8/29") }
     it "is denied within the enclave" do
@@ -79,7 +79,7 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     end
   end
 
-  context "(deny,null) given a denied network only" do
+  context "(deny>none) given a denied network only" do
     let!(:network) { build_network("deny", "10.1.17.0/24") }
     it "is denied within the network" do
       expect(request_from("10.1.17.2")).to eq({determination: "denied"})
