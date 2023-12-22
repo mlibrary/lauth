@@ -9,13 +9,13 @@ RSpec.describe "Soft Delete", type: :database do
     collection = Hanami.app["persistence.rom"]["relations"].collections.combine(:locations).by_pk(collection.uniqueIdentifier).one
     user = Factory[:user, userid: "lauth-allowed"]
     _grant = Factory[:grant, :for_user, user: user, collection: collection]
-    grants = repo.for_user_and_uri("lauth-allowed", "/restricted-by-username/")
+    grants = repo.for(username: "lauth-allowed", uri: "/restricted-by-username/")
     expect(grants).to eq []
   end
 
   context "when authorizing locations within a collection using identity-only authentication" do
     context "with an authorized individual" do
-      subject(:grants) { repo.for_user_and_uri("lauth-allowed", "/restricted-by-username/") }
+      subject(:grants) { repo.for(username: "lauth-allowed", uri: "/restricted-by-username/") }
 
       let!(:collection) { Factory[:collection, :restricted_by_username] }
       let!(:user) { Factory[:user, userid: "lauth-allowed"] }
@@ -41,7 +41,7 @@ RSpec.describe "Soft Delete", type: :database do
     end
 
     context "with a member of an authorized institution" do
-      subject(:grants) { repo.for_user_and_uri("lauth-inst-member", "/restricted-by-username/") }
+      subject(:grants) { repo.for(username: "lauth-inst-member", uri: "/restricted-by-username/") }
 
       let!(:collection) { Factory[:collection, :restricted_by_username] }
       let!(:institution) { Factory[:institution] }
@@ -81,7 +81,7 @@ RSpec.describe "Soft Delete", type: :database do
     end
 
     context "with a member of an authorized group" do
-      subject(:grants) { repo.for_user_and_uri("lauth-group-member", "/restricted-by-username/") }
+      subject(:grants) { repo.for(username: "lauth-group-member", uri: "/restricted-by-username/") }
 
       let!(:collection) { Factory[:collection, :restricted_by_username] }
       let!(:user) { Factory[:user, userid: "lauth-group-member"] }
