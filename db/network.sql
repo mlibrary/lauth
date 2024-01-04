@@ -61,6 +61,46 @@ INSERT INTO aa_may_access VALUES(
   'f'
 );
 
+-----------------------------------------------------------------
+-- Collection, location, grants for username-or-network scenarios
+-- Note that this uses the same institution and thus same networks
+-- We don't use the enclave for these scenarios
+INSERT INTO aa_coll VALUES(
+  'lauth-by-username-or-client-ip', -- uniqueIdentifier
+  'lauth-by-username-or-client-ip', -- commonName
+  'auth system testing: user or network authentication',
+  'lauth-test', -- dlpsClass
+  'none', -- dlpsSource (unused)
+  'any', -- dlpsAuthenMethod
+  'n', -- dlpsAuthzType
+  'f', -- dlpsPartlyPublic
+  0, -- manager
+  CURRENT_TIMESTAMP, 'root', -- modified info
+  'f' -- deleted
+);
+
+INSERT INTO aa_coll_obj VALUES(
+  'www.lauth.local', -- server hostname, not vhost
+  '/lauth/test-site/web/restricted-by-username-or-network%', -- dlpsPath
+  'lauth-by-username-or-client-ip', -- coll.uniqueIdentifier
+  CURRENT_TIMESTAMP, 'root', -- modified info
+  'f' -- deleted
+);
+
+INSERT INTO aa_may_access VALUES(
+  NULL, -- uniqueIdentifier
+  NULL, -- userid
+  NULL, -- user_grp
+  @big_inst_id, -- inst
+  'lauth-by-username-or-client-ip', -- coll
+  CURRENT_TIMESTAMP,
+  'root',
+  NULL,
+  'f'
+);
+-----------------------------------------------------------------
+
+
 ------A full /24 allowed campus network-------
 -- allow campus 10.1.16.0/24 (255 - 0)
 INSERT INTO aa_network --
