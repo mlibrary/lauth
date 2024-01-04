@@ -9,11 +9,19 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
 
   f.trait(:restricted_by_username) do |t|
     t.uniqueIdentifier "lauth-by-username"
+    t.dlpsAuthenMethod "pw"
     t.association(:locations, :restricted_by_username, count: 1)
   end
 
   f.trait(:restricted_by_client_ip) do |t|
     t.uniqueIdentifier "lauth-by-client-ip"
+    t.dlpsAuthenMethod "ip"
     t.association(:locations, :restricted_by_client_ip, count: 1)
+  end
+
+  f.trait(:restricted_by_username_or_client_ip) do |t|
+    t.uniqueIdentifier "lauth-by-username-or-client-ip"
+    t.dlpsAuthenMethod "any"
+    t.association(:locations, :restricted_by_username_or_client_ip, count: 1)
   end
 end
