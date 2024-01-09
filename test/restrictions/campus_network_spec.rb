@@ -66,6 +66,4 @@ RSpec.describe "Access to resources restricted to a known network" do
       req.headers["X-Client-IP"] = ip
     end
   end
-
-
 end

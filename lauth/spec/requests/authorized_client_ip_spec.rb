@@ -1,5 +1,4 @@
 RSpec.describe "/authorized by client-ip", type: [:request, :database] do
-
   let!(:institution) { Factory[:institution] }
   let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
   let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
@@ -14,7 +13,6 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     it "denies an unknown user outside the network" do
       expect(request_from("10.1.17.1")).to eq({determination: "denied"})
     end
-
   end
 
   context "(allow>allow) given an allowed enclave within an allowed network" do
@@ -89,5 +87,4 @@ RSpec.describe "/authorized by client-ip", type: [:request, :database] do
     get "/authorized", {user: "", uri: "/restricted-by-client-ip", ip: ip}
     JSON.parse(last_response.body, symbolize_names: true)
   end
-
 end

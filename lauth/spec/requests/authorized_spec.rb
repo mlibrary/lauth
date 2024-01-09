@@ -39,5 +39,4 @@ RSpec.describe "/authorized", type: [:request, :database] do
       expect(body).to eq({determination: "allowed"})
     end
   end
-
 end
