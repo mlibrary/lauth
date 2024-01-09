@@ -1,5 +1,5 @@
 RSpec.describe "Access to resources restricted to authenticated users or a known network" do
-  include BasicAuth
+  include AuthUsers
   # These resources should require that either the user is authenticated or
   # that they are visiting from an authorized IP network range.
   let(:content) { "allowed by user authentication or authorized network" }
@@ -8,14 +8,14 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
     context "when inside an allowed network" do
       let(:ip) { "10.1.16.22" }
       it "allows an authorized user" do
-        response = request(from: ip, as: basic_auth_good_user)
+        response = request(from: ip, as: good_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "allows an unauthorized user" do
-        response = request(from: ip, as: basic_auth_bad_user)
+        response = request(from: ip, as: bad_user)
         expect(response.status).to eq HttpCodes::OK
       end
-      xit "allows an unknown user" do # TODO: Broken due to apache config
+      it "allows an unknown user" do
         response = request(from: ip, as: nil)
         expect(response.status).to eq HttpCodes::OK
       end
@@ -24,35 +24,34 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
     context "when inside a denied network" do
       let(:ip) { "10.1.17.2" }
       it "allows an authorized user" do
-        response = request(from: ip, as: basic_auth_good_user)
+        response = request(from: ip, as: good_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "denies an unauthorized user" do
-        response = request(from: ip, as: basic_auth_bad_user)
+        response = request(from: ip, as: bad_user)
         expect(response.status).to eq HttpCodes::FORBIDDEN
       end
-      xit "denies an unknown user" do # TODO: Broken due to apache config
+      it "denies an unknown user" do
         response = request(from: ip, as: nil)
-        expect(response.status).to eq HttpCodes::UNAUTHORIZED
+        expect(response.status).to eq HttpCodes::FORBIDDEN
       end
     end
 
-    # TODO: Do we need these?
     # These are identical to the tests for /restricted-by-username/
-    # except against a different site.
+    # except against a collection in 'any' mode.
     context "when outside any known network" do
       let(:ip) { "10.1.8.1" }
       it "allows an authorized user" do
-        response = request(from: ip, as: basic_auth_good_user)
+        response = request(from: ip, as: good_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "denies an unauthorized user" do
-        response = request(from: ip, as: basic_auth_bad_user)
+        response = request(from: ip, as: bad_user)
         expect(response.status).to eq HttpCodes::FORBIDDEN
       end
-      xit "denies an unknown user" do # TODO: Broken due to apache config
+      it "denies an unknown user" do
         response = request(from: ip, as: nil)
-        expect(response.status).to eq HttpCodes::UNAUTHORIZED
+        expect(response.status).to eq HttpCodes::FORBIDDEN
       end
     end
   end
@@ -69,7 +68,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
   # @return response
   def request(from:, as:)
     website.get("/restricted-by-username-or-network/") do |req|
-      req.headers["Authorization"] = as if as
+      req.headers["X-Forwarded-User"] = as if as
       req.headers["X-Client-IP"] = from if from
     end
   end
