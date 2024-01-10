@@ -1,6 +1,4 @@
 RSpec.describe "Access to resources restricted to a known network" do
-  include BasicAuth
-
   let(:content) { "allowed by authorized network" }
 
   context "given a collection configured for 'ip' auth" do
@@ -60,12 +58,7 @@ RSpec.describe "Access to resources restricted to a known network" do
   # @return response
   def request_from(ip)
     website.get("/restricted-by-network/") do |req|
-      # We set the bad user because it is a user without grants, and at present
-      # we must supply a user with the apache config.
-      req.headers["Authorization"] = basic_auth_bad_user
       req.headers["X-Client-IP"] = ip
     end
   end
-
-
 end
