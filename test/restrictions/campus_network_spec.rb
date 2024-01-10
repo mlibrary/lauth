@@ -58,7 +58,6 @@ RSpec.describe "Access to resources restricted to a known network" do
   # @return response
   def request_from(ip)
     website.get("/restricted-by-network/") do |req|
-      req.headers.delete("X-Remote-User") # Ensure X-Remote-User not set
       req.headers["X-Client-IP"] = ip
     end
   end

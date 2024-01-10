@@ -5,7 +5,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
   let(:content) { "allowed by user authentication or authorized network" }
 
   context "given a collection configured for 'any' auth" do
-    context "when inside an allowed network" do
+    context "when the client is within an allowed network" do
       let(:ip) { "10.1.16.22" }
       it "allows an authorized user" do
         response = request(from: ip, as: good_user)
@@ -21,7 +21,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
       end
     end
 
-    context "when inside a denied network" do
+    context "when the client is within a denied network" do
       let(:ip) { "10.1.17.2" }
       it "allows an authorized user" do
         response = request(from: ip, as: good_user)
@@ -39,7 +39,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
 
     # These are identical to the tests for /restricted-by-username/
     # except against a collection in 'any' mode.
-    context "when outside any known network" do
+    context "when the client is outside known networks" do
       let(:ip) { "10.1.8.1" }
       it "allows an authorized user" do
         response = request(from: ip, as: good_user)
