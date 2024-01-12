@@ -152,6 +152,8 @@ services:
         condition: "service_healthy"
       app:
         condition: "service_healthy"
+      hosted-test-app:
+        condition: "service_started"
       mariadb:
         condition: "service_healthy"
     volumes:
