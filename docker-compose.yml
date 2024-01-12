@@ -27,6 +27,17 @@ services:
     volumes:
       - ./lauth:/lauth/lauth
 
+  hosted-test-app:
+    image: python:3
+    hostname: hosted-test-app.lauth.local
+    networks:
+      default:
+        aliases: ["hosted-test-app"]
+    volumes:
+      - ./test-site/app:/usr/src/app
+    working_dir: "/usr/src/app"
+    command: [ "python", "-u", "./hosted.py" ]
+
   app-dev:
     profiles: ["test"]
     build:
