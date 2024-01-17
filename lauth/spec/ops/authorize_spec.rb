@@ -1,44 +1,31 @@
-RSpec.describe Lauth::Ops::Authorize, type: :database do
-  it do
-    request = Lauth::Access::Request.new(
-      uri: "/restricted-by-username/",
+RSpec.describe Lauth::Ops::Authorize do
+  let(:grant_repo) { instance_double("Lauth::Repositories::GrantRepo") }
+  let(:request) do
+    Lauth::Access::Request.new(
       user: "cool_dude",
-      client_ip: "111.2.3.4"
+      uri: "/some/uri/",
+      client_ip: "10.11.22.33"
     )
-
-    op = Lauth::Ops::Authorize.new(request: request)
-    expect(op.call).to be_a Lauth::Access::Result
   end
 
-  context "with an unknown user" do
-    it "denies access" do
-      request = Lauth::Access::Request.new(
-        uri: "/restricted-by-username/",
-        user: "",
-        client_ip: "111.2.3.4"
-      )
-
-      result = Lauth::Ops::Authorize.call(request: request)
-
-      expect(result.determination).to eq "denied"
-    end
+  it "allows a request with a grant" do
+    allow(grant_repo).to receive(:for).with(
+      username: "cool_dude",
+      uri: "/some/uri/",
+      client_ip: "10.11.22.33"
+    ).and_return([:somegrant])
+    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo, request: request)
+    expect(op.call).to eq Lauth::Access::Result.new(determination: "allowed")
   end
 
-  context "with an authorized user" do
-    let!(:user) { Factory[:user, userid: "lauth-allowed"] }
-    let!(:collection) { Factory[:collection, :restricted_by_username] }
-    let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }
-
-    it "allows access" do
-      request = Lauth::Access::Request.new(
-        uri: "/restricted-by-username/",
-        user: "lauth-allowed",
-        client_ip: "111.2.3.4"
-      )
-
-      result = Lauth::Ops::Authorize.new(request: request).call
-
-      expect(result.determination).to eq "allowed"
-    end
+  it "denies a request without any grants" do
+    allow(grant_repo).to receive(:for).with(
+      username: "cool_dude",
+      uri: "/some/uri/",
+      client_ip: "10.11.22.33"
+    ).and_return([])
+    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo, request: request)
+    expect(op.call).to eq Lauth::Access::Result.new(determination: "denied")
   end
+
 end
