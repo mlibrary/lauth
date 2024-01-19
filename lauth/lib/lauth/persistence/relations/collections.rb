@@ -10,7 +10,7 @@ module Lauth
           attribute :dlpsSource, Types::String.default("source".freeze)
           attribute :dlpsAuthenMethod, Types::String.default("any".freeze)
           attribute :dlpsAuthzType, Types::String.default("n".freeze)
-          attribute :dlpsPartlyPublic, Types::String.default("t".freeze)
+          attribute :dlpsPartlyPublic, Types::String.default("f".freeze)
           attribute :manager, Types::Integer.default(0)
           # attribute :lastModifiedTime, Types::Time.default { Time.now }
           attribute :lastModifiedBy, Types::String.default("root".freeze)
