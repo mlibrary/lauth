@@ -14,8 +14,10 @@ RSpec.describe Lauth::Ops::Authorize do
       uri: "/some/uri/",
       client_ip: "10.11.22.33"
     ).and_return([:somegrant])
-    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo, request: request)
-    expect(op.call).to eq Lauth::Access::Result.new(determination: "allowed")
+
+    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo)
+    expect(op.call(request: request))
+      .to eq Lauth::Access::Result.new(determination: "allowed")
   end
 
   it "denies a request without any grants" do
@@ -24,8 +26,10 @@ RSpec.describe Lauth::Ops::Authorize do
       uri: "/some/uri/",
       client_ip: "10.11.22.33"
     ).and_return([])
-    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo, request: request)
-    expect(op.call).to eq Lauth::Access::Result.new(determination: "denied")
+
+    op = Lauth::Ops::Authorize.new(grant_repo: grant_repo)
+    expect(op.call(request: request))
+      .to eq Lauth::Access::Result.new(determination: "denied")
   end
 
 end
