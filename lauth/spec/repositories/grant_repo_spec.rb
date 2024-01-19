@@ -1,5 +1,3 @@
-# require "hanami_helper"
-
 RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
