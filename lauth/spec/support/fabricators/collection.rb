@@ -7,7 +7,7 @@ module Lauth
 
       class << self
         def create(**args)
-          new.create(default.merge(args))
+          new.create(**default.merge(args))
         end
 
         def default
