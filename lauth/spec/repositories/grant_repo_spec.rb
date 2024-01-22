@@ -1,21 +1,6 @@
 RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
-  # Convenience for building networks.
-  # Requires 'institution' be set in a let block.
-  # @param access [String] Either 'allow' or 'deny'
-  # @param cidr [String] A IPv4 CIDR range.
-  def create_network(access, cidr)
-    ip_range = IPAddr.new(cidr)
-    Factory[
-      :network, :for_institution, institution: institution,
-      dlpsAccessSwitch: access,
-      dlpsCIDRAddress: cidr,
-      dlpsAddressStart: ip_range.to_range.first.to_i,
-      dlpsAddressEnd: ip_range.to_range.last.to_i,
-    ]
-  end
-
   context "when authorizing locations within a collection using only client_ip" do
     let!(:institution) { Factory[:institution] }
     let!(:collection) { Factory[:collection, :restricted_by_client_ip] }
@@ -145,4 +130,22 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
       end
     end
   end
+
+  private
+
+  # Convenience for building networks.
+  # Requires 'institution' be set in a let block.
+  # @param access [String] Either 'allow' or 'deny'
+  # @param cidr [String] A IPv4 CIDR range.
+  def create_network(access, cidr)
+    ip_range = IPAddr.new(cidr)
+    Factory[
+      :network, :for_institution, institution: institution,
+      dlpsAccessSwitch: access,
+      dlpsCIDRAddress: cidr,
+      dlpsAddressStart: ip_range.to_range.first.to_i,
+      dlpsAddressEnd: ip_range.to_range.last.to_i,
+    ]
+  end
+
 end
