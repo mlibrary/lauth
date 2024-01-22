@@ -1,6 +1,21 @@
 RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
   subject(:repo) { Lauth::Repositories::GrantRepo.new }
 
+  describe "#for_collection_class" do
+    let!(:user) { Factory[:user, userid: "lauth-allowed"] }
+    let!(:collection_a) { Factory[:collection, :restricted_by_username] }
+    let!(:collection_b) { Factory[:collection] }
+    let!(:grant_a) { Factory[:grant, :for_user, user: user, collection: collection_a] }
+    let!(:grant_b) { Factory[:grant, :for_user, user: user, collection: collection_b] }
+    it "finds grants for other collections with the same dlpsClass" do
+      grants = repo.for_collection_class(
+        username: "lauth-allowed", collection_class: collection_a.dlpsClass, client_ip: "1.2.3.4")
+
+      expect(grants.map(&:uniqueIdentifier)).
+        to contain_exactly grant_a.uniqueIdentifier, grant_b.uniqueIdentifier
+    end
+  end
+
   describe "#for" do
     context "when authorizing locations within a collection using only client_ip" do
       let!(:institution) { Factory[:institution] }
