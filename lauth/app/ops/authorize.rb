@@ -7,38 +7,34 @@ module Lauth
       ]
 
       def call(request:)
-        # collection = collection_repo.by_class(uri: request.uri)
         collection = collection_repo.find_by_uri(request.uri)
-        binding.irb
         case collection.dlpsAuthzType
         when "n"
           normal_mode(request: request)
         when "d"
-          delegated_mode()
+          delegated_mode(request: request, collection: collection)
         else
           raise "Unknown dlpsAuthzType '#{collection.dlpsAuthzType}'"
         end
       end
 
-      def delegated_mode(collection)
-        grant_collections = grant_repo.accessible_collections(collection.dlpsClass)
-        public_ids = grant_collections
-          .select{|coll| coll.dlpsPartlyPublic == 't' }
+      def delegated_mode(request:, collection:)
+        authorized_collections = grant_repo.for_collection_class(
+          username: request.user,
+          client_ip: request.client_ip,
+          collection_class: collection.dlpsClass
+        )
+        authorized_ids = authorized_collections
+          .map(&:coll)
+
+        public_ids = collection_repo.public_in_class(collection.dlpsClass)
           .map(&:uniqueIdentifier)
 
-        # We can just check the public flag here because our query only returned
-        # collections for which the user can access.
-        authorized_ids = grant_collections
-          .select{|coll| coll.dlpsPartlyPublic == 'f' }
-          .map(&:uniqueIdentifier)
-
-        # If a public collection also
         Lauth::Access::Result.new(
           determination: "allowed",
           authorized_collections: authorized_ids,
           public_collections: public_ids - authorized_ids
         )
-
       end
 
       def normal_mode(request:)
