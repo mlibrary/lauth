@@ -16,6 +16,10 @@ module Lauth
         collections.class.new(dataset).to_a.first
       end
 
+      def public_in_class(dlpsClass)
+        collections.where(dlpsPartlyPublic: "t", dlpsClass: dlpsClass).to_a
+      end
+
     end
   end
 end
