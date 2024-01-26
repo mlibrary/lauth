@@ -5,7 +5,7 @@ RSpec.describe "A web server-hosted application in delegated mode" do
   include AuthUsers
   context "when logged in as an authorized user" do
     subject(:response) do
-      website.get("/cgi/private-cats.pl") do |req|
+      website.get("/hosted") do |req|
         req.headers["X-Forwarded-User"] = good_user
       end
     end
@@ -20,19 +20,19 @@ RSpec.describe "A web server-hosted application in delegated mode" do
 
     it "lists the matching authorized collections" do
       expect(parse_env(response.body)["AUTHZD_COLL"]&.split(":"))
-        .to contain_exactly 'extra-cats', 'foia-cats'
+        .to contain_exactly 'private-cats', 'extra-cats', 'foia-cats'
     end
   end
 
   context "when not logged in" do
-    subject(:response) { website.get("/cgi/private-cats.pl") }
+    subject(:response) { website.get("/hosted") }
     it "is OK" do
       expect(response.status).to eq HttpCodes::OK
     end
 
     it "lists the matching public collections" do
       expect(parse_env(response.body)["PUBLIC_COLL"]&.split(":"))
-        .to contain_exactly 'domestic-cats', 'foia-cats'
+        .to contain_exactly 'public-cats', 'foia-cats'
     end
 
     it "lists the matching authorized collections" do
@@ -48,6 +48,7 @@ RSpec.describe "A web server-hosted application in delegated mode" do
       .split("\n")
       .map{|s| s.split("=", 2)}
       .to_h
+      .transform_values{|v| v.delete_prefix('"').delete_suffix('"')}
   end
 
   def website
