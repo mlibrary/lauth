@@ -33,6 +33,8 @@ services:
     networks:
       default:
         aliases: ["hosted-test-app"]
+    ports:
+      - "127.0.0.1:8008:8008"
     volumes:
       - ./test-site/app:/usr/src/app
     working_dir: "/usr/src/app"
