@@ -1,6 +1,6 @@
 RSpec.describe Lauth::Ops::Authorize do
   let(:grant_repo) { instance_double("Lauth::Repositories::GrantRepo") }
-  let(:collection_repo) {instance_double("Lauth::Repositories::CollectionRepo")}
+  let(:collection_repo) { instance_double("Lauth::Repositories::CollectionRepo") }
   let(:request) do
     Lauth::Access::Request.new(
       user: "cool_dude",
@@ -64,7 +64,5 @@ RSpec.describe Lauth::Ops::Authorize do
         authorized_collections: []
       )
     end
-
   end
-
 end

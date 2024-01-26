@@ -32,7 +32,6 @@ module Lauth
           attribute :lastModifiedBy, Types::String.default("root".freeze)
           attribute :dlpsDeleted, Types::String.default("f".freeze)
 
-
           associations do
             has_many :locations, foreign_key: :coll
             has_many :grants, foreign_key: :coll

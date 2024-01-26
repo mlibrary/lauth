@@ -50,7 +50,6 @@ module Lauth
         end
         Lauth::Access::Result.new(determination: determination)
       end
-
     end
   end
 end

@@ -3,9 +3,9 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
   before(:each) do
     setup_coll("secret", has_grant: false, pub: false)
     setup_coll("public", has_grant: false, pub: true)
-    setup_coll("extra",  has_grant: true,  pub: false)
-    setup_coll("both",   has_grant: true,  pub: true)
-    target = setup_coll("target", has_grant: true,  pub: false)
+    setup_coll("extra", has_grant: true, pub: false)
+    setup_coll("both", has_grant: true, pub: true)
+    target = setup_coll("target", has_grant: true, pub: false)
     Factory[:location, dlpsPath: "/delegated", collection: target]
   end
 
@@ -22,7 +22,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
 
     it "lists authorized collections" do
       body = request(as: user)
-      expect(body[:authorized_collections]).to contain_exactly *%w(target extra both)
+      expect(body[:authorized_collections]).to contain_exactly(*%w[target extra both])
     end
   end
 
@@ -34,7 +34,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
 
     it "lists public collections" do
       body = request(as: "")
-      expect(body[:public_collections]).to contain_exactly *%w(public both)
+      expect(body[:public_collections]).to contain_exactly(*%w[public both])
     end
 
     it "lists (zero) authorized collections" do
@@ -50,7 +50,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
       uniqueIdentifier: name,
       dlpsAuthzType: "d",
       dlpsPartlyPublic: pub ? "t" : "f",
-      dlpsClass: "foo",
+      dlpsClass: "foo"
     )
 
     if has_grant
@@ -61,9 +61,8 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
   end
 
   # @return [Hash] the response body after json parsing
-  def request(as: )
-    get "/authorized", {user: as.to_s, uri: "/delegated" }
+  def request(as:)
+    get "/authorized", {user: as.to_s, uri: "/delegated"}
     JSON.parse(last_response.body, symbolize_names: true)
   end
-
 end

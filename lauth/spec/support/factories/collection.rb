@@ -3,7 +3,7 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
   f.sequence(:commonName) { |n| "Name#{n}" }
   f.association(:locations, count: 0)
   f.manager 0
-  f.dlpsAuthzType 'n'
+  f.dlpsAuthzType "n"
   f.lastModifiedTime Time.now
   f.lastModifiedBy "root"
   f.dlpsDeleted "f"
@@ -27,6 +27,6 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
   end
 
   f.trait(:delegated) do |t|
-    t.dlpsAuthzType 'd'
+    t.dlpsAuthzType "d"
   end
 end

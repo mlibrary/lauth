@@ -13,20 +13,19 @@ module Lauth
         {
           determination: determination,
           authorized_collections: authorized_collections,
-          public_collections: public_collections,
+          public_collections: public_collections
         }
       end
 
       def ==(other)
         to_h == other.to_h
       end
-      alias eql? ==
+      alias_method :eql?, :==
 
       def to_s
         "#{self.class}<#{to_h}>"
       end
-      alias inspect to_s
-
+      alias_method :inspect, :to_s
     end
   end
 end

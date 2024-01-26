@@ -9,10 +9,11 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
     let!(:grant_b) { Factory[:grant, :for_user, user: user, collection: collection_b] }
     it "finds grants for other collections with the same dlpsClass" do
       grants = repo.for_collection_class(
-        username: "lauth-allowed", collection_class: collection_a.dlpsClass, client_ip: "1.2.3.4")
+        username: "lauth-allowed", collection_class: collection_a.dlpsClass, client_ip: "1.2.3.4"
+      )
 
-      expect(grants.map(&:uniqueIdentifier)).
-        to contain_exactly grant_a.uniqueIdentifier, grant_b.uniqueIdentifier
+      expect(grants.map(&:uniqueIdentifier))
+        .to contain_exactly grant_a.uniqueIdentifier, grant_b.uniqueIdentifier
     end
   end
 
@@ -164,5 +165,4 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
       dlpsAddressEnd: ip_range.to_range.last.to_i,
     ]
   end
-
 end

@@ -1,6 +1,6 @@
 module Lauth
   module Fab
-    class Collection< ROM::Repository[:collections]
+    class Collection < ROM::Repository[:collections]
       include Deps[container: "persistence.rom"]
       struct_namespace Lauth
       commands :create
@@ -24,9 +24,7 @@ module Lauth
             locations: []
           }
         end
-
       end
     end
   end
 end
-

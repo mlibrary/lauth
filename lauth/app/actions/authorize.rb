@@ -14,7 +14,6 @@ module Lauth
 
         response.body = result.to_h.to_json
       end
-
     end
   end
 end
