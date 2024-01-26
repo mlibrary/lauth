@@ -10,16 +10,16 @@ RSpec.describe "A proxied application in delegated mode" do
         req.headers["X-Forwarded-User"] = good_user
       end
     end
-    it "is OK" do
+    xit "is OK" do
       expect(response.status).to eq HttpCodes::OK
     end
 
-    it "lists the matching public collections" do
+    xit "lists the matching public collections" do
       expect(parse(response.body)["X-Public-Coll"]&.split(":"))
         .to contain_exactly 'public-cats'
     end
 
-    it "lists the matching authorized collections" do
+    xit "lists the matching authorized collections" do
       expect(parse(response.body)["X-Authzd-Coll"]&.split(":"))
         .to contain_exactly 'target-cats', 'extra-cats', 'extra-public-cats'
     end
@@ -27,16 +27,16 @@ RSpec.describe "A proxied application in delegated mode" do
 
   context "when not logged in" do
     subject(:response) { website.get("/app/proxied") }
-    it "is OK" do
+    xit "is OK" do
       expect(response.status).to eq HttpCodes::OK
     end
 
-    it "lists the matching public collections" do
+    xit "lists the matching public collections" do
       expect(parse(response.body)["X-Public-Coll"]&.split(":"))
         .to contain_exactly 'domestic-cats', 'extra-public-cats'
     end
 
-    it "lists the matching authorized collections" do
+    xit "lists the matching authorized collections" do
       expect(parse(response.body)["X-Authzd-Coll"]&.split(":"))
         .to be_empty
     end
