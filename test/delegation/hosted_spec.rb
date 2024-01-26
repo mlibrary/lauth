@@ -20,7 +20,7 @@ RSpec.describe "A web server-hosted application in delegated mode" do
 
     it "lists the matching authorized collections" do
       expect(parse_env(response.body)["AUTHZD_COLL"]&.split(":"))
-        .to contain_exactly 'private-cats', 'extra-cats', 'foia-cats'
+        .to contain_exactly 'target-cats', 'extra-cats', 'extra-public-cats'
     end
   end
 
@@ -32,7 +32,7 @@ RSpec.describe "A web server-hosted application in delegated mode" do
 
     it "lists the matching public collections" do
       expect(parse_env(response.body)["PUBLIC_COLL"]&.split(":"))
-        .to contain_exactly 'public-cats', 'foia-cats'
+        .to contain_exactly 'public-cats', 'extra-public-cats'
     end
 
     it "lists the matching authorized collections" do

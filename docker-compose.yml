@@ -27,18 +27,18 @@ services:
     volumes:
       - ./lauth:/lauth/lauth
 
-  hosted-test-app:
+  proxied-test-app:
     image: python:3
-    hostname: hosted-test-app.lauth.local
+    hostname: proxied-test-app.lauth.local
     networks:
       default:
-        aliases: ["hosted-test-app"]
+        aliases: ["proxied-test-app"]
     ports:
       - "127.0.0.1:8008:8008"
     volumes:
       - ./test-site/app:/usr/src/app
     working_dir: "/usr/src/app"
-    command: [ "python", "-u", "./hosted.py" ]
+    command: [ "python", "-u", "./proxied.py" ]
 
   app-dev:
     profiles: ["test"]
@@ -154,7 +154,7 @@ services:
         condition: "service_healthy"
       app:
         condition: "service_healthy"
-      hosted-test-app:
+      proxied-test-app:
         condition: "service_started"
       mariadb:
         condition: "service_healthy"

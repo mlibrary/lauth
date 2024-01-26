@@ -6,7 +6,7 @@ RSpec.describe "A proxied application in delegated mode" do
   include AuthUsers
   context "when logged in as an authorized user" do
     subject(:response) do
-      website.get("/app/hosted") do |req|
+      website.get("/app/proxied") do |req|
         req.headers["X-Forwarded-User"] = good_user
       end
     end
@@ -21,19 +21,19 @@ RSpec.describe "A proxied application in delegated mode" do
 
     it "lists the matching authorized collections" do
       expect(parse(response.body)["X-Authzd-Coll"]&.split(":"))
-        .to contain_exactly 'extra-cats', 'foia-cats'
+        .to contain_exactly 'target-cats', 'extra-cats', 'extra-public-cats'
     end
   end
 
   context "when not logged in" do
-    subject(:response) { website.get("/app/hosted") }
+    subject(:response) { website.get("/app/proxied") }
     it "is OK" do
       expect(response.status).to eq HttpCodes::OK
     end
 
     it "lists the matching public collections" do
       expect(parse(response.body)["X-Public-Coll"]&.split(":"))
-        .to contain_exactly 'domestic-cats', 'foia-cats'
+        .to contain_exactly 'domestic-cats', 'extra-public-cats'
     end
 
     it "lists the matching authorized collections" do

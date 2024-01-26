@@ -1,8 +1,8 @@
--- private-cats is the collection that the user will request
+-- target-cats is the collection that the user will request
 -- the user is authorized for this collection
 INSERT INTO aa_coll VALUES(
-  'private-cats', -- uniqueIdentifier
-  'private-cats', -- commonName
+  'target-cats', -- uniqueIdentifier
+  'target-cats', -- commonName
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
@@ -59,10 +59,10 @@ INSERT INTO aa_coll VALUES(
   'f' -- deleted
 );
 
--- foia-cats is a public collection the user is explicitly authorized for
+-- extra-public-cats is a public collection the user is explicitly authorized for
 INSERT INTO aa_coll VALUES(
-  'foia-cats', -- uniqueIdentifier
-  'foia-cats', -- commonName
+  'extra-public-cats', -- uniqueIdentifier
+  'extra-public-cats', -- commonName
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
@@ -77,8 +77,8 @@ INSERT INTO aa_coll VALUES(
 -- we only need one location for these tests
 INSERT INTO aa_coll_obj VALUES(
   'www.lauth.local', -- server hostname, not vhost
-  '/lauth/test-site/cgi/private-cats.pl', -- dlpsPath
-  'private-cats', -- coll.uniqueIdentifier
+  '/lauth/test-site/cgi/printenv', -- dlpsPath
+  'target-cats', -- coll.uniqueIdentifier
   CURRENT_TIMESTAMP, 'root', -- modified info
   'f' -- deleted
 );
@@ -88,7 +88,7 @@ INSERT INTO aa_may_access VALUES(
   'lauth-allowed', -- userid
   NULL, -- user_grp
   NULL, -- inst
-  'private-cats', -- coll
+  'target-cats', -- coll
   CURRENT_TIMESTAMP,
   'root',
   NULL,
@@ -112,7 +112,7 @@ INSERT INTO aa_may_access VALUES(
   'lauth-allowed', -- userid
   NULL, -- user_grp
   NULL, -- inst
-  'foia-cats', -- coll
+  'extra-public-cats', -- coll
   CURRENT_TIMESTAMP,
   'root',
   NULL,
