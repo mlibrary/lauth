@@ -22,14 +22,9 @@ TEST(AuthorizerTest, AllowsAccessWhenApiSaysAuthorized) {
   EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
   Authorizer authorizer(std::move(client));
 
-  Request req {
-    .ip = "127.0.0.1",
-    .uri = "/restricted-by-username/",
-    .user = "lauth-allowed",
-  };
-  auto allowed = authorizer.isAllowed(req);
-
-  EXPECT_THAT(allowed, true);
+  Request req;
+  auto actual = authorizer.authorize(req);
+  EXPECT_THAT(actual["determination"], "allowed");
 }
 
 TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
@@ -38,12 +33,29 @@ TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
   EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
   Authorizer authorizer(std::move(client));
 
-  Request req {
-    .ip = "127.0.0.1",
-    .uri = "/restricted-by-username/",
-    .user = "lauth-denied",
-  };
-  auto allowed = authorizer.isAllowed(req);
+  Request req;
+  auto actual = authorizer.authorize(req);
+  EXPECT_THAT(actual["determination"], "denied");
+}
 
-  EXPECT_THAT(allowed, false);
+TEST(AuthorizerTest, JoinsPublicCollections) {
+  auto client = std::make_unique<MockApiClient>();
+  auto result = AuthorizationResult { .public_collections = {"pub1", "pub2"} };
+  EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
+  Authorizer authorizer(std::move(client));
+
+  Request req;
+  auto actual = authorizer.authorize(req);
+  EXPECT_THAT(actual["public_collections"], "pub1:pub2");
+}
+
+TEST(AuthorizerTest, JoinsAuthorizedCollections) {
+  auto client = std::make_unique<MockApiClient>();
+  auto result = AuthorizationResult { .authorized_collections = {"auth1", "auth2"} };
+  EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
+  Authorizer authorizer(std::move(client));
+
+  Request req;
+  auto actual = authorizer.authorize(req);
+  EXPECT_THAT(actual["authorized_collections"], "auth1:auth2");
 }
