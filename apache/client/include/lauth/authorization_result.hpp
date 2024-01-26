@@ -6,9 +6,9 @@
 
 namespace mlibrary::lauth {
   struct AuthorizationResult {
-    std::string determination;
-    std::vector<std::string> public_collections;
-    std::vector<std::string> authorized_collections;
+    std::string determination = "denied";
+    std::vector<std::string> public_collections = std::vector<std::string>();
+    std::vector<std::string> authorized_collections = std::vector<std::string>();
   };
 }
 

@@ -11,6 +11,14 @@
 
 using namespace mlibrary::lauth;
 
+TEST(AuthorizationResultTest, Defaults) {
+  AuthorizationResult result;
+
+  EXPECT_THAT(result.determination, "denied");
+  EXPECT_THAT(result.public_collections, testing::IsEmpty());
+  EXPECT_THAT(result.authorized_collections, testing::IsEmpty());
+}
+
 TEST(AuthorizationResultTest, FromJson) {
   std::string stringBody =
     R"({"determination":"allowed",)"

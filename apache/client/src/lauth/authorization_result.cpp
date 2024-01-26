@@ -17,8 +17,10 @@ namespace mlibrary::lauth {
     }
 
     void from_json(const json& j, AuthorizationResult& authz) {
-        j.at("determination").get_to(authz.determination);
-        j.at("public_collections").get_to(authz.public_collections);
-        j.at("authorized_collections").get_to(authz.authorized_collections);
+        // Note: value() only uses the default if the key is absent.
+        AuthorizationResult defaults;
+        authz.determination = j.value("determination", defaults.determination);
+        authz.public_collections = j.value("public_collections", defaults.public_collections);
+        authz.authorized_collections = j.value("authorized_collections", defaults.authorized_collections);
     }
 }
