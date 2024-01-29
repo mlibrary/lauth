@@ -4,10 +4,6 @@ module Lauth
       include Deps[container: "persistence.rom"]
       struct_namespace Lauth
 
-      def find(id)
-        grants.where(uniqueIdentifier: id).one
-      end
-
       def find_by_uri(uri)
         dataset = collections
           .dataset
