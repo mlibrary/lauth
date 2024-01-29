@@ -5,15 +5,13 @@
 #include <numeric>
 
 namespace mlibrary::lauth {
-  std::string join(std::vector<std::string> elements, const auto separator) {
-    if (elements.empty()) return std::string();
-
+  std::string join(std::vector<std::string> elements, const std::string &separator) {
     return std::accumulate(
-      next(begin(elements)),
+      begin(elements),
       end(elements),
-      elements[0],
-      [&separator](std::string result, const auto &value) {
-        return result + ":" + value;
+      separator,
+      [&separator](std::string result, std::string value) {
+        return result + value + separator;
       }
     );
   }

@@ -38,15 +38,27 @@ TEST(AuthorizerTest, DeniesAccessWhenApiSaysUnauthorized) {
   EXPECT_THAT(actual["determination"], "denied");
 }
 
-TEST(AuthorizerTest, JoinsPublicCollections) {
+TEST(AuthorizerTest, JoinsEmptyCollections) {
   auto client = std::make_unique<MockApiClient>();
-  auto result = AuthorizationResult { .public_collections = {"pub1", "pub2"} };
+  AuthorizationResult result;
   EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
   Authorizer authorizer(std::move(client));
 
   Request req;
   auto actual = authorizer.authorize(req);
-  EXPECT_THAT(actual["public_collections"], "pub1:pub2");
+  EXPECT_THAT(actual["public_collections"], ":");
+  EXPECT_THAT(actual["authorized_collections"], ":");
+}
+
+TEST(AuthorizerTest, JoinsPublicCollections) {
+  auto client = std::make_unique<MockApiClient>();
+  auto result = AuthorizationResult { .public_collections = {"pub1", "pub2", "pub3"} };
+  EXPECT_CALL(*client, authorize(_)).WillOnce(Return(result));
+  Authorizer authorizer(std::move(client));
+
+  Request req;
+  auto actual = authorizer.authorize(req);
+  EXPECT_THAT(actual["public_collections"], ":pub1:pub2:pub3:");
 }
 
 TEST(AuthorizerTest, JoinsAuthorizedCollections) {
@@ -57,5 +69,5 @@ TEST(AuthorizerTest, JoinsAuthorizedCollections) {
 
   Request req;
   auto actual = authorizer.authorize(req);
-  EXPECT_THAT(actual["authorized_collections"], "auth1:auth2");
+  EXPECT_THAT(actual["authorized_collections"], ":auth1:auth2:");
 }
