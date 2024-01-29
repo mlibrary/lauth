@@ -1,0 +1,41 @@
+managed flag
+works against manager column on the collection
+the only collection we use it for is where the manager column is 0
+this corresponds to the "root" group
+some LIT people are members of this group
+primarily for stats
+normal aa_coll_obj path/setup as with other scenarios
+behaves like a normal collectio with a group grant except that the authorized collection
+  list has the value of All. These lists are empty for normal mode; minimally a colon
+  in delegated. Managed is All.
+
+
+coll column on aa_network:
+we don't think any of these are relevant anymore.
+be careful and do some testing about these scenarios
+except 'robots', which we can and will handle this solely in the apache config.
+
+ip pw any
+There are three rows with ip
+we don't think they're legitimate
+like they are named authz-test-(blah)
+it should ignore user credentials
+but apache won't let us both:
+  - allow someone without credentials
+  - allow someone with credentials but don't use those credentials
+
+
+empty string should be ":"
+we also need leading and trailing delimeters ":pub1:" and ":foo:bar:"
+
+  describe "regex test sanity checking" do
+    it { expect(":").to match_collection_string_format }
+    it { expect(":foo:").to match_collection_string_format }
+    it { expect(":foo:bar:").to match_collection_string_format }
+    it { expect(":foo:bar:").to match_collection_string_format }
+    it { expect(":foo:bar").to_not match_collection_string_format }
+    it { expect("foo:bar:").to_not match_collection_string_format }
+    it { expect("").to_not match_collection_string_format }
+    it { expect("::").to_not match_collection_string_format }
+  end
+

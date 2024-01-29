@@ -1,6 +1,8 @@
 module Lauth
   module Ops
     class Authorize
+      class UnknownAuthorizationTypeError < StandardError; end
+
       include Deps[
         "repositories.grant_repo",
         "repositories.collection_repo"
@@ -19,7 +21,11 @@ module Lauth
         when "d"
           delegated_mode(collection: collection)
         else
-          raise "Unknown dlpsAuthzType '#{collection.dlpsAuthzType}'"
+          raise UnknownAuthorizationTypeError,
+            "Collection with ID '#{collection.uniqueIdentifier}' has invalid " \
+            "Authorization Type '#{collection.dlpsAuthzType}'. " \
+            "It must be one of: 'n', 'd', or 'm' (for a normal, delegated, " \
+            "or managed collection, respectively). "
         end
       end
 
