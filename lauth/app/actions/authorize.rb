@@ -4,13 +4,13 @@ module Lauth
       def handle(request, response)
         response.format = :json
 
-        result = Lauth::Ops::Authorize.new.call(
+        result = Lauth::Ops::Authorize.new(
           request: Lauth::Access::Request.new(
             user: request.params[:user],
             uri: request.params[:uri],
             client_ip: request.params[:ip]
           )
-        )
+        ).call
 
         response.body = result.to_h.to_json
       end

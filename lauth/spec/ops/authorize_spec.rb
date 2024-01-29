@@ -9,10 +9,12 @@ RSpec.describe Lauth::Ops::Authorize do
     )
   end
   subject(:op) do
-    Lauth::Ops::Authorize.new(grant_repo: grant_repo, collection_repo: collection_repo)
+    Lauth::Ops::Authorize.new(
+      grant_repo: grant_repo,
+      collection_repo: collection_repo,
+      request: request
+    )
   end
-
-  # TODO: Consider refactoring to require less mocking
 
   describe "normal mode" do
     before(:each) do
@@ -28,8 +30,7 @@ RSpec.describe Lauth::Ops::Authorize do
         client_ip: "10.11.22.33"
       ).and_return([:somegrant])
 
-      expect(op.call(request: request))
-        .to eq Lauth::Access::Result.new(determination: "allowed")
+      expect(op.call).to eq Lauth::Access::Result.new(determination: "allowed")
     end
 
     it "denies a request without any grants" do
@@ -39,8 +40,7 @@ RSpec.describe Lauth::Ops::Authorize do
         client_ip: "10.11.22.33"
       ).and_return([])
 
-      expect(op.call(request: request))
-        .to eq Lauth::Access::Result.new(determination: "denied")
+      expect(op.call).to eq Lauth::Access::Result.new(determination: "denied")
     end
   end
 
@@ -58,7 +58,7 @@ RSpec.describe Lauth::Ops::Authorize do
     end
 
     it "allows the request" do
-      expect(op.call(request: request)).to eq Lauth::Access::Result.new(
+      expect(op.call).to eq Lauth::Access::Result.new(
         determination: "allowed",
         public_collections: [],
         authorized_collections: []

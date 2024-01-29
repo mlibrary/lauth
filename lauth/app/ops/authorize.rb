@@ -6,19 +6,28 @@ module Lauth
         "repositories.collection_repo"
       ]
 
-      def call(request:)
+      def initialize(grant_repo:, collection_repo:, request:)
+        super(grant_repo: grant_repo, collection_repo: collection_repo)
+        @request = request
+      end
+
+      def call
         collection = collection_repo.find_by_uri(request.uri)
         case collection.dlpsAuthzType
         when "n"
-          normal_mode(request: request)
+          normal_mode
         when "d"
-          delegated_mode(request: request, collection: collection)
+          delegated_mode(collection: collection)
         else
           raise "Unknown dlpsAuthzType '#{collection.dlpsAuthzType}'"
         end
       end
 
-      def delegated_mode(request:, collection:)
+      private
+
+      attr_reader :request
+
+      def delegated_mode(collection:)
         authorized_collections = grant_repo.for_collection_class(
           username: request.user,
           client_ip: request.client_ip,
@@ -37,7 +46,7 @@ module Lauth
         )
       end
 
-      def normal_mode(request:)
+      def normal_mode
         relevant_grants = grant_repo.for(
           username: request.user,
           uri: request.uri,
