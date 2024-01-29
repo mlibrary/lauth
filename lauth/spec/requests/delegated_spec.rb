@@ -9,7 +9,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
     Factory[:location, dlpsPath: "/delegated", collection: target]
   end
 
-  context "when authorized" do
+  context "with an authorized user" do
     it "is allowed" do
       body = request(as: user)
       expect(body[:determination]).to eq "allowed"
@@ -26,7 +26,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
     end
   end
 
-  context "when unauthorized" do
+  context "with an unauthorized user" do
     it "is allowed" do
       body = request(as: "")
       expect(body[:determination]).to eq "allowed"
