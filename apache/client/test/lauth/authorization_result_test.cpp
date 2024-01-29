@@ -35,7 +35,7 @@ TEST(AuthorizationResultTest, FromJson) {
 
 TEST(AuthorizationResultTest, ToJson) {
   std::vector<std::string> public_collections = {"pub1", "pub2"};
-  std::vector<std::string> authorized_collections = {"auth1", "auth1"};
+  std::vector<std::string> authorized_collections = {"auth1", "auth2"};
   AuthorizationResult result {
     .determination = "allowed",
     .public_collections = public_collections,
@@ -44,4 +44,6 @@ TEST(AuthorizationResultTest, ToJson) {
   json j = result; // magic
 
   EXPECT_THAT(j["determination"], "allowed");
+  EXPECT_THAT(j["public_collections"], testing::ElementsAre("pub1", "pub2"));
+  EXPECT_THAT(j["authorized_collections"], testing::ElementsAre("auth1", "auth2"));
 }
