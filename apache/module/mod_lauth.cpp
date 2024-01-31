@@ -11,6 +11,7 @@
 #include <lauth/authorizer.hpp>
 
 #include <string>
+#include <map>
 
 using namespace mlibrary::lauth;
 
@@ -44,7 +45,13 @@ static authz_status lauth_check_authorization(request_rec *r,
       .user = r->user ? std::string(r->user) : ""
     };
 
-    return Authorizer("http://app.lauth.local:2300").isAllowed(req) ? AUTHZ_GRANTED : AUTHZ_DENIED;
+    std::map<std::string, std::string> result =
+      Authorizer("http://app.lauth.local:2300").authorize(req);
+
+    apr_table_set(r->subprocess_env, "PUBLIC_COLL", result["public_collections"].c_str());
+    apr_table_set(r->subprocess_env, "AUTHZD_COLL", result["authorized_collections"].c_str());
+
+    return result["determination"] == "allowed" ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
 
 static const authz_provider authz_lauth_provider =

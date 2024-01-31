@@ -16,25 +16,25 @@ RSpec.describe "/authorized by username or client-ip", type: [:request, :databas
     let!(:user_grant) { Factory[:grant, :for_user, user: user, collection: collection] }
 
     it "is allowed within an allowed network" do
-      expect(request(from: "10.1.16.1", as: user)).to eq({determination: "allowed"})
+      expect(request(from: "10.1.16.1", as: user)).to include(determination: "allowed")
     end
     it "is allowed within a denied network" do
-      expect(request(from: "10.1.17.1", as: user)).to eq({determination: "allowed"})
+      expect(request(from: "10.1.17.1", as: user)).to include(determination: "allowed")
     end
     it "is allowed outside of any known network" do
-      expect(request(from: "10.1.18.1", as: user)).to eq({determination: "allowed"})
+      expect(request(from: "10.1.18.1", as: user)).to include(determination: "allowed")
     end
   end
 
   context "with an anonymous user" do
     it "is allowed within an allowed network" do
-      expect(request(from: "10.1.16.1", as: "")).to eq({determination: "allowed"})
+      expect(request(from: "10.1.16.1", as: "")).to include(determination: "allowed")
     end
     it "is denied within a denied network" do
-      expect(request(from: "10.1.17.1", as: "")).to eq({determination: "denied"})
+      expect(request(from: "10.1.17.1", as: "")).to include(determination: "denied")
     end
     it "is denied outside of any known network" do
-      expect(request(from: "10.1.18.1", as: "")).to eq({determination: "denied"})
+      expect(request(from: "10.1.18.1", as: "")).to include(determination: "denied")
     end
   end
 

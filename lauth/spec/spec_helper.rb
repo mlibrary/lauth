@@ -20,3 +20,4 @@ Factory = ROM::Factory.configure do |config|
 end
 
 Dir[File.dirname(__FILE__) + "/support/factories/*.rb"].each { |file| require file }
+Dir[File.dirname(__FILE__) + "/support/fabricators/*.rb"].each { |file| require file }

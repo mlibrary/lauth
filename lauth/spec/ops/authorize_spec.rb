@@ -1,44 +1,68 @@
-RSpec.describe Lauth::Ops::Authorize, type: :database do
-  it do
-    request = Lauth::Access::Request.new(
-      uri: "/restricted-by-username/",
+RSpec.describe Lauth::Ops::Authorize do
+  let(:grant_repo) { instance_double("Lauth::Repositories::GrantRepo") }
+  let(:collection_repo) { instance_double("Lauth::Repositories::CollectionRepo") }
+  let(:request) do
+    Lauth::Access::Request.new(
       user: "cool_dude",
-      client_ip: "111.2.3.4"
+      uri: "/some/uri/",
+      client_ip: "10.11.22.33"
     )
-
-    op = Lauth::Ops::Authorize.new(request: request)
-    expect(op.call).to be_a Lauth::Access::Result
+  end
+  subject(:op) do
+    Lauth::Ops::Authorize.new(
+      grant_repo: grant_repo,
+      collection_repo: collection_repo,
+      request: request
+    )
   end
 
-  context "with an unknown user" do
-    it "denies access" do
-      request = Lauth::Access::Request.new(
-        uri: "/restricted-by-username/",
-        user: "",
-        client_ip: "111.2.3.4"
-      )
+  describe "normal mode" do
+    before(:each) do
+      allow(collection_repo).to receive(:find_by_uri)
+        .with("/some/uri/")
+        .and_return(double(dlpsAuthzType: "n"))
+    end
 
-      result = Lauth::Ops::Authorize.call(request: request)
+    it "allows a request with a grant" do
+      allow(grant_repo).to receive(:for).with(
+        username: "cool_dude",
+        uri: "/some/uri/",
+        client_ip: "10.11.22.33"
+      ).and_return([:somegrant])
 
-      expect(result.determination).to eq "denied"
+      expect(op.call).to eq Lauth::Access::Result.new(determination: "allowed")
+    end
+
+    it "denies a request without any grants" do
+      allow(grant_repo).to receive(:for).with(
+        username: "cool_dude",
+        uri: "/some/uri/",
+        client_ip: "10.11.22.33"
+      ).and_return([])
+
+      expect(op.call).to eq Lauth::Access::Result.new(determination: "denied")
     end
   end
 
-  context "with an authorized user" do
-    let!(:user) { Factory[:user, userid: "lauth-allowed"] }
-    let!(:collection) { Factory[:collection, :restricted_by_username] }
-    let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }
+  describe "delegated mode" do
+    before(:each) do
+      allow(collection_repo).to receive(:find_by_uri).with("/some/uri/")
+        .and_return(double(dlpsAuthzType: "d", dlpsClass: "fooclass"))
+      allow(collection_repo).to receive(:public_in_class).with("fooclass")
+        .and_return([])
+      allow(grant_repo).to receive(:for_collection_class).with(
+        username: "cool_dude",
+        client_ip: "10.11.22.33",
+        collection_class: "fooclass"
+      ).and_return([])
+    end
 
-    it "allows access" do
-      request = Lauth::Access::Request.new(
-        uri: "/restricted-by-username/",
-        user: "lauth-allowed",
-        client_ip: "111.2.3.4"
+    it "allows the request" do
+      expect(op.call).to eq Lauth::Access::Result.new(
+        determination: "allowed",
+        public_collections: [],
+        authorized_collections: []
       )
-
-      result = Lauth::Ops::Authorize.new(request: request).call
-
-      expect(result.determination).to eq "allowed"
     end
   end
 end

@@ -1,6 +1,7 @@
 #ifndef __LAUTH_AUTHORIZER_HPP__
 #define __LAUTH_AUTHORIZER_HPP__
 
+#include <map>
 #include <memory>
 #include <string>
 
@@ -18,7 +19,7 @@ namespace mlibrary::lauth {
       Authorizer& operator=(const Authorizer&&) = delete;
       virtual ~Authorizer() = default;
 
-      virtual bool isAllowed(Request req);
+      virtual std::map<std::string, std::string> authorize(Request req);
 
     protected:
       std::unique_ptr<ApiClient> client;
