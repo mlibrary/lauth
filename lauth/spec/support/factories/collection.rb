@@ -14,10 +14,22 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
     t.association(:locations, :restricted_by_username, count: 1)
   end
 
+  f.trait(:restricted_by_username_location_soft_deleted) do |t|
+    t.uniqueIdentifier "lauth-by-username"
+    t.dlpsAuthenMethod "pw"
+    t.association(:locations, :restricted_by_username, :soft_deleted, count: 1)
+  end
+
   f.trait(:restricted_by_client_ip) do |t|
     t.uniqueIdentifier "lauth-by-client-ip"
     t.dlpsAuthenMethod "ip"
     t.association(:locations, :restricted_by_client_ip, count: 1)
+  end
+
+  f.trait(:restricted_by_client_ip_location_soft_deleted) do |t|
+    t.uniqueIdentifier "lauth-by-client-ip"
+    t.dlpsAuthenMethod "ip"
+    t.association(:locations, :restricted_by_client_ip, :soft_deleted, count: 1)
   end
 
   f.trait(:restricted_by_username_or_client_ip) do |t|
@@ -26,7 +38,17 @@ Factory.define(:collection, struct_namespace: Lauth) do |f|
     t.association(:locations, :restricted_by_username_or_client_ip, count: 1)
   end
 
+  f.trait(:restricted_by_username_or_client_ip_location_soft_deleted) do |t|
+    t.uniqueIdentifier "lauth-by-username-or-client-ip"
+    t.dlpsAuthenMethod "any"
+    t.association(:locations, :restricted_by_username_or_client_ip, :soft_deleted, count: 1)
+  end
+
   f.trait(:delegated) do |t|
     t.dlpsAuthzType "d"
+  end
+
+  f.trait(:soft_deleted) do |t|
+    t.dlpsDeleted "t"
   end
 end

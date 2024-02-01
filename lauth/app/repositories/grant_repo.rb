@@ -19,8 +19,9 @@ module Lauth
 
         ds = grants
           .dataset
-          .join(collections.name.dataset, uniqueIdentifier: :coll)
-          .left_join(users.name.dataset, userid: grants[:userid])
+          .where(grants[:dlpsDeleted].is("f"))
+          .join(collections.name.dataset, uniqueIdentifier: :coll, dlpsDeleted: "f")
+          .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
           .left_join(institution_memberships.name.dataset, inst: grants[:inst])
           .left_join(group_memberships.name.dataset, user_grp: grants[:user_grp])
           .left_join(Sequel.as(smallest_network, :smallest), inst: grants[:inst])
@@ -54,6 +55,7 @@ module Lauth
         ip = client_ip ? IPAddr.new(client_ip).to_i : nil
         smallest_network = networks
           .dataset
+          .where(dlpsDeleted: "f")
           .where { dlpsAddressStart <= ip }
           .where { dlpsAddressEnd >= ip }
           .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
@@ -61,12 +63,17 @@ module Lauth
 
         ds = grants
           .dataset
-          .join(collections.name.dataset, uniqueIdentifier: :coll)
-          .join(locations.name.dataset, coll: :uniqueIdentifier)
-          .left_join(users.name.dataset, userid: grants[:userid])
-          .left_join(institution_memberships.name.dataset, inst: grants[:inst])
-          .left_join(group_memberships.name.dataset, user_grp: grants[:user_grp])
-          .left_join(Sequel.as(smallest_network, :smallest), inst: grants[:inst])
+          .where(grants[:dlpsDeleted].is("f"))
+          .join(collections.name.dataset, uniqueIdentifier: :coll, dlpsDeleted: "f")
+          .join(locations.name.dataset, coll: :uniqueIdentifier, dlpsDeleted: "f")
+          .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
+          .left_join(institutions.name.dataset, uniqueIdentifier: grants[:inst], dlpsDeleted: "f")
+          .left_join(institution_memberships.name.dataset, inst: :uniqueIdentifier, dlpsDeleted: "f")
+          .left_join(Sequel.as(users.name.dataset, :inst_users), userid: :userid, dlpsDeleted: "f")
+          .left_join(groups.name.dataset, uniqueIdentifier: grants[:user_grp], dlpsDeleted: "f")
+          .left_join(group_memberships.name.dataset, user_grp: :uniqueIdentifier, dlpsDeleted: "f")
+          .left_join(Sequel.as(users.name.dataset, :group_users), userid: :userid, dlpsDeleted: "f")
+          .left_join(Sequel.as(smallest_network, :smallest), inst: institutions[:uniqueIdentifier])
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
           .where(
             Sequel.|(
@@ -75,11 +82,13 @@ module Lauth
                 {users[:userid] => username}
               ),
               Sequel.&(
-                Sequel.~(institution_memberships[:userid] => nil),
+                Sequel.~(institutions[:uniqueIdentifier] => nil),
+                Sequel.~(Sequel[:inst_users][:userid] => nil),
                 {institution_memberships[:userid] => username}
               ),
               Sequel.&(
-                Sequel.~(group_memberships[:userid] => nil),
+                Sequel.~(groups[:uniqueIdentifier] => nil),
+                Sequel.~(Sequel[:group_users][:userid] => nil),
                 {group_memberships[:userid] => username}
               ),
               Sequel.&(
@@ -90,6 +99,14 @@ module Lauth
           )
 
         rel = grants.class.new(ds)
+        #   rel.combine(:user)
+        #      .combine(group: {group_memberships: :user})
+        #      .node(group: :group_memberships) { |group_memberships_relation| group_memberships_relation.where(group_memberships[:dlpsDeleted] => "f").join(users.name.dataset, userid: group_memberships[:userid], dlpsDeleted: "f") }
+        #     .combine(institution: {institution_memberships: :user})
+        #     .node(institution: :institution_memberships) { |institution_memberships_relation| institution_memberships_relation.where(institution_memberships[:dlpsDeleted] => "f").join(users.name.dataset, userid: institution_memberships[:userid], dlpsDeleted: "f") }
+        #     .combine(collection: :locations)
+        #     .node(collection: :locations) { |locations_relation| locations_relation.where(locations[:dlpsDeleted] => "f") }
+        #     .to_a
         rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
       end
     end

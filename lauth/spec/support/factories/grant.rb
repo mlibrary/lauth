@@ -17,4 +17,8 @@ Factory.define(:grant, struct_namespace: Lauth) do |f|
   f.trait(:for_group) do |t|
     t.association(:group)
   end
+
+  f.trait(:soft_deleted) do |t|
+    t.dlpsDeleted "t"
+  end
 end
