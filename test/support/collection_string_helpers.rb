@@ -19,7 +19,7 @@ module CollectionStringHelpers
       COLLECTION_FORMAT.match? actual
     end
     failure_message do |actual|
-      "#{actual} did not match the format (#{COLLECTION_FORMAT})"
+      "<#{actual.class}>#{actual} did not match the format (#{COLLECTION_FORMAT})"
     end
   end
 end
