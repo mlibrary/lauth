@@ -24,14 +24,14 @@ RSpec.shared_examples "delegated mode" do
     end
 
     it "lists the matching public collections" do
-      list = parsed_body["PUBLIC_COLL"]
+      list = parsed_body[public_column]
       expect(list).to match_collection_string_format
       expect(tokenize_collection_string(list))
         .to include "public-cats"
     end
 
     it "lists the matching authorized collections" do
-      list = parsed_body["AUTHZD_COLL"]
+      list = parsed_body[authorized_column]
       expect(list).to match_collection_string_format
       expect(tokenize_collection_string(list))
         .to include "target-cats", "extra-cats", "extra-public-cats"
@@ -45,14 +45,14 @@ RSpec.shared_examples "delegated mode" do
     end
 
     it "lists the matching public collections" do
-      list = parsed_body["PUBLIC_COLL"]
+      list = parsed_body[public_column]
       expect(list).to match_collection_string_format
       expect(tokenize_collection_string(list))
         .to include "public-cats", "extra-public-cats"
     end
 
     it "lists the matching authorized collections" do
-      list = parsed_body["AUTHZD_COLL"]
+      list = parsed_body[authorized_column]
       expect(list).to eq ":"
     end
   end
