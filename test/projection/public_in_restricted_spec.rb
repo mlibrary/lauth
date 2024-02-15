@@ -4,14 +4,46 @@ RSpec.describe "Projecting public access in restricted space" do
   # request URL would normally be in restricted space, but adopts the rules for
   # a public collection.
 
-  # create a collection pubc, with location, public
-  # create a collection priv, with location
-  # add rewrite rule in apache conf /priv/ -> /pub/
-  # create a user priv_user
-  # add grant priv_user -> priv (technically we shouldn't need this, but....)
-  #
-  # as nobody, request pubc -> is pubc, allowed
-  # as nobody, request priv -> rewrites to pubc, allowed
-  # as priv_user, request pubc -> is pubc, allowed
-  # as priv_user, request priv -> rewrites to pubc, allowed
+  include BasicAuth
+  let(:content) { "public in projection scenarios" }
+
+  context "when logged in as an authorized user" do
+    let(:website) do
+      Faraday.new(
+        url: TestSite::URL,
+        headers: { "X-Forwarded-User" => good_user }
+      )
+    end
+
+    it "allows access to the public collection" do
+      response = website.get("/projection/public/")
+      expect(response.status).to eq HttpCodes::OK
+      expect(response.body).to include content
+    end
+    it "allows access to the private collection" do
+      response = website.get("/projection/private/but-not-really/")
+      expect(response.status).to eq HttpCodes::OK
+      expect(response.body).to include content
+    end
+  end
+  context "when not logged in" do
+    let(:website) { Faraday.new(TestSite::URL) }
+
+    it "allows access to the public collection" do
+      response = website.get("/projection/public/")
+      expect(response.status).to eq HttpCodes::OK
+      expect(response.body).to include content
+    end
+    it "allows access to the private collection" do
+      response = website.get("/projection/private/but-not-really/")
+      expect(response.status).to eq HttpCodes::OK
+      expect(response.body).to include content
+    end
+  end
+
+  private
+
+  def website
+    @website ||= Faraday.new(TestSite::URL)
+  end
 end
