@@ -17,4 +17,8 @@ Factory.define(:location, struct_namespace: Lauth) do |f|
   f.trait(:restricted_by_username_or_client_ip) do |t|
     t.dlpsPath "/restricted-by-username-or-client-ip%"
   end
+
+  f.trait(:soft_deleted) do |t|
+    t.dlpsDeleted "t"
+  end
 end
