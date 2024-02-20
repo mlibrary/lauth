@@ -8,7 +8,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
     context "when the client is within an allowed network" do
       let(:ip) { "10.1.16.22" }
       it "allows an authorized user" do
-        response = request(from: ip, as: good_user)
+        response = request(from: ip, as: inst_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "allows an unauthorized user" do
@@ -24,7 +24,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
     context "when the client is within a denied network" do
       let(:ip) { "10.1.17.2" }
       it "allows an authorized user" do
-        response = request(from: ip, as: good_user)
+        response = request(from: ip, as: inst_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "denies an unauthorized user" do
@@ -42,7 +42,7 @@ RSpec.describe "Access to resources restricted to authenticated users or a known
     context "when the client is outside known networks" do
       let(:ip) { "10.1.8.1" }
       it "allows an authorized user" do
-        response = request(from: ip, as: good_user)
+        response = request(from: ip, as: inst_user)
         expect(response.status).to eq HttpCodes::OK
       end
       it "denies an unauthorized user" do
