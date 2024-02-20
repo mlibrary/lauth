@@ -1,5 +1,5 @@
 RSpec.describe "Soft Delete Grants#for Client IP", type: :database do
-  subject(:grants) { repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: client_ip) }
+  subject(:grants) { repo.for(username: "", collection: collection, client_ip: client_ip) }
 
   let(:repo) { Lauth::Repositories::GrantRepo.new }
   let(:collection) { Factory[:collection, :restricted_by_client_ip] }
@@ -35,14 +35,6 @@ RSpec.describe "Soft Delete Grants#for Client IP", type: :database do
 
       context "when collection is soft deleted" do
         let(:collection) { Factory[:collection, :restricted_by_client_ip, :soft_deleted] }
-
-        it "finds no grants" do
-          expect(grants).to be_empty
-        end
-      end
-
-      context "when collection location is soft deleted" do
-        let(:collection) { Factory[:collection, :restricted_by_client_ip_location_soft_deleted] }
 
         it "finds no grants" do
           expect(grants).to be_empty
@@ -90,14 +82,6 @@ RSpec.describe "Soft Delete Grants#for Client IP", type: :database do
 
     context "when collection is soft deleted" do
       let(:collection) { Factory[:collection, :restricted_by_client_ip, :soft_deleted] }
-
-      it "finds no grants" do
-        expect(grants).to be_empty
-      end
-    end
-
-    context "when collection location is soft deleted" do
-      let(:collection) { Factory[:collection, :restricted_by_client_ip_location_soft_deleted] }
 
       it "finds no grants" do
         expect(grants).to be_empty

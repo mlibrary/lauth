@@ -50,8 +50,9 @@ module Lauth
       end
 
       def for(username:, collection:, client_ip: nil)
-        smallest_network = smallest_network_for_ip(client_ip)
+        return [] unless collection&.dlpsDeleted == "f"
 
+        smallest_network = smallest_network_for_ip(client_ip)
         ds = grants
           .dataset
           .where(grants[:dlpsDeleted].is("f"))

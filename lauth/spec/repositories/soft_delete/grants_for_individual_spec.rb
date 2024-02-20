@@ -1,5 +1,5 @@
 RSpec.describe "Soft Delete Grants#for Individual", type: :database do
-  subject(:grants) { repo.for(username: "lauth-allowed", uri: "/restricted-by-username/") }
+  subject(:grants) { repo.for(username: "lauth-allowed", collection: collection) }
 
   let(:repo) { Lauth::Repositories::GrantRepo.new }
   let(:collection) { Factory[:collection, :restricted_by_username] }
@@ -19,14 +19,6 @@ RSpec.describe "Soft Delete Grants#for Individual", type: :database do
 
   context "when collection is soft deleted" do
     let(:collection) { Factory[:collection, :restricted_by_username, :soft_deleted] }
-
-    it "finds no grants" do
-      expect(grants).to be_empty
-    end
-  end
-
-  context "when collection location is soft deleted" do
-    let(:collection) { Factory[:collection, :restricted_by_username_location_soft_deleted] }
 
     it "finds no grants" do
       expect(grants).to be_empty
