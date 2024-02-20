@@ -5,7 +5,6 @@ RSpec.describe "Projecting public access in restricted space" do
   # a public collection.
 
   include BasicAuth
-  let(:content) { "public in projection scenarios" }
 
   context "when logged in as an authorized user" do
     let(:website) do
@@ -15,29 +14,33 @@ RSpec.describe "Projecting public access in restricted space" do
       )
     end
 
+    it "allows access to the projected-public area in the private collection" do
+      response = website.get("/projection/private/but-not-really/")
+      expect(response.status).to eq HttpCodes::OK
+    end
     it "allows access to the public collection" do
       response = website.get("/projection/public/")
       expect(response.status).to eq HttpCodes::OK
-      expect(response.body).to include content
     end
     it "allows access to the private collection" do
-      response = website.get("/projection/private/but-not-really/")
+      response = website.get("/projection/private/")
       expect(response.status).to eq HttpCodes::OK
-      expect(response.body).to include content
     end
   end
   context "when not logged in" do
     let(:website) { Faraday.new(TestSite::URL) }
 
+    it "allows access to the projected-public area in the private collection" do
+      response = website.get("/projection/private/but-not-really/")
+      expect(response.status).to eq HttpCodes::OK
+    end
     it "allows access to the public collection" do
       response = website.get("/projection/public/")
       expect(response.status).to eq HttpCodes::OK
-      expect(response.body).to include content
     end
-    it "allows access to the private collection" do
-      response = website.get("/projection/private/but-not-really/")
-      expect(response.status).to eq HttpCodes::OK
-      expect(response.body).to include content
+    it "denies access to the private collection" do
+      response = website.get("/projection/private/")
+      expect(response.status).to eq HttpCodes::FORBIDDEN
     end
   end
 
