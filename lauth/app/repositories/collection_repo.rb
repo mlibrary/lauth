@@ -20,13 +20,13 @@ module Lauth
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
           .select_append(Sequel.as( # count the slashes
             Sequel.expr {
-              char_length(:dlpsPath) - char_length(replace(:dlpsPath, '/', ''))
+              char_length(:dlpsPath) - char_length(replace(:dlpsPath, "/", ""))
             },
             :path_depth
           ))
           .order(
             Sequel.desc(:path_depth),
-            Sequel.desc(Sequel.expr { length(:dlpsPath) } )
+            Sequel.desc(Sequel.expr { length(:dlpsPath) })
           )
         collections.class.new(dataset).to_a.first
       end

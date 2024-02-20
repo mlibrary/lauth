@@ -67,7 +67,6 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
           it "loads user" do
             expect(found_grant.user.userid).to eq grant.user.userid
           end
-
         end
       end
 

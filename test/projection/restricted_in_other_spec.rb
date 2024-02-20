@@ -14,7 +14,7 @@ RSpec.describe "Projecting another collection in restricted space" do
     let(:website) do
       Faraday.new(
         url: TestSite::URL,
-        headers: { "X-Forwarded-User" => good_user }
+        headers: {"X-Forwarded-User" => good_user}
       )
     end
 
@@ -36,7 +36,7 @@ RSpec.describe "Projecting another collection in restricted space" do
     let(:website) do
       Faraday.new(
         url: TestSite::URL,
-        headers: { "X-Forwarded-User" => another_good_user }
+        headers: {"X-Forwarded-User" => another_good_user}
       )
     end
 

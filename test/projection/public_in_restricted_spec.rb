@@ -10,7 +10,7 @@ RSpec.describe "Projecting public access in restricted space" do
     let(:website) do
       Faraday.new(
         url: TestSite::URL,
-        headers: { "X-Forwarded-User" => good_user }
+        headers: {"X-Forwarded-User" => good_user}
       )
     end
 
