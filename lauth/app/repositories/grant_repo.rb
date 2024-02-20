@@ -99,14 +99,6 @@ module Lauth
           )
 
         rel = grants.class.new(ds)
-        #   rel.combine(:user)
-        #      .combine(group: {group_memberships: :user})
-        #      .node(group: :group_memberships) { |group_memberships_relation| group_memberships_relation.where(group_memberships[:dlpsDeleted] => "f").join(users.name.dataset, userid: group_memberships[:userid], dlpsDeleted: "f") }
-        #     .combine(institution: {institution_memberships: :user})
-        #     .node(institution: :institution_memberships) { |institution_memberships_relation| institution_memberships_relation.where(institution_memberships[:dlpsDeleted] => "f").join(users.name.dataset, userid: institution_memberships[:userid], dlpsDeleted: "f") }
-        #     .combine(collection: :locations)
-        #     .node(collection: :locations) { |locations_relation| locations_relation.where(locations[:dlpsDeleted] => "f") }
-        #     .to_a
         rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
       end
     end
