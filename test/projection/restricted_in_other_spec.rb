@@ -3,17 +3,60 @@ RSpec.describe "Projecting another collection in restricted space" do
   # rewrite rules to be authorized as another collection. Specifically, the
   # request URL would normally be in restricted space, but adopts the rules for
   # another restricted collection.
-
-  # create a collection foo, with a location
-  # create a collection bar, with a location
-  # add rewrite rule to apache config that rewrites locations /foo/ to /bar/
-  # create a user foo_user
-  # create a grant for foo_user->foo
-  # create a user bar_user
-  # crete a grant for bar_user->bar
   #
-  # as foo_user, request foo -> rewrites to bar, denied
-  # as foo_user, request bar -> is bar, denied
-  # as bar_user, request foo -> rewrites to bar, allowed
-  # as bar_user, request foo -> is bar, allowed
+  # good_user has been granted access to /projection/private/
+  # another_good_user has been granted access to /projection/private-also/
+  # /projection/private-also/but-not-really/ is rewritten to /projection/private/
+
+  include AuthUsers
+
+  context "when logged in as an authorized user of the base collection (good_user)" do
+    let(:website) do
+      Faraday.new(
+        url: TestSite::URL,
+        headers: { "X-Forwarded-User" => good_user }
+      )
+    end
+
+    it "allows access to the area projected into good_user's collection" do
+      response = website.get("/projection/private-also/but-not-really/")
+      expect(response.status).to eq HttpCodes::OK
+    end
+    it "denies access to another_good_user's private collection" do
+      response = website.get("/projection/private-also/")
+      expect(response.status).to eq HttpCodes::FORBIDDEN
+    end
+    it "allows access to good_user's private collection" do
+      response = website.get("/projection/private/")
+      expect(response.status).to eq HttpCodes::OK
+    end
+  end
+
+  context "when logged in as an authorized user of the projected collection (another_good_user)" do
+    let(:website) do
+      Faraday.new(
+        url: TestSite::URL,
+        headers: { "X-Forwarded-User" => another_good_user }
+      )
+    end
+
+    it "denies access to the area projected into good_user's collection" do
+      response = website.get("/projection/private-also/but-not-really/")
+      expect(response.status).to eq HttpCodes::FORBIDDEN
+    end
+    it "allows access to another_good_user's private collection" do
+      response = website.get("/projection/private-also/")
+      expect(response.status).to eq HttpCodes::OK
+    end
+    it "denies access to good_user's private collection" do
+      response = website.get("/projection/private/")
+      expect(response.status).to eq HttpCodes::FORBIDDEN
+    end
+  end
+
+  private
+
+  def website
+    @website ||= Faraday.new(TestSite::URL)
+  end
 end
