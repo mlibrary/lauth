@@ -9,13 +9,7 @@ module Lauth
       end
 
       def for_collection_class(username:, client_ip:, collection_class:)
-        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
-        smallest_network = networks
-          .dataset
-          .where { dlpsAddressStart <= ip }
-          .where { dlpsAddressEnd >= ip }
-          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
-          .order(Sequel.asc(:block_size)).limit(1)
+        smallest_network = smallest_network_for_ip(client_ip)
 
         ds = grants
           .dataset
@@ -52,14 +46,7 @@ module Lauth
       end
 
       def for(username:, uri:, client_ip: nil)
-        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
-        smallest_network = networks
-          .dataset
-          .where(dlpsDeleted: "f")
-          .where { dlpsAddressStart <= ip }
-          .where { dlpsAddressEnd >= ip }
-          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
-          .order(Sequel.asc(:block_size)).limit(1)
+        smallest_network = smallest_network_for_ip(client_ip)
 
         ds = grants
           .dataset
@@ -100,6 +87,19 @@ module Lauth
 
         rel = grants.class.new(ds)
         rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
+      end
+
+      private
+
+      def smallest_network_for_ip(client_ip)
+        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
+        smallest_network = networks
+          .dataset
+          .where(dlpsDeleted: "f")
+          .where { dlpsAddressStart <= ip }
+          .where { dlpsAddressEnd >= ip }
+          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
+          .order(Sequel.asc(:block_size)).limit(1)
       end
     end
   end
