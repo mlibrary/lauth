@@ -26,7 +26,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         let!(:network) { create_network("allow", "10.1.6.0/24") }
         let!(:enclave) { create_network("deny", "10.1.6.2/31") }
         it "finds no grant for a client_ip within the denied enclave" do
-          grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.6.3")
+          grants = repo.for(username: "", collection: collection, client_ip: "10.1.6.3")
 
           expect(grants).to eq []
         end
@@ -35,7 +35,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         let!(:network) { create_network("deny", "10.1.7.0/24") }
         let!(:enclave) { create_network("allow", "10.1.7.8/29") }
         it "finds the grant for a client_ip within the allowed enclave" do
-          grants = repo.for(username: "", uri: "/restricted-by-client-ip/", client_ip: "10.1.7.14")
+          grants = repo.for(username: "", collection: collection, client_ip: "10.1.7.14")
 
           expect(grants.first.uniqueIdentifier).to eq grant.uniqueIdentifier
         end
@@ -49,32 +49,25 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }
 
         it "finds the grant for authorized individual and location within the collection" do
-          grants = repo.for(username: "lauth-allowed", uri: "/restricted-by-username/")
+          grants = repo.for(username: "lauth-allowed", collection: collection)
 
           expect(grants.first.uniqueIdentifier).to eq grant.uniqueIdentifier
         end
 
         it "finds no grant for unauthorized individual and location within the collection" do
-          grants = repo.for(username: "lauth-denied", uri: "/restricted-by-username/")
+          grants = repo.for(username: "lauth-denied", collection: collection)
 
           expect(grants).to eq []
         end
 
         # TODO: extract this
         describe "grant association loading" do
-          subject(:found_grant) { repo.for(username: "lauth-allowed", uri: "/restricted-by-username/").first }
+          subject(:found_grant) { repo.for(username: "lauth-allowed", collection: collection).first }
 
           it "loads user" do
             expect(found_grant.user.userid).to eq grant.user.userid
           end
 
-          it "loads collection" do
-            expect(found_grant.collection.uniqueIdentifier).to eq "lauth-by-username"
-          end
-
-          it "loads location" do
-            expect(found_grant.collection.locations.first.dlpsPath).to eq "/restricted-by-username%"
-          end
         end
       end
 
@@ -86,26 +79,26 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         let!(:grant) { Factory[:grant, :for_institution, institution: institution, collection: collection] }
 
         it "finds that member's grant" do
-          grant_ids = repo.for(username: "lauth-inst-member", uri: "/restricted-by-username/")
+          grant_ids = repo.for(username: "lauth-inst-member", collection: collection)
             .map(&:uniqueIdentifier)
 
           expect(grant_ids).to contain_exactly(grant.uniqueIdentifier)
         end
 
         it "finds nothing for a nonmember" do
-          grants = repo.for(username: "lauth-denied", uri: "/restricted-by-username/")
+          grants = repo.for(username: "lauth-denied", collection: collection)
 
           expect(grants).to be_empty
         end
 
         it "finds nothing for an empty user" do
-          grants = repo.for(username: "", uri: "/restricted-by-username/")
+          grants = repo.for(username: "", collection: collection)
 
           expect(grants).to be_empty
         end
 
         it "finds nothing for a nil user" do
-          grants = repo.for(username: nil, uri: "/restricted-by-username/")
+          grants = repo.for(username: nil, collection: collection)
 
           expect(grants).to be_empty
         end
@@ -122,26 +115,26 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
         let!(:grant) { Factory[:grant, :for_group, group: group, collection: collection] }
 
         it "finds that member's grant" do
-          grant_ids = repo.for(username: "lauth-group-member", uri: "/restricted-by-username/")
+          grant_ids = repo.for(username: "lauth-group-member", collection: collection)
             .map(&:uniqueIdentifier)
 
           expect(grant_ids).to contain_exactly(grant.uniqueIdentifier)
         end
 
         it "finds nothing for a nonmember" do
-          grants = repo.for(username: "lauth-denied", uri: "/restricted-by-username/")
+          grants = repo.for(username: "lauth-denied", collection: collection)
 
           expect(grants).to be_empty
         end
 
         it "finds nothing for an empty user" do
-          grants = repo.for(username: "", uri: "/restricted-by-username/")
+          grants = repo.for(username: "", collection: collection)
 
           expect(grants).to be_empty
         end
 
         it "finds nothing for a nil user" do
-          grants = repo.for(username: nil, uri: "/restricted-by-username/")
+          grants = repo.for(username: nil, collection: collection)
 
           expect(grants).to be_empty
         end

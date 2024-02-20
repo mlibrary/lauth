@@ -49,14 +49,12 @@ module Lauth
         rel.to_a
       end
 
-      def for(username:, uri:, client_ip: nil)
+      def for(username:, collection:, client_ip: nil)
         smallest_network = smallest_network_for_ip(client_ip)
 
         ds = grants
           .dataset
           .where(grants[:dlpsDeleted].is("f"))
-          .join(collections.name.dataset, uniqueIdentifier: :coll, dlpsDeleted: "f")
-          .join(locations.name.dataset, coll: :uniqueIdentifier, dlpsDeleted: "f")
           .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
           .left_join(institutions.name.dataset, uniqueIdentifier: grants[:inst], dlpsDeleted: "f")
           .left_join(institution_memberships.name.dataset, inst: :uniqueIdentifier, dlpsDeleted: "f")
@@ -65,7 +63,7 @@ module Lauth
           .left_join(group_memberships.name.dataset, user_grp: :uniqueIdentifier, dlpsDeleted: "f")
           .left_join(Sequel.as(users.name.dataset, :group_users), userid: :userid, dlpsDeleted: "f")
           .left_join(Sequel.as(smallest_network, :smallest), inst: institutions[:uniqueIdentifier])
-          .where(Sequel.ilike(uri, locations[:dlpsPath]))
+          .where(grants[:coll] => collection.uniqueIdentifier)
           .where(
             Sequel.|(
               Sequel.&(
@@ -90,7 +88,7 @@ module Lauth
           )
 
         rel = grants.class.new(ds)
-        rel.combine(:user, collections: :locations, institutions: {institution_memberships: :users}).to_a
+        rel.combine(:user, institutions: {institution_memberships: :users}).to_a
       end
 
       private
