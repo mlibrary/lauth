@@ -21,6 +21,14 @@ RSpec.describe "Soft Delete Grants#for Institution Member", type: :database do
     expect(grants.map(&:uniqueIdentifier)).to contain_exactly(grant.uniqueIdentifier)
   end
 
+  it "#for_collection_class finds the grant" do
+    expect(repo.for_collection_class(
+      username: "lauth-inst-member",
+      client_ip: "10.99.3.4",
+      collection_class: "someclass"
+    ).map(&:uniqueIdentifier)).to contain_exactly grant.uniqueIdentifier
+  end
+
   context "when collection is soft deleted" do
     let(:collection) { Factory[:collection, :restricted_by_username, :soft_deleted] }
 
