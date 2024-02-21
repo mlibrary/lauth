@@ -7,6 +7,8 @@ RSpec.describe "A web server-hosted application in delegated mode" do
 
   include_examples "delegated mode" do
     let(:url) { "/hosted" }
+    let(:authorized_column) { "AUTHZD_COLL" }
+    let(:public_column) { "PUBLIC_COLL" }
     let(:parsed_body) do
       response.body
         .split("\n")

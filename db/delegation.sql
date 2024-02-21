@@ -74,10 +74,19 @@ INSERT INTO aa_coll VALUES(
   'f' -- deleted
 );
 
--- we only need one location for these tests
+-- location for non-proxy scenarios
 INSERT INTO aa_coll_obj VALUES(
   'www.lauth.local', -- server hostname, not vhost
   '/lauth/test-site/cgi/printenv', -- dlpsPath
+  'target-cats', -- coll.uniqueIdentifier
+  CURRENT_TIMESTAMP, 'root', -- modified info
+  'f' -- deleted
+);
+
+-- location for proxy scenarios, where we match by uri
+INSERT INTO aa_coll_obj VALUES(
+  'www.lauth.local', -- server hostname, not vhost
+  '/app/proxied', -- dlpsPath
   'target-cats', -- coll.uniqueIdentifier
   CURRENT_TIMESTAMP, 'root', -- modified info
   'f' -- deleted

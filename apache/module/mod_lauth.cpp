@@ -35,15 +35,23 @@ static authz_status lauth_check_authorization(request_rec *r,
                                                   const char *require_line,
                                                   const void *parsed_require_line)
 {
-    if (!r->ap_auth_type) {
-       return AUTHZ_DENIED_NO_USER;
-    }
+    if (!r->ap_auth_type) return AUTHZ_DENIED_NO_USER;
 
-    Request req {
-      .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
-      .uri = r->filename ? std::string(r->filename) : "",
-      .user = r->user ? std::string(r->user) : ""
-    };
+    Request req;
+    std::string handler = r->handler ? std::string(r->handler) : "";
+    if (handler.substr(0, handler.find(":")) == "proxy-server") {
+      req = Request {
+        .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
+        .uri = r->uri ? std::string(r->uri) : "",
+        .user = r->user ? std::string(r->user) : ""
+      };
+    } else {
+      req  = Request {
+        .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
+        .uri = r->filename,
+        .user = r->user ? std::string(r->user) : ""
+      };
+    }
 
     std::map<std::string, std::string> result =
       Authorizer("http://app.lauth.local:2300").authorize(req);
