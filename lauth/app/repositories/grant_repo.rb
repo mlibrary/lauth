@@ -77,7 +77,6 @@ module Lauth
             )
           )
       end
-
     end
   end
 end
