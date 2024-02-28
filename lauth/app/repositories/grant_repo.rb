@@ -10,40 +10,9 @@ module Lauth
 
       def for_collection_class(username:, client_ip:, collection_class:)
         smallest_network = smallest_network_for_ip(client_ip)
-
-        ds = grants
-          .dataset
-          .where(grants[:dlpsDeleted].is("f"))
-          .join(collections.name.dataset, uniqueIdentifier: :coll, dlpsDeleted: "f")
-          .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
-          .left_join(institutions.name.dataset, uniqueIdentifier: grants[:inst], dlpsDeleted: "f")
-          .left_join(institution_memberships.name.dataset, inst: grants[:inst], dlpsDeleted: "f")
-          .left_join(groups.name.dataset, uniqueIdentifier: grants[:user_grp], dlpsDeleted: "f")
-          .left_join(group_memberships.name.dataset, user_grp: grants[:user_grp], dlpsDeleted: "f")
-          .left_join(Sequel.as(smallest_network, :smallest), inst: grants[:inst])
+        ds = base_grants_for(username: username, network: smallest_network)
+          .join(collections.name.dataset, uniqueIdentifier: grants[:coll], dlpsDeleted: "f")
           .where(collections[:dlpsClass] => collection_class)
-          .where(
-            Sequel.|(
-              Sequel.&(
-                Sequel.~(users[:userid] => nil),
-                {users[:userid] => username}
-              ),
-              Sequel.&(
-                Sequel.~(institutions[:uniqueIdentifier] => nil),
-                Sequel.~(institution_memberships[:userid] => nil),
-                {institution_memberships[:userid] => username}
-              ),
-              Sequel.&(
-                Sequel.~(groups[:uniqueIdentifier] => nil),
-                Sequel.~(group_memberships[:userid] => nil),
-                {group_memberships[:userid] => username}
-              ),
-              Sequel.&(
-                Sequel.~(Sequel[:smallest][:inst] => nil),
-                {Sequel[:smallest][:dlpsAccessSwitch] => "allow"}
-              )
-            )
-          )
 
         rel = grants.class.new(ds)
         rel.to_a
@@ -53,7 +22,28 @@ module Lauth
         return [] unless collection&.dlpsDeleted == "f"
 
         smallest_network = smallest_network_for_ip(client_ip)
-        ds = grants
+        ds = base_grants_for(username: username, network: smallest_network)
+          .where(grants[:coll] => collection.uniqueIdentifier)
+
+        rel = grants.class.new(ds)
+        rel.combine(:user, institutions: {institution_memberships: :users}).to_a
+      end
+
+      private
+
+      def smallest_network_for_ip(client_ip)
+        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
+        networks
+          .dataset
+          .where(dlpsDeleted: "f")
+          .where { dlpsAddressStart <= ip }
+          .where { dlpsAddressEnd >= ip }
+          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
+          .order(Sequel.asc(:block_size)).limit(1)
+      end
+
+      def base_grants_for(username:, network:)
+        grants
           .dataset
           .where(grants[:dlpsDeleted].is("f"))
           .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
@@ -63,8 +53,7 @@ module Lauth
           .left_join(groups.name.dataset, uniqueIdentifier: grants[:user_grp], dlpsDeleted: "f")
           .left_join(group_memberships.name.dataset, user_grp: :uniqueIdentifier, dlpsDeleted: "f")
           .left_join(Sequel.as(users.name.dataset, :group_users), userid: :userid, dlpsDeleted: "f")
-          .left_join(Sequel.as(smallest_network, :smallest), inst: institutions[:uniqueIdentifier])
-          .where(grants[:coll] => collection.uniqueIdentifier)
+          .left_join(Sequel.as(network, :smallest), inst: institutions[:uniqueIdentifier])
           .where(
             Sequel.|(
               Sequel.&(
@@ -87,22 +76,6 @@ module Lauth
               )
             )
           )
-
-        rel = grants.class.new(ds)
-        rel.combine(:user, institutions: {institution_memberships: :users}).to_a
-      end
-
-      private
-
-      def smallest_network_for_ip(client_ip)
-        ip = client_ip ? IPAddr.new(client_ip).to_i : nil
-        networks
-          .dataset
-          .where(dlpsDeleted: "f")
-          .where { dlpsAddressStart <= ip }
-          .where { dlpsAddressEnd >= ip }
-          .select_append(Sequel.as(Sequel.expr { dlpsAddressEnd - dlpsAddressStart }, :block_size))
-          .order(Sequel.asc(:block_size)).limit(1)
       end
     end
   end

@@ -35,6 +35,14 @@ RSpec.describe "Soft Delete Grants#for Group Member", type: :database do
     it "finds no grants" do
       expect(grants).to be_empty
     end
+
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-group-member",
+        client_ip: "10.99.3.4",
+        collection_class: "someclass"
+      )).to be_empty
+    end
   end
 
   context "when group is soft deleted" do
@@ -59,6 +67,14 @@ RSpec.describe "Soft Delete Grants#for Group Member", type: :database do
     it "finds no grants" do
       expect(grants).to be_empty
     end
+
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-group-member",
+        client_ip: "10.99.3.4",
+        collection_class: "someclass"
+      )).to be_empty
+    end
   end
 
   context "when membership is soft deleted" do
@@ -82,6 +98,14 @@ RSpec.describe "Soft Delete Grants#for Group Member", type: :database do
 
     it "finds no grants" do
       expect(grants).to be_empty
+    end
+
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-group-member",
+        client_ip: "10.99.3.4",
+        collection_class: "someclass"
+      )).to be_empty
     end
   end
 end
