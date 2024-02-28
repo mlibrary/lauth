@@ -29,24 +29,8 @@ RSpec.describe "Soft Delete Grants#for_collection_class", type: :database do
     end
   end
 
-  xcontext "when collection_a location is soft deleted" do
-    let(:collection_a) { Factory[:collection, :restricted_by_username_location_soft_deleted, dlpsClass: "same-class"] }
-
-    it "finds only grant_b" do
-      expect(grants.map(&:uniqueIdentifier)).to contain_exactly grant_b.uniqueIdentifier
-    end
-  end
-
   context "when collection_b is soft deleted" do
     let(:collection_b) { Factory[:collection, :soft_deleted, dlpsClass: "same-class"] }
-
-    it "finds only grant_a" do
-      expect(grants.map(&:uniqueIdentifier)).to contain_exactly grant_a.uniqueIdentifier
-    end
-  end
-
-  xcontext "when collection_b location is soft deleted" do
-    let(:collection_b) { Factory[:collection, :location_soft_deleted, dlpsClass: "same-class"] }
 
     it "finds only grant_a" do
       expect(grants.map(&:uniqueIdentifier)).to contain_exactly grant_a.uniqueIdentifier

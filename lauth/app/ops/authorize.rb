@@ -17,7 +17,7 @@ module Lauth
         collection = collection_repo.find_by_uri(request.uri)
         case collection.dlpsAuthzType
         when "n"
-          normal_mode
+          normal_mode(collection: collection)
         when "d"
           delegated_mode(collection: collection)
         else
@@ -52,10 +52,10 @@ module Lauth
         )
       end
 
-      def normal_mode
+      def normal_mode(collection:)
         relevant_grants = grant_repo.for(
           username: request.user,
-          uri: request.uri,
+          collection: collection,
           client_ip: request.client_ip
         )
         determination = if relevant_grants.any?

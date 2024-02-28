@@ -1,5 +1,5 @@
 RSpec.describe "Soft Delete Grants#for Institution Member", type: :database do
-  subject(:grants) { repo.for(username: "lauth-inst-member", uri: "/restricted-by-username/") }
+  subject(:grants) { repo.for(username: "lauth-inst-member", collection: collection) }
 
   let(:repo) { Lauth::Repositories::GrantRepo.new }
   let(:collection) { Factory[:collection, :restricted_by_username, dlpsClass: "someclass"] }
@@ -35,13 +35,13 @@ RSpec.describe "Soft Delete Grants#for Institution Member", type: :database do
     it "finds no grants" do
       expect(grants).to be_empty
     end
-  end
 
-  context "when collection location is soft deleted" do
-    let(:collection) { Factory[:collection, :restricted_by_username_location_soft_deleted] }
-
-    it "finds no grants" do
-      expect(grants).to be_empty
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-inst-member",
+        client_ip: "10.99.3.4",
+        collection_class: "someclass"
+      )).to be_empty
     end
   end
 
@@ -67,6 +67,14 @@ RSpec.describe "Soft Delete Grants#for Institution Member", type: :database do
     it "finds no grants" do
       expect(grants).to be_empty
     end
+
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-inst-member",
+        client_ip: "10.2.3.4",
+        collection_class: "someclass"
+      )).to be_empty
+    end
   end
 
   context "when membership is soft deleted" do
@@ -90,6 +98,14 @@ RSpec.describe "Soft Delete Grants#for Institution Member", type: :database do
 
     it "finds no grants" do
       expect(grants).to be_empty
+    end
+
+    it "#for_collection_class finds no grants" do
+      expect(repo.for_collection_class(
+        username: "lauth-inst-member",
+        client_ip: "10.99.3.4",
+        collection_class: "someclass"
+      )).to be_empty
     end
   end
 end

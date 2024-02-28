@@ -26,7 +26,7 @@ RSpec.describe Lauth::Ops::Authorize do
     it "allows a request with a grant" do
       allow(grant_repo).to receive(:for).with(
         username: "cool_dude",
-        uri: "/some/uri/",
+        collection: anything,
         client_ip: "10.11.22.33"
       ).and_return([:somegrant])
 
@@ -36,7 +36,7 @@ RSpec.describe Lauth::Ops::Authorize do
     it "denies a request without any grants" do
       allow(grant_repo).to receive(:for).with(
         username: "cool_dude",
-        uri: "/some/uri/",
+        collection: anything,
         client_ip: "10.11.22.33"
       ).and_return([])
 
