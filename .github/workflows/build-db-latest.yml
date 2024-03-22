@@ -37,7 +37,6 @@ jobs:
           push: true
           tags: 'ghcr.io/mlibrary/lauth/db-builder:${{ github.sha }}, ghcr.io/mlibrary/lauth/db-builder:latest'
           file: db/Dockerfile
-          target: production
           platforms: linux/amd64, linux/arm64
 
       - name: Image digest
