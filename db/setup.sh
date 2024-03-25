@@ -2,7 +2,7 @@
 
 directory=$(dirname "$0")
 
-while getopts u:p:h:P:a:r option
+while getopts u:p:h:P:a:r:d option
 do
     case "${option}"
         in
@@ -12,6 +12,7 @@ do
         P)P=${OPTARG};;
         a)all="true";;
         r)root="false";;
+        d)debug="true";;
     esac
 done
 
@@ -24,15 +25,17 @@ password="${p:=}"
 host="${h:=localhost}"
 port="${P:=3306}"
 
-echo "directory : $directory"
-echo "     user : $user"
-echo " password : $password"
-echo "     host : $host"
-echo "     port : $port"
-echo " database : $database"
-echo " add data : ${all:=false}"
-echo " use root : ${root:=true}"
-echo ""
+if [[ $debug == "true" ]]; then
+  echo "directory : $directory"
+  echo "     user : $user"
+  echo " password : $password"
+  echo "     host : $host"
+  echo "     port : $port"
+  echo " database : $database"
+  echo " add data : ${all:=false}"
+  echo " use root : ${root:=true}"
+  echo ""
+fi
 
 
 if [[ $root == "true" ]]; then
