@@ -2,7 +2,7 @@
 
 directory=$(dirname "$0")
 
-while getopts u:p:h:P:a option
+while getopts u:p:h:P:a:r option
 do
     case "${option}"
         in
@@ -11,6 +11,7 @@ do
         h)h=${OPTARG};;
         P)P=${OPTARG};;
         a)all="true";;
+        r)root="false";;
     esac
 done
 
@@ -30,11 +31,14 @@ echo "     host : $host"
 echo "     port : $port"
 echo " database : $database"
 echo " add data : ${all:=false}"
+echo " use root : ${root:=true}"
 echo ""
 
 
-mariadb -u root --host=$host --port=$port -e "CREATE DATABASE ${database} DEFAULT CHARACTER SET utf8"
-mariadb -u root --host=$host --port=$port -e "GRANT ALL ON ${database}.* TO ${user}@'%' IDENTIFIED by '${password}'"
+if [[ $root == "true" ]]; then
+  mariadb -u root --host=$host --port=$port -e "CREATE DATABASE ${database} DEFAULT CHARACTER SET utf8"
+  mariadb -u root --host=$host --port=$port -e "GRANT ALL ON ${database}.* TO ${user}@'%' IDENTIFIED by '${password}'"
+fi
 
 mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/tables.sql"
 
