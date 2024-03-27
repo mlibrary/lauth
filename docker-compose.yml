@@ -173,9 +173,9 @@ services:
     command:
       - /bin/bash
       - "-c"
-      - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth_development && \
-         /sql/setup.sh -u lauth -p lauth -h db.lauth.local lauth_test && \
-         /sql/setup.sh -u lauth -p lauth -h db.lauth.local -a lauth_demo"
+      - "/sql/setup.sh -u lauth -p lauth -h db.lauth.local -b lauth_development && \
+         /sql/setup.sh -u lauth -p lauth -h db.lauth.local -b lauth_test && \
+         /sql/setup.sh -u lauth -p lauth -h db.lauth.local -a -b lauth_demo"
 
 volumes:
   mariadb_data:

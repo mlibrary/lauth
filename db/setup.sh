@@ -2,7 +2,7 @@
 
 directory=$(dirname "$0")
 
-while getopts u:p:h:P:a:r:d option
+while getopts u:p:h:P:arb option
 do
     case "${option}"
         in
@@ -12,7 +12,7 @@ do
         P)P=${OPTARG};;
         a)all="true";;
         r)root="false";;
-        d)debug="true";;
+        b)debug="true";;
     esac
 done
 
