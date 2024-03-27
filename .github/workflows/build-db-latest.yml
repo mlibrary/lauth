@@ -3,9 +3,9 @@ name: Build Lauth database builder
 #description: Builds an image which can initialize the lauth database
 
 on:
-  workflow_dispatch:  # This allows to kick-off the action manually from GitHub Actions
+  workflow_dispatch:
   push:
-    branches: [ main ]  # This watches pushes to the "main" branch
+    branches: [ main ]
 
 jobs:
   build:
