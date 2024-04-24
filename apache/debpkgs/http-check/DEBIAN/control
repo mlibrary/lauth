@@ -1,0 +1,8 @@
+Package: http-check
+Version: 0.0.0
+Architecture: ARCH
+Essential: no
+Priority: optional
+Depends: apache2
+Maintainer: University of Michigan Library Information Technology
+Description: Health Check for Apache2

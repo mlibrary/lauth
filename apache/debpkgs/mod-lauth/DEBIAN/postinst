@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Post-Installation Script
+ldconfig

@@ -1,0 +1,2 @@
+# Depends:
+LoadModule lauth_module /usr/lib/apache2/modules/mod_lauth.so

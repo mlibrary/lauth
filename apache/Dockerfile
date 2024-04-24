@@ -43,18 +43,56 @@ RUN meson configure -Dtests=true -Dintegration-tests=true && meson compile
 CMD ["meson", "test", "-v"]
 
 ###
-FROM httpd:2.4-bullseye AS server
-RUN sed -i '1c#!/usr/bin/perl' /usr/local/apache2/cgi-bin/printenv
-RUN chmod +x /usr/local/apache2/cgi-bin/printenv
+FROM build-base AS packages
 
-RUN mkdir -p /lauth
+COPY ./apache/debpkgs /lauth/apache/debpkgs
+WORKDIR /lauth/apache/debpkgs
 
-COPY --from=module /lauth/apache/build/http-check /usr/local/bin/
-COPY --from=module /usr/local/ /usr/local/
-RUN ldconfig
+# http-check
+COPY --from=module /lauth/apache/build/http-check /lauth/apache/debpkgs/http-check/usr/bin/
+RUN ./package http-check
 
-COPY --from=module /usr/lib/apache2/modules/mod_authn_remoteuser.so /usr/local/apache2/modules/
-COPY --from=module /usr/lib/apache2/modules/mod_lauth.so /usr/local/apache2/modules/
+# mod-authn-remoteuser
+COPY --from=module /usr/lib/apache2/modules/mod_authn_remoteuser.so /lauth/apache/debpkgs/mod-authn-remoteuser/usr/lib/apache2/modules/
+RUN ./package mod-authn-remoteuser
 
-COPY ./test-site /lauth/test-site/
-COPY ./apache/conf/* /usr/local/apache2/conf/
+# mod-lauth
+COPY --from=module /usr/local/ /lauth/apache/debpkgs/mod-lauth/usr/
+COPY --from=module /usr/lib/apache2/modules/mod_lauth.so /lauth/apache/debpkgs/mod-lauth/usr/lib/apache2/modules/
+RUN ./package mod-lauth
+
+# Docker Compose Volume Mapping Directory
+COPY ./apache/packages /lauth/apache/packages
+
+##
+FROM debian:bullseye-slim AS server
+RUN apt update; \
+    apt install -y --no-install-recommends \
+        ca-certificates \
+        apache2
+
+# enable available apache2 modules
+RUN a2enmod authz_groupfile cgid headers proxy proxy_http remoteip rewrite
+
+# install debian packages: http-check, mod-authn-remoteuser, mod-lauth
+COPY --from=packages /lauth/apache/debpkgs/*.deb /tmp
+RUN dpkg -i /tmp/*.deb
+RUN rm -f /tmp/*.deb
+
+# enable apache2 modules: lauth
+RUN a2enmod lauth
+
+CMD ["apache2ctl", "-D", "FOREGROUND"]
+
+##
+FROM server AS test-server
+
+# enable apache2 modules: authn-remoteuser
+RUN a2enmod authn_remoteuser
+
+COPY ./test-site /lauth/test-site
+COPY ./apache/conf/test-site.conf /etc/apache2/sites-available/test-site.conf
+RUN a2ensite test-site
+RUN a2dissite 000-default
+
+RUN cp /lauth/test-site/cgi/printenv /usr/lib/cgi-bin/

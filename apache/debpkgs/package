@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Build Debian Package
+PACKAGE_DIR=$( cd -- "$1" &> /dev/null && pwd )
+echo "Building Debian Package from ${PACKAGE_DIR}"
+
+# Hardware Architecture
+ARCH=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)
+
+# Substitute $ARCH for ARCH in control file
+sed -i "s/ARCH/$ARCH/g" ${PACKAGE_DIR}/DEBIAN/control
+
+# Parse control file to create package name
+PACKAGE_NAME=$( cat ${PACKAGE_DIR}/DEBIAN/control | awk '$1=="Package:" {print $2} $1=="Version:" {print $2} $1=="Architecture:" {print $2}' | tr '\n' '_' | sed 's/.$//' )
+
+# Build package
+mv ${PACKAGE_DIR} $(dirname ${PACKAGE_DIR})/${PACKAGE_NAME}
+dpkg --build $(dirname ${PACKAGE_DIR})/${PACKAGE_NAME}

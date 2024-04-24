@@ -83,7 +83,7 @@ services:
     build:
       context: ./
       dockerfile: ./apache/Dockerfile
-      target: server
+      target: test-server
     ports:
       - "127.0.0.1:8888:80"
     hostname: "www.lauth.local"
@@ -108,6 +108,17 @@ services:
       - ./apache/client:/lauth/apache/client
       - ./apache/module:/lauth/apache/module
       - build_cache:/lauth/apache/build
+
+  packages:
+    profiles: [ "packages" ]
+    build:
+      context: ./
+      dockerfile: ./apache/Dockerfile
+      target: packages
+    restart: "no"
+    volumes:
+      - ./apache/packages:/lauth/apache/packages
+    command: ["sh", "-c", "cp *.deb /lauth/apache/packages"]
 
   mock-api:
     profiles: [ "test", "integration" ]
