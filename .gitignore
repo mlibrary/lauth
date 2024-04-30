@@ -19,3 +19,7 @@ apache/client/subprojects/*
 !apache/client/subprojects/*.wrap
 
 apache/client/build/
+
+# Debian Packages
+apache/packages
+!apache/packages/.keep
