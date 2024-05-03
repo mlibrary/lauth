@@ -5,6 +5,7 @@
 #include "http_log.h"
 #include "ap_config.h"
 #include "ap_provider.h"
+#include "apr_strings.h"
 
 #include "mod_auth.h"
 
@@ -16,20 +17,61 @@
 using namespace mlibrary::lauth;
 
 extern "C" {
+    void *create_lauth_server_config(apr_pool_t *p, server_rec *_);
+    const char *set_url(cmd_parms *cmd, void *cfg, const char* arg);
+    const char *set_token(cmd_parms *cmd, void *cfg, const char* arg);
 
+    static const command_rec lauth_cmds[] = {
+        AP_INIT_TAKE1("LauthApiUrl", (cmd_func) set_url, NULL, RSRC_CONF|OR_AUTHCFG, "The URL to use for API."),
+        AP_INIT_TAKE1("LauthApiToken", (cmd_func) set_token, NULL, RSRC_CONF|OR_AUTHCFG, "The token to use for API."),
+        {NULL}};
     void lauth_register_hooks(apr_pool_t *p);
 
     APLOG_USE_MODULE(lauth);
     module AP_MODULE_DECLARE_DATA lauth_module = {
         STANDARD20_MODULE_STUFF,
-        NULL,                  /* create per-dir    config structures */
-        NULL,                  /* merge  per-dir    config structures */
-        NULL,                  /* create per-server config structures */
-        NULL,                  /* merge  per-server config structures */
-        NULL,                  /* table of config file commands       */
-        lauth_register_hooks  /* register hooks                      */
+        NULL,                       /* create per-dir    config structures */
+        NULL,                       /* merge  per-dir    config structures */
+        create_lauth_server_config, /* create per-server config structures */
+        NULL,                       /* merge  per-server config structures */
+        lauth_cmds,                 /* table of config file commands       */
+        lauth_register_hooks        /* register hooks                      */
     };
 };
+
+typedef struct lauth_config_struct {
+    const char *url;    /* URL to API */
+    const char *token;  /* token for API */
+} lauth_config;
+
+void *create_lauth_server_config(apr_pool_t *p, server_rec *_) {
+    lauth_config *config = (lauth_config *) apr_pcalloc(p, sizeof(*config));
+    config->url = NULL;
+    config->token = NULL;
+    return (void*) config;
+}
+
+const char *set_url(cmd_parms *cmd, void *cfg, const char* arg)
+{
+    if(!*arg) {
+        return "Lauth API URL cannot be empty";
+    }
+
+    lauth_config *config = (lauth_config *) ap_get_module_config(cmd->server->module_config, &lauth_module);
+    config->url = apr_pstrdup(cmd->pool, arg);
+    return NULL;
+}
+
+const char *set_token(cmd_parms *cmd, void *cfg, const char* arg)
+{
+    if(!*arg) {
+        return "Lauth API Token cannot be empty";
+    }
+
+    lauth_config *config = (lauth_config *) ap_get_module_config(cmd->server->module_config, &lauth_module);
+    config->token = apr_pstrdup(cmd->pool, arg);
+    return NULL;
+}
 
 static authz_status lauth_check_authorization(request_rec *r,
                                                   const char *require_line,
@@ -53,8 +95,8 @@ static authz_status lauth_check_authorization(request_rec *r,
       };
     }
 
-    std::map<std::string, std::string> result =
-      Authorizer("http://app.lauth.local:2300").authorize(req);
+    lauth_config *config = (lauth_config *) ap_get_module_config(r->server->module_config, &lauth_module);
+    std::map<std::string, std::string> result = Authorizer(config->url, config->token).authorize(req);
 
     apr_table_set(r->subprocess_env, "PUBLIC_COLL", result["public_collections"].c_str());
     apr_table_set(r->subprocess_env, "AUTHZD_COLL", result["authorized_collections"].c_str());
@@ -74,5 +116,3 @@ void lauth_register_hooks(apr_pool_t *p)
                           AUTHZ_PROVIDER_VERSION,
                           &authz_lauth_provider, AP_AUTH_INTERNAL_PER_CONF);
 }
-
-

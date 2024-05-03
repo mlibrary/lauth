@@ -10,8 +10,9 @@
 namespace mlibrary::lauth {
   class ApiClient {
     public:
-      ApiClient(const std::string& url) : client(std::make_unique<HttpClient>(url)) {};
+      ApiClient(const std::string& url, const std::string& bearerToken) : client(std::make_unique<HttpClient>(url)), bearerToken(bearerToken) {};
       ApiClient(std::unique_ptr<HttpClient>&& client) : client(std::move(client)) {};
+      ApiClient(std::unique_ptr<HttpClient>&& client, const std::string& bearerToken) : client(std::move(client)), bearerToken(bearerToken) {};
       ApiClient(const ApiClient&) = delete;
       ApiClient& operator=(const ApiClient&) = delete;
       ApiClient(ApiClient&&) = delete;
@@ -22,6 +23,7 @@ namespace mlibrary::lauth {
 
     protected:
       std::unique_ptr<HttpClient> client;
+      const std::string bearerToken;
   };
 }
 

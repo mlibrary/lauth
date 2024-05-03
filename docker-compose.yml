@@ -9,6 +9,7 @@ services:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
     environment:
+      - BEARER_TOKEN=TG9yZCBvZiB0aGUgUmluZ3MK
       - DATABASE_URL=mysql2://lauth:lauth@db.lauth.local:3306/lauth_demo
     hostname: app.lauth.local
     networks:

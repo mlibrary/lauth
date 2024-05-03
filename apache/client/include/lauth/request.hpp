@@ -1,5 +1,6 @@
 #ifndef __LAUTH_REQUEST_HPP__
 #define __LAUTH_REQUEST_HPP__
+
 #include <string>
 
 namespace mlibrary::lauth {
@@ -9,5 +10,6 @@ namespace mlibrary::lauth {
     std::string user;
   };
 }
-#endif
+
+#endif // __LAUTH_REQUEST_HPP__
 
