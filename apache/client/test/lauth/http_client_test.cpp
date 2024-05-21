@@ -73,3 +73,15 @@ TEST(HttpClient, GetRequestWithMultipleParametersEncodesThem) {
 
   EXPECT_THAT(*response, Eq(R"({"foo":"bar","something":"else"})"));
 }
+
+TEST(HttpClient, GetRequestWithAuthorizationHeaderEncodesIt) {
+  HttpClient client(MOCK_API_URL());
+
+  HttpParams params;
+  params.emplace("foo", "bar");
+  HttpHeaders headers;
+  headers.emplace("Authorization", "Bearer dGVzdA==");
+  auto response = client.get("/authorization", params, headers);
+
+  EXPECT_THAT(*response, Eq(R"({"Bearer":"dGVzdA=="})"));
+}

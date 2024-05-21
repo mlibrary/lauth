@@ -1,8 +1,6 @@
 #ifndef __LAUTH_HTTP_PARAMS_HPP__
 #define __LAUTH_HTTP_PARAMS_HPP__
 
-#include <httplib.h>
-
 #include <map>
 #include <string>
 

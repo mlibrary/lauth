@@ -44,7 +44,7 @@ RSpec.describe "/authorized by username or client-ip", type: [:request, :databas
   # @param ip [String]
   # @return [Hash] the response body after json parsing
   def request(from:, as:)
-    get "/authorized", {user: as.to_s, uri: "/restricted-by-username-or-client-ip", ip: from}
+    get "/authorized", {user: as.to_s, uri: "/restricted-by-username-or-client-ip", ip: from}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
     JSON.parse(last_response.body, symbolize_names: true)
   end
 end

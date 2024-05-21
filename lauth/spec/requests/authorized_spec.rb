@@ -15,7 +15,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
     let!(:grant) { Factory[:grant, :for_user, user: user, collection: collection] }
 
     it do
-      get "/authorized", {user: "lauth-allowed", uri: "/restricted-by-username/"}
+      get "/authorized", {user: "lauth-allowed", uri: "/restricted-by-username/"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
       body = JSON.parse(last_response.body, symbolize_names: true)
 
       expect(body).to include(determination: "allowed")
@@ -33,7 +33,7 @@ RSpec.describe "/authorized", type: [:request, :database] do
     let!(:grant) { Factory[:grant, :for_group, group: group, collection: collection] }
 
     it do
-      get "/authorized", {user: "lauth-group-member", uri: "/restricted-by-username/"}
+      get "/authorized", {user: "lauth-group-member", uri: "/restricted-by-username/"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
 
       body = JSON.parse(last_response.body, symbolize_names: true)
       expect(body).to include(determination: "allowed")

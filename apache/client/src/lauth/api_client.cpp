@@ -14,7 +14,13 @@ namespace mlibrary::lauth {
       {"user", req.user}
     };
 
-    auto result = client->get("/authorized", params);
+    std::string authorization = "Bearer " + bearerToken;
+
+    HttpHeaders headers {
+      {"Authorization", authorization}
+    };
+
+    auto result = client->get("/authorized", params, headers);
 
     try
     {

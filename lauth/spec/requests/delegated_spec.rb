@@ -62,7 +62,7 @@ RSpec.describe "/authorized delegation", type: [:request, :database] do
 
   # @return [Hash] the response body after json parsing
   def request(as:)
-    get "/authorized", {user: as.to_s, uri: "/delegated"}
+    get "/authorized", {user: as.to_s, uri: "/delegated"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
     JSON.parse(last_response.body, symbolize_names: true)
   end
 end

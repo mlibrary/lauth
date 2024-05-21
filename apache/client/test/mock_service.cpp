@@ -35,6 +35,22 @@ int main(int argc, char **argv) {
     res.set_content(params.dump().c_str(), "application/json");
   });
 
+  // Echo GET authorization as json object
+  server.Get("/authorization", [](const Request &req, Response &res) {
+    auto buffer = req.get_header_value("Authorization");
+
+    auto pos = buffer.find(" ");
+    auto key = buffer.substr(0, pos);
+    buffer.erase(0, pos + 1);
+    auto value = buffer;
+
+    json auth;
+    auth[key] = value;
+
+    std::cout << "GET /authorization" << std::endl;
+    res.set_content(auth.dump().c_str(), "application/json");
+  });
+
   server.Get("/users/authorized/is_allowed", [](const Request &, Response &res) {
     std::cout << "GET /users/authorized/is_allowed" << std::endl;
     res.set_content("yes", "text/plain");

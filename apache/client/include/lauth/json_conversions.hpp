@@ -2,7 +2,6 @@
 #define __LAUTH_JSON_CONVERSIONS_HPP__
 
 #include "lauth/json.hpp"
-
 #include "lauth/authorization_result.hpp"
 
 namespace mlibrary::lauth {
