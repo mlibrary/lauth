@@ -7,7 +7,7 @@ There are raw SQL files here to set up the legacy schema in MariaDB/MySQL:
 - [keys.sql](keys.sql) - Create foreign keys
 - [test-fixture.sql](test-fixture.sql) - Load test site data
 - [drop-keys.sql](drop-keys.sql) - Drop foreign keys; to allow for truncate/reload
-- [migrate.sc](migrate.sc) - A Spark script to migrate data from Oracle to MariaDB
+- [sync/sync.sc](sync/sync.sc) - A Spark script to migrate data from Oracle to MariaDB
 
 ## Local setup with Docker Compose
 
