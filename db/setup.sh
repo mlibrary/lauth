@@ -11,6 +11,7 @@ do
         h)h=${OPTARG};;
         P)P=${OPTARG};;
         a)all="true";;
+        k)keys="true";;
         r)root="false";;
         b)debug="true";;
     esac
@@ -52,4 +53,6 @@ if [[ $all == "true" ]]; then
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/network.sql"
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/delegation.sql"
   mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/projection.sql"
+elif [[ $keys == "true" ]]; then
+  mariadb --user=$user --host=$host --port=$port --password=$password $database < "$directory/keys.sql"
 fi
