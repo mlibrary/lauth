@@ -16,7 +16,8 @@
 //
 // If running in a container built with the companion Dockerfile, the conf/spark-defaults.conf
 // already sets the the Ivy directory and specifies the packages, and the build
-// will have downloaded them to the cache, with spark-shell on the PATH. If not:
+// will have downloaded them to the cache, with spark-shell on the PATH. The default command
+// will also be to run this file and terminate. If you need something else:
 // 
 // The packages can be downloaded via Maven and this script can be run "immediately":
 //

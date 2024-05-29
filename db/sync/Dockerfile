@@ -8,3 +8,4 @@ COPY spark-defaults.conf /opt/spark/conf
 RUN echo :quit | spark-shell
 
 COPY sync.sc .
+CMD ["bash", "-c", "echo :quit | spark-shell -I sync.sc"]
