@@ -31,10 +31,9 @@ jobs:
       - name: Build image and push to GitHub Container Registry
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: db/sync
           push: true
           tags: 'ghcr.io/mlibrary/lauth/db-sync:${{ github.sha }}, ghcr.io/mlibrary/lauth/db-sync:latest'
-          file: db/sync/Dockerfile
           platforms: linux/amd64, linux/arm64
 
       - name: Image digest
