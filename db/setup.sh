@@ -2,7 +2,7 @@
 
 directory=$(dirname "$0")
 
-while getopts u:p:h:P:arb option
+while getopts u:p:h:P:akrb option
 do
     case "${option}"
         in
