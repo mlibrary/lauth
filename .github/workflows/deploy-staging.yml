@@ -12,6 +12,7 @@ jobs:
       image_name: ${{ vars.IMAGE_NAME }}
       tag: ${{ github.event.release.tag_name }}
       dockerfile: ./lauth/Dockerfile
+      target: production
     secrets: inherit
 
   deploy-staging:
