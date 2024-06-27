@@ -7,7 +7,8 @@ on:
 jobs:
   build-staging:
     name: Build staging ${{ github.event.release.tag_name }}
-    uses: mlibrary/platform-engineering-workflows/.github/workflows/build-production.yml@v1
+    # uses: mlibrary/lauth/.github/workflows/build-production.yml@v1
+    uses: ./.github/workflows/build-production.yml
     with:
       image_name: ${{ vars.IMAGE_NAME }}
       tag: ${{ github.event.release.tag_name }}
