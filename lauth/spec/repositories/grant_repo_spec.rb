@@ -59,15 +59,6 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
 
           expect(grants).to eq []
         end
-
-        # TODO: extract this
-        describe "grant association loading" do
-          subject(:found_grant) { repo.for(username: "lauth-allowed", collection: collection).first }
-
-          it "loads user" do
-            expect(found_grant.user.userid).to eq grant.user.userid
-          end
-        end
       end
 
       context "with a member of an authorized institution" do
