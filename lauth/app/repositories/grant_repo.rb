@@ -14,8 +14,7 @@ module Lauth
           .join(collections.name.dataset, uniqueIdentifier: grants[:coll], dlpsDeleted: "f")
           .where(collections[:dlpsClass] => collection_class)
 
-        rel = grants.class.new(ds)
-        rel.to_a
+        grants.class.new(ds).to_a
       end
 
       def for(username:, collection:, client_ip: nil)
@@ -25,8 +24,7 @@ module Lauth
         ds = base_grants_for(username: username, network: smallest_network)
           .where(grants[:coll] => collection.uniqueIdentifier)
 
-        rel = grants.class.new(ds)
-        rel.combine(:user, institutions: {institution_memberships: :users}).to_a
+        grants.class.new(ds).to_a
       end
 
       private
