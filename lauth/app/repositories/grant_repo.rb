@@ -46,10 +46,10 @@ module Lauth
           .where(grants[:dlpsDeleted].is("f"))
           .left_join(users.name.dataset, userid: grants[:userid], dlpsDeleted: "f")
           .left_join(institutions.name.dataset, uniqueIdentifier: grants[:inst], dlpsDeleted: "f")
-          .left_join(institution_memberships.name.dataset, inst: :uniqueIdentifier, dlpsDeleted: "f")
+          .left_join(institution_memberships.name.dataset, inst: :uniqueIdentifier, userid: username, dlpsDeleted: "f")
           .left_join(Sequel.as(users.name.dataset, :inst_users), userid: :userid, dlpsDeleted: "f")
           .left_join(groups.name.dataset, uniqueIdentifier: grants[:user_grp], dlpsDeleted: "f")
-          .left_join(group_memberships.name.dataset, user_grp: :uniqueIdentifier, dlpsDeleted: "f")
+          .left_join(group_memberships.name.dataset, user_grp: :uniqueIdentifier, userid: username, dlpsDeleted: "f")
           .left_join(Sequel.as(users.name.dataset, :group_users), userid: :userid, dlpsDeleted: "f")
           .left_join(Sequel.as(network, :smallest), inst: institutions[:uniqueIdentifier])
           .where(
@@ -60,13 +60,11 @@ module Lauth
               ),
               Sequel.&(
                 Sequel.~(institutions[:uniqueIdentifier] => nil),
-                Sequel.~(Sequel[:inst_users][:userid] => nil),
-                {institution_memberships[:userid] => username}
+                Sequel.~(Sequel[:inst_users][:userid] => nil)
               ),
               Sequel.&(
                 Sequel.~(groups[:uniqueIdentifier] => nil),
-                Sequel.~(Sequel[:group_users][:userid] => nil),
-                {group_memberships[:userid] => username}
+                Sequel.~(Sequel[:group_users][:userid] => nil)
               ),
               Sequel.&(
                 Sequel.~(Sequel[:smallest][:inst] => nil),
