@@ -31,3 +31,26 @@ jobs:
           push: true
           tags: 'ghcr.io/mlibrary/lauth/lauth-apache:${{ github.sha }}, ghcr.io/mlibrary/lauth/lauth-apache:latest'
           file: ./apache/Dockerfile
+
+      - name: Build .deb packages
+        uses: docker/build-push-action@v5
+        with:
+          context: ./
+          target: packages
+          push: false
+          load: true
+          tags: 'lauth-debs:latest'
+          file: ./apache/Dockerfile
+
+      - uses: shrink/actions-docker-extract@v3
+        id: extract
+        with:
+          image: lauth-debs:latest
+          path: /debs/out/.
+          destination: dist
+
+      - name: Archive lauth-apache .deb packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: lauth-apache-debs_${{ github.sha }}
+          path: dist/*

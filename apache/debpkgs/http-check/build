@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+if [ ! -f "VERSION" ]; then
+  echo "VERSION file is missing!"
+  exit -1
+fi
+
+fpm --input-type dir \
+  --output-type deb \
+  --architecture native \
+  --deb-generate-changes \
+  \
+  --deb-dist bullseye \
+  \
+  --name http-check \
+  --version "$(<VERSION)" \
+  --url 'https://github.com/mlibrary/lauth' \
+  --maintainer 'University of Michigan Library Information Technology' \
+  --description 'Health Check for Apache2' \
+  \
+  http-check=/usr/bin/http-check

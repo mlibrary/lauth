@@ -43,26 +43,43 @@ RUN meson configure -Dtests=true -Dintegration-tests=true && meson compile
 CMD ["meson", "test", "-v"]
 
 ###
-FROM build-base AS packages
+FROM ruby:3.2.4 AS package-base
 
-COPY ./apache/debpkgs /lauth/apache/debpkgs
-WORKDIR /lauth/apache/debpkgs
+RUN apt update && apt install -y --no-install-recommends binutils
+RUN gem install fpm
+RUN mkdir -p /debs/out
+WORKDIR /debs
 
-# http-check
-COPY --from=module /lauth/apache/build/http-check /lauth/apache/debpkgs/http-check/usr/bin/
-RUN ./package http-check
+### http-check .deb
+FROM package-base AS http-check
+COPY ./apache/debpkgs/http-check .
 
-# mod-authn-remoteuser
-COPY --from=module /usr/lib/apache2/modules/mod_authn_remoteuser.so /lauth/apache/debpkgs/mod-authn-remoteuser/usr/lib/apache2/modules/
-RUN ./package mod-authn-remoteuser
+COPY --from=module /lauth/apache/build/http-check .
+RUN ./build && mv *.deb *.changes out/
 
-# mod-lauth
-COPY --from=module /usr/local/ /lauth/apache/debpkgs/mod-lauth/usr/
-COPY --from=module /usr/lib/apache2/modules/mod_lauth.so /lauth/apache/debpkgs/mod-lauth/usr/lib/apache2/modules/
-RUN ./package mod-lauth
+### mod-authn-remoteuser .deb
+FROM package-base AS mod-authn-remoteuser
+COPY ./apache/debpkgs/mod-authn-remoteuser .
 
-# Docker Compose Volume Mapping Directory
-COPY ./apache/packages /lauth/apache/packages
+COPY --from=module /usr/lib/apache2/modules/mod_authn_remoteuser.so .
+RUN ./build && mv *.deb *.changes out/
+
+### mod-lauth .deb
+FROM package-base AS mod-lauth
+COPY ./apache/debpkgs/mod-lauth .
+
+COPY --from=module /usr/local/lib ./lib
+COPY --from=module /usr/lib/apache2/modules/mod_lauth.so .
+RUN ./build && cp *.deb *.changes out/
+
+###
+FROM package-base AS packages
+WORKDIR /debs/out
+
+COPY --from=http-check /debs/out/* .
+COPY --from=mod-authn-remoteuser /debs/out/* .
+COPY --from=mod-lauth /debs/out/* .
+CMD ["ls", "-la"]
 
 ##
 FROM debian:bullseye-slim AS server
@@ -75,7 +92,7 @@ RUN apt update; \
 RUN a2enmod authz_groupfile cgid headers proxy proxy_http remoteip rewrite
 
 # install debian packages: http-check, mod-authn-remoteuser, mod-lauth
-COPY --from=packages /lauth/apache/debpkgs/*.deb /tmp
+COPY --from=packages /debs/out/*.deb /tmp
 RUN dpkg -i /tmp/*.deb
 RUN rm -f /tmp/*.deb
 

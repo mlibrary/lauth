@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+if [ ! -f "VERSION" ]; then
+  echo "VERSION file is missing!"
+  exit -1
+fi
+
+fpm --input-type dir \
+  --output-type deb \
+  --architecture native \
+  --deb-generate-changes \
+  \
+  --deb-dist bullseye \
+  --depends apache2 \
+  \
+  --name libapache2-mod-authn-remoteuser \
+  --version "$(<VERSION)" \
+  --url 'https://github.com/mlibrary/lauth' \
+  --maintainer 'University of Michigan Library Information Technology' \
+  --description 'Fake Remote User Authentication Module for Apache2' \
+  \
+  conf/=/etc/apache2/mods-available \
+  mod_authn_remoteuser.so=/usr/lib/apache2/modules/mod_authn_remoteuser.so

@@ -119,7 +119,7 @@ services:
     restart: "no"
     volumes:
       - ./apache/packages:/lauth/apache/packages
-    command: ["sh", "-c", "cp *.deb /lauth/apache/packages"]
+    command: ["sh", "-c", "cp *.deb *.changes /lauth/apache/packages"]
 
   mock-api:
     profiles: [ "test", "integration" ]
