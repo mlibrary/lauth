@@ -10,6 +10,7 @@
 #include "mod_auth.h"
 
 #include <lauth/authorizer.hpp>
+#include <lauth/logging.hpp>
 
 #include <string>
 #include <map>
@@ -44,7 +45,53 @@ typedef struct lauth_config_struct {
     const char *token;  /* token for API */
 } lauth_config;
 
-void *create_lauth_server_config(apr_pool_t *p, server_rec *_) {
+namespace mlibrary::lauth {
+  class ApacheLog : public LogSink {
+    public:
+      ApacheLog(server_rec *server) {
+        this->server = server;
+      }
+
+      virtual ~ApacheLog() = default;
+      void write(const std::string& level, const std::string& msg, const char* file, int line) override {
+        const char *message = static_cast<std::ostringstream&>(
+            std::ostringstream().flush() << "[" << level << "] " << msg
+        ).str().c_str();
+
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_INFO, 0, server, message);
+      }
+
+      void fatal(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_EMERG, 0, server, msg.c_str());
+      }
+
+      void error(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_ERR, 0, server, msg.c_str());
+      }
+
+      void warn(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_WARNING, 0, server, msg.c_str());
+      }
+
+      void info(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_INFO, 0, server, msg.c_str());
+      }
+
+      void debug(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_DEBUG, 0, server, msg.c_str());
+      }
+
+      void trace(const std::string& msg, const char* file, int line) override {
+        ap_log_error(file, line, APLOG_MODULE_INDEX, APLOG_TRACE1, 0, server, msg.c_str());
+      }
+
+    protected:
+      server_rec *server;
+  };
+}
+
+void *create_lauth_server_config(apr_pool_t *p, server_rec *s) {
+    mlibrary::lauth::Logger::set(std::make_shared<Logger>(std::make_unique<mlibrary::lauth::ApacheLog>(s)));
     lauth_config *config = (lauth_config *) apr_pcalloc(p, sizeof(*config));
     config->url = NULL;
     config->token = NULL;
@@ -73,33 +120,50 @@ const char *set_token(cmd_parms *cmd, void *cfg, const char* arg)
     return NULL;
 }
 
+const char* authPath(request_rec *r) {
+    std::string handler = r->handler ? std::string(r->handler) : "";
+    if (handler.substr(0, handler.find(":")) == "proxy-server") {
+        LAUTH_DEBUG("URI \"" << r->uri << "\" is proxied, using it for authorization.");
+        return r->uri;
+    } else {
+        LAUTH_DEBUG("URI \"" << r->uri << "\" is local, using file path for authorization.");
+        return r->filename;
+    }
+}
+
 static authz_status lauth_check_authorization(request_rec *r,
                                                   const char *require_line,
                                                   const void *parsed_require_line)
 {
-    if (!r->ap_auth_type) return AUTHZ_DENIED_NO_USER;
-
-    Request req;
-    std::string handler = r->handler ? std::string(r->handler) : "";
-    if (handler.substr(0, handler.find(":")) == "proxy-server") {
-      req = Request {
-        .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
-        .uri = r->uri ? std::string(r->uri) : "",
-        .user = r->user ? std::string(r->user) : ""
-      };
-    } else {
-      req  = Request {
-        .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
-        .uri = r->filename,
-        .user = r->user ? std::string(r->user) : ""
-      };
+    if (!r->ap_auth_type) {
+      LAUTH_DEBUG("Passing on authorization until authenticated; initial request: " << ap_is_initial_req(r));
+      return AUTHZ_DENIED_NO_USER;
     }
 
+    LAUTH_DEBUG("Checking authorization... "
+        << "initial request: " << ap_is_initial_req(r) << ", "
+        << "auth type: " << r->ap_auth_type << ", "
+        << "uri: " << r->uri << ", "
+        << "filename: " << r->filename);
+
+
+    Request req  = Request {
+      .ip = r->useragent_ip ? std::string(r->useragent_ip) : "",
+      .uri = std::string(authPath(r)),
+      .user = r->user ? std::string(r->user) : ""
+    };
+
     lauth_config *config = (lauth_config *) ap_get_module_config(r->server->module_config, &lauth_module);
+
+    LAUTH_DEBUG("Calling authorizer API at " << config->url);
     std::map<std::string, std::string> result = Authorizer(config->url, config->token).authorize(req);
 
     apr_table_set(r->subprocess_env, "PUBLIC_COLL", result["public_collections"].c_str());
     apr_table_set(r->subprocess_env, "AUTHZD_COLL", result["authorized_collections"].c_str());
+
+    LAUTH_DEBUG("Returned from authorizer API... determination: " << result["determination"]);
+    LAUTH_DEBUG("Setting public collections (PUBLIC_COLL) to: " << result["public_collections"]);
+    LAUTH_DEBUG("Setting authorized collections (AUTHZD_COLL) to: " << result["authorized_collections"]);
 
     return result["determination"] == "allowed" ? AUTHZ_GRANTED : AUTHZ_DENIED;
 }
