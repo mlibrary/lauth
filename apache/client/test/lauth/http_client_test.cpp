@@ -14,6 +14,7 @@
 
 using testing::_;
 using testing::Eq;
+using testing::HasSubstr;
 using testing::IsTrue;
 
 using namespace mlibrary::lauth;
@@ -84,4 +85,12 @@ TEST(HttpClient, GetRequestWithAuthorizationHeaderEncodesIt) {
   auto response = client.get("/authorization", params, headers);
 
   EXPECT_THAT(*response, Eq(R"({"Bearer":"dGVzdA=="})"));
+}
+
+TEST(HttpClient, HttpsSchemeIsSupported) {
+  HttpClient client("https://example.com");
+
+  auto response = client.get("/");
+
+  EXPECT_THAT(*response, HasSubstr("Example Domain"));
 }

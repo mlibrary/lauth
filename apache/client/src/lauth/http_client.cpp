@@ -2,6 +2,10 @@
 
 #include <optional>
 
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT 1
+#endif
+
 #include <httplib.h>
 
 #include "lauth/http_params.hpp"

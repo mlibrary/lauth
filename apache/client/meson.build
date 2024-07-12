@@ -31,6 +31,13 @@ lauth_integration_tests = files([
   'test/lauth/http_client_test.cpp',
 ])
 
+os = host_machine.system()
+if os == 'darwin'
+  httplib_links = []
+else
+  httplib_links = ['-lssl', '-lcrypto']
+endif
+
 liblauth = shared_library(
   'lauth',
   lauth_sources,
@@ -39,8 +46,11 @@ liblauth = shared_library(
     cpp_httplib,
     json,
   ],
+  link_args: httplib_links,
   install: true,
 )
+
+liblauth_dep = declare_dependency(include_directories: lauth_includes, link_with: liblauth)
 
 install_headers(
   'include/lauth/api_client.hpp',
@@ -64,8 +74,9 @@ if get_option('tests')
       cpp_httplib,
       json,
       gtest,
-      gmock
-    ]
+      gmock,
+    ],
+    link_args: httplib_links,
   )
   test('lauth-test', tests)
 endif
@@ -80,16 +91,10 @@ if get_option('integration-tests')
       json,
       gtest,
       gmock
-      ]
-    )
+    ],
+    link_args: httplib_links,
+  )
   test('lauth-integration-test', integration_tests)
-endif
-
-os = host_machine.system()
-if os == 'darwin'
-  httplib_links = []
-else
-  httplib_links = ['-lssl', '-lcrypto']
 endif
 
 executable(
@@ -109,4 +114,15 @@ executable(
     cpp_httplib,
   ],
   link_args: httplib_links
+)
+
+executable(
+  'api-check',
+  files(['src/api_check.cpp']),
+  include_directories: lauth_includes,
+  dependencies: [
+    cpp_httplib,
+    liblauth_dep,
+  ],
+  link_args: httplib_links,
 )
