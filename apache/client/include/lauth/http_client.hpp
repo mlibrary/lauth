@@ -20,6 +20,9 @@ namespace mlibrary::lauth {
 
     protected:
       const std::string baseUrl;
+      void requestOk(const std::string& path, std::size_t size);
+      void requestNotOk(const std::string& path, int status);
+      void requestFailed(const std::string& path, const std::string& error);
   };
 }
 
