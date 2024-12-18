@@ -2,14 +2,22 @@ module BasicAuth
   include AuthUsers
 
   def basic_auth_bad_user
-    "Basic #{Base64.urlsafe_encode64("#{bad_user}:lauth-denied")}"
+    basic_auth_for(bad_user)
   end
 
   def basic_auth_good_user
-    "Basic #{Base64.urlsafe_encode64("#{good_user}:lauth-allowed")}"
+    basic_auth_for(good_user)
   end
 
   def basic_auth_inst_member
-    "Basic #{Base64.urlsafe_encode64("#{inst_user}:lauth-inst-member")}"
+    basic_auth_for(inst_user)
+  end
+
+  def basic_auth_group_member
+    basic_auth_for(group_user)
+  end
+
+  def basic_auth_for(user)
+    "Basic #{Base64.urlsafe_encode64("#{user}:#{user}")}"
   end
 end

@@ -14,4 +14,8 @@ module AuthUsers
   def inst_user
     "lauth-inst-member"
   end
+
+  def group_user
+    "lauth-group-member"
+  end
 end

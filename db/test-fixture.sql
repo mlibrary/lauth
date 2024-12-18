@@ -96,6 +96,38 @@ INSERT INTO aa_may_access VALUES(
   NULL,
   NULL, NULL, @test_inst_id, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
 );
+
+---------- setup for user allowed via group membership ----------
+INSERT INTO aa_user VALUES(
+  'lauth-group-member',NULL,'Lauth',NULL,'Test-group-mem','lauth-group-member',
+  NULL, -- org unit
+  'Library auth system test user - this user is a group member',
+  'Ann Arbor','MI','48109-119',NULL,NULL,'Staff',NULL,
+  '!none', -- umich id, !none
+  '@umich.edu', -- password, @umich.edu MAY signify SSO
+  0,NULL,
+  CURRENT_TIMESTAMP,'root', -- modified
+  NULL, -- expiry
+  'f'
+);
+
+INSERT INTO aa_user_grp VALUES(
+	9999, -- uniqueIdentifier
+	'Library auth system test group', -- commonName
+	0, -- manager
+	CURRENT_TIMESTAMP, 'root', -- modified
+  'f' -- deleted
+);
+
+INSERT INTO aa_is_member_of_grp VALUES(
+  'lauth-group-member', 9999, CURRENT_TIMESTAMP, 'root', 'f'
+);
+
+INSERT INTO aa_may_access VALUES(
+  NULL,
+  NULL, 9999, NULL, 'lauth-by-username', CURRENT_TIMESTAMP, 'root', NULL, 'f'
+);
+
 -----------------------------------------------------------------------------
 
 -- Individual grant to the by-username collection

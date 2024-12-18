@@ -1,3 +1,5 @@
+-- vim: set ts=8
+
 -- All tables, keys, indexes, and constraints for authz_umichlib in MariaDB.
 CREATE TABLE aa_user(
 	userid		 		VARCHAR(64)	NOT NULL,
@@ -22,7 +24,7 @@ CREATE TABLE aa_user(
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
 	dlpsExpiryTime  		DATETIME,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (userid)
 );
 
@@ -32,7 +34,7 @@ CREATE TABLE aa_user_grp(
 	manager				INT,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (uniqueIdentifier)
 );
 
@@ -42,7 +44,7 @@ CREATE TABLE aa_inst(
 	manager				INT,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (uniqueIdentifier)
 );
 
@@ -51,7 +53,7 @@ CREATE TABLE aa_is_member_of_inst(
 	inst				INT	NOT NULL,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (userid, inst)
 );
 
@@ -60,7 +62,7 @@ CREATE TABLE aa_is_member_of_grp(
 	user_grp			INT	NOT NULL,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (userid, user_grp)
 );
 
@@ -72,11 +74,11 @@ CREATE TABLE aa_coll(
 	dlpsSource			VARCHAR(128)  	NOT NULL,
 	dlpsAuthenMethod		VARCHAR(3)	NOT NULL,
 	dlpsAuthzType			CHAR(1)    	NOT NULL,
-        dlpsPartlyPublic		CHAR(1)         NOT NULL,
+	dlpsPartlyPublic		CHAR(1)         NOT NULL,
 	manager				INT,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (uniqueIdentifier)
 );
 
@@ -86,7 +88,7 @@ CREATE TABLE aa_coll_obj(
 	coll				VARCHAR(32)	NOT NULL,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (dlpsServer, dlpsPath, coll)
 );
 
@@ -101,7 +103,7 @@ CREATE TABLE aa_network(
 	inst				INT,
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (uniqueIdentifier)
 );
 
@@ -114,7 +116,7 @@ CREATE TABLE aa_may_access(
 	lastModifiedTime		TIMESTAMP	NOT NULL,
 	lastModifiedBy			VARCHAR(64)	NOT NULL,
 	dlpsExpiryTime  		TIMESTAMP,
-        dlpsDeleted                     CHAR(1)         NOT NULL,
+	dlpsDeleted                     CHAR(1)         NOT NULL,
 	PRIMARY KEY (uniqueIdentifier)
 );
 
@@ -163,4 +165,3 @@ ALTER TABLE aa_network ADD CONSTRAINT network_dlpsDeleted
 
 ALTER TABLE aa_may_access ADD CONSTRAINT may_access_dlpsDeleted
   CHECK (dlpsDeleted IN ('t', 'f'));
-
