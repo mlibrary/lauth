@@ -6,7 +6,7 @@ INSERT INTO aa_coll VALUES(
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
-  'pw', -- dlpsAuthenMethod
+  'any', -- dlpsAuthenMethod
   'd', -- dlpsAuthzType
   'f', -- dlpsPartlyPublic
   0, -- manager
@@ -21,7 +21,7 @@ INSERT INTO aa_coll VALUES(
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
-  'pw', -- dlpsAuthenMethod
+  'any', -- dlpsAuthenMethod
   'd', -- dlpsAuthzType
   'f', -- dlpsPartlyPublic
   0, -- manager
@@ -36,7 +36,7 @@ INSERT INTO aa_coll VALUES(
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
-  'pw', -- dlpsAuthenMethod
+  'any', -- dlpsAuthenMethod
   'd', -- dlpsAuthzType
   'f', -- dlpsPartlyPublic
   0, -- manager
@@ -51,7 +51,7 @@ INSERT INTO aa_coll VALUES(
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
-  'pw', -- dlpsAuthenMethod
+  'any', -- dlpsAuthenMethod
   'd', -- dlpsAuthzType
   't', -- dlpsPartlyPublic
   0, -- manager
@@ -66,7 +66,7 @@ INSERT INTO aa_coll VALUES(
   'auth system testing: delegation',
   'catpics', -- dlpsClass
   'none', -- dlpsSource (unused)
-  'pw', -- dlpsAuthenMethod
+  'any', -- dlpsAuthenMethod
   'd', -- dlpsAuthzType
   't', -- dlpsPartlyPublic
   0, -- manager
