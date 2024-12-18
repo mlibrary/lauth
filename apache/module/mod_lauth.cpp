@@ -12,6 +12,7 @@
 #include <lauth/authorizer.hpp>
 #include <lauth/logging.hpp>
 
+#include <stdexcept>
 #include <string>
 #include <map>
 
@@ -156,16 +157,21 @@ static authz_status lauth_check_authorization(request_rec *r,
     lauth_config *config = (lauth_config *) ap_get_module_config(r->server->module_config, &lauth_module);
 
     LAUTH_DEBUG("Calling authorizer API at " << config->url);
-    std::map<std::string, std::string> result = Authorizer(config->url, config->token).authorize(req);
+    try {
+      std::map<std::string, std::string> result = Authorizer(config->url, config->token).authorize(req);
 
-    apr_table_set(r->subprocess_env, "PUBLIC_COLL", result["public_collections"].c_str());
-    apr_table_set(r->subprocess_env, "AUTHZD_COLL", result["authorized_collections"].c_str());
+      apr_table_set(r->subprocess_env, "PUBLIC_COLL", result["public_collections"].c_str());
+      apr_table_set(r->subprocess_env, "AUTHZD_COLL", result["authorized_collections"].c_str());
 
-    LAUTH_DEBUG("Returned from authorizer API... determination: " << result["determination"]);
-    LAUTH_DEBUG("Setting public collections (PUBLIC_COLL) to: " << result["public_collections"]);
-    LAUTH_DEBUG("Setting authorized collections (AUTHZD_COLL) to: " << result["authorized_collections"]);
+      LAUTH_DEBUG("Returned from authorizer API... determination: " << result["determination"]);
+      LAUTH_DEBUG("Setting public collections (PUBLIC_COLL) to: " << result["public_collections"]);
+      LAUTH_DEBUG("Setting authorized collections (AUTHZD_COLL) to: " << result["authorized_collections"]);
 
-    return result["determination"] == "allowed" ? AUTHZ_GRANTED : AUTHZ_DENIED;
+      return result["determination"] == "allowed" ? AUTHZ_GRANTED : AUTHZ_DENIED;
+    } catch (std::exception &e) {
+      LAUTH_WARN("Exception raised while authorizing, denying access. Message: " << e.what());
+      return AUTHZ_DENIED;
+    }
 }
 
 static const authz_provider authz_lauth_provider =
