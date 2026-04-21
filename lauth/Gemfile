@@ -17,13 +17,18 @@ gem "rake"
 
 gem "rom", "~> 5.3"
 gem "rom-factory", "~> 0.11.0"
-gem "rom-sql", "~> 3.6", git: "https://github.com/mlibrary/rom-sql.git", tag: "v3.6.2-0.1"
+gem "rom-sql", "~> 3.7", git: "https://github.com/mlibrary/rom-sql.git", tag: "v3.7.0-0.1"
 gem "mysql2"
 
 gem "yabeda-hanami", "~> 0.1"
 gem "yabeda-http_requests", "~> 0.2"
 gem "yabeda-puma-plugin", "~> 0.7"
 gem "yabeda-prometheus", "~> 0.9"
+
+
+# Gems for 3.4 support; may be covered by other upgrades
+gem "base64"
+gem "ostruct"
 
 group :development do
   gem "hanami-webconsole", "~> #{HANAMI_VERSION}"

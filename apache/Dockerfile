@@ -43,7 +43,7 @@ RUN meson configure -Dtests=true -Dintegration-tests=true && meson compile
 CMD ["meson", "test", "-v"]
 
 ###
-FROM ruby:3.2.4 AS package-base
+FROM ruby:3.4.9 AS package-base
 
 RUN apt update && apt install -y --no-install-recommends binutils
 RUN gem install fpm
