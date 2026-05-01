@@ -25,7 +25,6 @@ gem "yabeda-http_requests", "~> 0.2"
 gem "yabeda-puma-plugin", "~> 0.7"
 gem "yabeda-prometheus", "~> 0.9"
 
-
 # Gems for 3.4 support; may be covered by other upgrades
 gem "base64"
 gem "ostruct"
