@@ -13,8 +13,8 @@ fpm --input-type dir \
   --deb-dist bullseye \
   --depends apache2 \
   --depends libstdc++6 \
-  --depends libssl1.1 \
-  --exclude 'usr/lib/python3.9' \
+  --depends libssl3 \
+  --exclude 'usr/lib/python3.13' \
   \
   --name libapache2-mod-lauth \
   --version "$(<VERSION)" \

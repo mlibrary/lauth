@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim AS build-base
+FROM debian:trixie-slim AS build-base
 RUN apt update; \
     apt install -y --no-install-recommends \
         apache2-dev \
@@ -82,7 +82,7 @@ COPY --from=mod-lauth /debs/out/* .
 CMD ["ls", "-la"]
 
 ##
-FROM debian:bullseye-slim AS server
+FROM debian:trixie-slim AS server
 RUN apt update; \
     apt install -y --no-install-recommends \
         ca-certificates \
