@@ -3,7 +3,7 @@
 require "dry/types"
 
 module Lauth
-  Types = Dry.Types
+  Types = Dry.Types(default: :strict)
 
   module Types
     # Define your custom types here

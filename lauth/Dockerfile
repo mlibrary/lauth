@@ -6,8 +6,8 @@ ARG UNAME=lauth
 ARG UID=1000
 ARG GID=1000
 
-ARG BUNDLER_VERSION=2.7.2
-ARG NODE_VERSION=20
+ARG BUNDLER_VERSION=4.0.16
+ARG NODE_VERSION=26
 
 RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
