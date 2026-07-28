@@ -1,7 +1,7 @@
-ARG RUBY_VERSION=3.4.9
-FROM ruby:${RUBY_VERSION}
+ARG RUBY_VERSION=4.0.6
+FROM ruby:${RUBY_VERSION}-slim
 
-ARG BUNDLER_VERSION=2.7.2
+ARG BUNDLER_VERSION=4.0.16
 ARG UNAME=lauth
 ARG UID=1000
 ARG GID=1000
@@ -16,7 +16,7 @@ RUN chown -R ${UID}:${GID} /usr/local/bundle
 RUN mkdir -p /lauth/test && chown ${UID}:${GID} /lauth/test
 RUN mkdir -p /gems && chown ${UID}:${GID} /gems
 
-ENV BUNDLE_PATH /gems
+ENV BUNDLE_PATH=/gems
 ENV PATH="/lauth/test/bin:${PATH}"
 
 WORKDIR /lauth/test

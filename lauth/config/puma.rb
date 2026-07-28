@@ -12,8 +12,6 @@ puma_cluster_mode = puma_concurrency > 1
 workers puma_concurrency
 
 if puma_cluster_mode
-  preload_app!
-
   before_fork do
     Hanami.shutdown
   end

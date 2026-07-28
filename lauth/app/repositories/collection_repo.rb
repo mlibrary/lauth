@@ -2,6 +2,7 @@ module Lauth
   module Repositories
     class CollectionRepo < ROM::Repository[:collections]
       include Deps[container: "persistence.rom"]
+
       struct_namespace Lauth
 
       # Find a collection via its uri location, specifically the dlpsPath.

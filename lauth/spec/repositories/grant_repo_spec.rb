@@ -145,7 +145,7 @@ RSpec.describe Lauth::Repositories::GrantRepo, type: :database do
       dlpsAccessSwitch: access,
       dlpsCIDRAddress: cidr,
       dlpsAddressStart: ip_range.to_range.first.to_i,
-      dlpsAddressEnd: ip_range.to_range.last.to_i,
+      dlpsAddressEnd: ip_range.to_range.last.to_i
     ]
   end
 end
