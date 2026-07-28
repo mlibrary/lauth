@@ -14,6 +14,7 @@ module CollectionStringHelpers
   end
 
   extend RSpec::Matchers::DSL
+
   matcher :match_collection_string_format do |_|
     match do |actual|
       COLLECTION_FORMAT.match? actual

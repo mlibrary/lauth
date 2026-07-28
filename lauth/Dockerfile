@@ -6,7 +6,7 @@ ARG UNAME=lauth
 ARG UID=1000
 ARG GID=1000
 
-ARG BUNDLER_VERSION=4.0.16
+ARG BUNDLER_VERSION=4.0.17
 ARG NODE_VERSION=26
 
 RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
