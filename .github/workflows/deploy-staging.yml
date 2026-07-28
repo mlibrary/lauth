@@ -7,7 +7,6 @@ on:
 jobs:
   build-staging:
     name: Build staging ${{ github.event.release.tag_name }}
-    # uses: mlibrary/lauth/.github/workflows/build-production.yml@v1
     uses: ./.github/workflows/build-production.yml
     with:
       image_name: ${{ vars.IMAGE_NAME }}
@@ -19,7 +18,7 @@ jobs:
   deploy-staging:
     needs: build-staging
     name: Deploy to staging
-    uses: mlibrary/platform-engineering-workflows/.github/workflows/deploy.yml@v1
+    uses: mlibrary/platform-engineering-workflows/.github/workflows/deploy.yml@2012bb6a322ad02c45c01372de2f5e2e3d7329ac # v1.6.7
     with:
       image: ghcr.io/mlibrary/${{ vars.IMAGE_NAME }}:${{ github.event.release.tag_name }}
       file: environments/lauth/staging/web-image.txt

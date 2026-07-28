@@ -40,7 +40,7 @@ jobs:
   build_production:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
     - name: Check that the tag exists in repo
@@ -54,7 +54,7 @@ jobs:
           false
         fi
     - name: Log into Github Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # v4.5.2
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -70,12 +70,12 @@ jobs:
         fi
     - name: Checkout Correct repository
       if: ${{ steps.image_check.outputs.image_exists != 'true' }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         ref: ${{ steps.tag_check.outputs.tag }}
     - name: Build and Push (without target)
       if: ${{ steps.image_check.outputs.image_exists != 'true' && !inputs.target }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
         context: ${{ inputs.docker_context }}
         file: ${{ inputs.dockerfile }}
@@ -88,7 +88,7 @@ jobs:
            ghcr.io/mlibrary/${{ inputs.image_name }}:${{ steps.tag_check.outputs.tag }}
     - name: Build and Push (with target)
       if: ${{ steps.image_check.outputs.image_exists != 'true' && !!inputs.target }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
       with:
         context: ${{ inputs.docker_context }}
         file: ${{ inputs.dockerfile }}
