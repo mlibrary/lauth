@@ -108,35 +108,4 @@ var _ = Describe("institution search API", func() {
 		Expect(diagnostic.Authorized).To(BeTrue())
 	})
 
-	It("fetches an authorization export", func() {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			Expect(r.URL.Path).To(Equal("/export"))
-			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"institutions":[{"uniqueIdentifier":1}],"grants":[{"coll":"example"}]}`))
-		}))
-		DeferCleanup(server.Close)
-
-		client := NewAPIClient(server.URL, "test-key", server.Client())
-		export, err := client.Export()
-
-		Expect(err).NotTo(HaveOccurred())
-		Expect(export).To(HaveKeyWithValue("institutions", []any{map[string]any{"uniqueIdentifier": float64(1)}}))
-		Expect(export).To(HaveKey("grants"))
-	})
-
-	It("fetches replication status", func() {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			Expect(r.URL.Path).To(Equal("/replication/status"))
-			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"status":"healthy","stale":false}`))
-		}))
-		DeferCleanup(server.Close)
-
-		client := NewAPIClient(server.URL, "test-key", server.Client())
-		status, err := client.ReplicationStatus()
-
-		Expect(err).NotTo(HaveOccurred())
-		Expect(status).To(HaveKeyWithValue("status", "healthy"))
-		Expect(status).To(HaveKeyWithValue("stale", false))
-	})
 })

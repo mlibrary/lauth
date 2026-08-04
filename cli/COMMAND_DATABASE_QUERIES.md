@@ -41,27 +41,6 @@ columns have been migrated. The following differences require attention:
 - **Date formatting:** Oracle's `TO_CHAR(date, format)` is not MariaDB
   syntax. The equivalent formatting expression is
   `DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s')`.
-- **Materialized-view metadata:** Oracle's `USER_MVIEWS` data dictionary view
-  has no direct MariaDB equivalent because MariaDB does not provide Oracle
-  materialized views with the same refresh metadata. Replication health needs
-  an application-owned status table or another explicitly defined source of
-  refresh timestamps; `information_schema.TABLES.UPDATE_TIME` is not a
-  semantic replacement.
-
-The MariaDB-specific date expression for the replication query is:
-
-```sql
-SELECT
-    mview_name,
-    DATE_FORMAT(last_refresh_date, '%Y-%m-%d %H:%i:%s')
-FROM
-    replication_status;
-```
-
-Here `replication_status` is an example application-owned table, not a
-MariaDB system table. The table name and refresh semantics must be defined as
-part of the MariaDB implementation.
-
 ## Query Commands
 
 ### `authz institution search Michigan Library`
@@ -253,53 +232,29 @@ has been reimplemented as a procedure:
 CALL authz_umichlib.authzd_to_coll_function(3221225985, '', 'alice', 'example');
 ```
 
-## Export And Health Commands
-
-### `authz export`
-
-Legacy utility: `bin/dumpall`
-
-The export utility runs one full-table query for each of these tables and
-writes each result to a separate TSV file.
-
-```sql
-SELECT * FROM authz_umichlib.aa_coll;
-SELECT * FROM authz_umichlib.aa_coll_obj;
-SELECT * FROM authz_umichlib.aa_inst;
-SELECT * FROM authz_umichlib.aa_is_member_of_grp;
-SELECT * FROM authz_umichlib.aa_is_member_of_inst;
-SELECT * FROM authz_umichlib.aa_may_access;
-SELECT * FROM authz_umichlib.aa_network;
-SELECT * FROM authz_umichlib.aa_user;
-SELECT * FROM authz_umichlib.aa_user_grp;
-```
-
-### `authz replication status`
-
-Legacy utility: `bin/check_replication`
-
-```sql
-SELECT
-    mview_name,
-    TO_CHAR(last_refresh_date, 'YYYY-MM-DD HH24:MI:SS')
-FROM
-    user_mviews;
-```
-
-`user_mviews` and `TO_CHAR` are Oracle-specific. See the compatibility notes
-above for the MariaDB date-format expression and the requirement for an
-application-owned replication status source.
-
-The utility then compares each refresh timestamp with a 16-hour freshness
-limit (`60 * 16`) and reports only stale materialized views.
-
 ## Local Command
 
-### `authz cidr 141.212.0.0 - 141.215.255.255`
+### `authz cidr from-range 141.212.0.0 141.215.255.255`
 
-This command performs local IPv4 range decomposition and does not run a
-database query or call the REST API. Its output is:
+These commands perform local IPv4 conversion and do not run a database query
+or call the REST API.
+
+`from-range` output:
 
 ```text
 141.212.0.0/14
+```
+
+`to-range` example:
+
+```text
+$ authz cidr to-range 141.212.0.0/14
+141.212.0.0 141.215.255.255
+```
+
+`to-ints` example:
+
+```text
+$ authz cidr to-ints 141.212.0.0/14
+2379481088 2379743231
 ```

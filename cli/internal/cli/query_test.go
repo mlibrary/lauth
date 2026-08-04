@@ -55,14 +55,6 @@ func (f *fakeQueryService) AuthzDiagnostic(ip, user, coll string) (AuthzDiagnost
 	f.record("authzd_to_coll", ip, user, coll)
 	return AuthzDiagnostic{Authorized: true}, nil
 }
-func (f *fakeQueryService) Export() (map[string]any, error) {
-	f.record("export")
-	return map[string]any{"grants": []string{"example"}}, nil
-}
-func (f *fakeQueryService) ReplicationStatus() (map[string]any, error) {
-	f.record("replication status")
-	return map[string]any{"status": "healthy"}, nil
-}
 
 var _ = Describe("read-only query commands", func() {
 	It("routes network search and returns the API response", func() {
@@ -110,25 +102,4 @@ var _ = Describe("read-only query commands", func() {
 		Expect(response.UserID).To(Equal("alice"))
 	})
 
-	It("routes export and returns structured JSON", func() {
-		service := &fakeQueryService{}
-		var output bytes.Buffer
-		command := NewRootCommand(service, &output)
-		command.SetArgs([]string{"--output=json", "export"})
-
-		Expect(command.Execute()).To(Succeed())
-		Expect(service.lastOperation).To(Equal("export"))
-		Expect(output.String()).To(ContainSubstring(`"grants":["example"]`))
-	})
-
-	It("routes replication status and returns structured JSON", func() {
-		service := &fakeQueryService{}
-		var output bytes.Buffer
-		command := NewRootCommand(service, &output)
-		command.SetArgs([]string{"--output=json", "replication", "status"})
-
-		Expect(command.Execute()).To(Succeed())
-		Expect(service.lastOperation).To(Equal("replication status"))
-		Expect(output.String()).To(ContainSubstring(`"status":"healthy"`))
-	})
 })

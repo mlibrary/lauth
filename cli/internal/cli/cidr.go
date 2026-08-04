@@ -11,17 +11,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func cidrCommand(stdout io.Writer) *cobra.Command {
-	command := &cobra.Command{
-		Use:     "cidr START - END",
+func cidrCommands(stdout io.Writer) *cobra.Command {
+	group := &cobra.Command{
+		Use:   "cidr",
+		Short: "Convert between IPv4 ranges, CIDR blocks, and integers.",
+	}
+	group.AddCommand(
+		fromRangeCommand(stdout),
+		toRangeCommand(stdout),
+		toIntsCommand(stdout),
+	)
+	return group
+}
+
+func fromRangeCommand(stdout io.Writer) *cobra.Command {
+	return &cobra.Command{
+		Use:     "from-range START END",
 		Short:   "Convert an inclusive IPv4 range to minimal CIDR blocks.",
-		Example: "authz cidr 141.212.0.0 - 141.215.255.255",
-		Args:    cobra.ExactArgs(3),
+		Example: "authz cidr from-range 141.212.0.0 141.215.255.255",
+		Args:    cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
-			if args[1] != "-" {
-				return fmt.Errorf("range separator must be '-'")
-			}
-			blocks, err := decomposeCIDRRange(args[0], args[2])
+			blocks, err := decomposeCIDRRange(args[0], args[1])
 			if err != nil {
 				return err
 			}
@@ -33,7 +43,40 @@ func cidrCommand(stdout io.Writer) *cobra.Command {
 			return nil
 		},
 	}
-	return command
+}
+
+func toRangeCommand(stdout io.Writer) *cobra.Command {
+	return &cobra.Command{
+		Use:     "to-range CIDR",
+		Short:   "Convert an IPv4 CIDR block to its starting and ending addresses.",
+		Example: "authz cidr to-range 141.212.0.0/14",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			start, end, err := cidrRange(args[0])
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintf(stdout, "%s %s\n", formatIPv4(start), formatIPv4(end))
+			return err
+		},
+	}
+}
+
+func toIntsCommand(stdout io.Writer) *cobra.Command {
+	return &cobra.Command{
+		Use:     "to-ints CIDR",
+		Short:   "Convert an IPv4 CIDR block to 32-bit start and end integers.",
+		Example: "authz cidr to-ints 141.212.0.0/14",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			start, end, err := cidrRange(args[0])
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintf(stdout, "%d %d\n", start, end)
+			return err
+		},
+	}
 }
 
 func decomposeCIDRRange(startAddress, endAddress string) ([]string, error) {
@@ -73,6 +116,24 @@ func parseIPv4(address string) (uint32, error) {
 		return 0, fmt.Errorf("expected dotted-decimal IPv4")
 	}
 	return binary.BigEndian.Uint32(ip.To4()), nil
+}
+
+func cidrRange(block string) (uint32, uint32, error) {
+	if strings.Contains(block, ":") {
+		return 0, 0, fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	ip, network, err := net.ParseCIDR(block)
+	if err != nil || ip.To4() == nil {
+		return 0, 0, fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	ones, bits := network.Mask.Size()
+	if bits != 32 {
+		return 0, 0, fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	start := binary.BigEndian.Uint32(network.IP.To4())
+	blockSize := uint64(1) << (32 - ones)
+	end := uint32(uint64(start) + blockSize - 1)
+	return start, end, nil
 }
 
 func formatIPv4(address uint32) string {

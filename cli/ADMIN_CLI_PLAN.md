@@ -27,8 +27,6 @@ Port the read-only administrative and diagnostic functionality from top-level `b
 - Collection inspection: `qc`
 - Protected-object lookup: `qp`, `qs`
 - Authorization diagnostic: `authzd_to_coll`
-- Authorization-table export: `dumpall`
-- Replication status: `check_replication`
 - CIDR range conversion: `aggis`/`vip` behavior exposed as `cidr`
 
 ### Phase Two
@@ -68,11 +66,9 @@ authz network search
 
 authz authzd_to_coll
 
-authz export
-
-authz replication status
-
-authz cidr START - END
+authz cidr from-range START END
+authz cidr to-range CIDR
+authz cidr to-ints CIDR
 ```
 
 The existing `authzd_to_coll` name remains unchanged for now.
@@ -92,9 +88,7 @@ The exact root executable name is an implementation detail; the command and subc
 | `qs` | `objects by-server` | 1 | Search protected objects by server. |
 | `qc` | `collection show` | 1 | Show collection metadata and matching grant information. |
 | `authzd_to_coll` | `authzd_to_coll` | 1 | Call the REST authorization diagnostic endpoint with IP, user, and collection. |
-| `dumpall` | `export` | 1 | Export authorization data locally using API responses. |
-| `check_replication` | `replication status` | 1 | Report stale or unhealthy replication state exposed by the API. |
-| `aggis`/`vip` | `cidr` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
+| `aggis`/`vip` | `cidr from-range` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
 | `dump_paths.pl` | `objects by-path --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
 | `dump_server.pl` | `objects by-server --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
 | `dump_coll.pl` | `collection grants --raw` | 2 | Preserve raw collection-grant dump behavior if still required. |
@@ -156,29 +150,46 @@ Use a consistent output strategy:
 
 ## 6. `cidr` Command
 
-### Interface
+### Interfaces
 
 ```text
-authz cidr START - END
+authz cidr from-range START END
+authz cidr to-range CIDR
+authz cidr to-ints CIDR
 ```
 
 Example:
 
 ```text
-authz cidr 141.212.0.0 - 141.215.255.255
+authz cidr from-range 141.212.0.0 141.215.255.255
+authz cidr to-range 141.212.0.0/14
+authz cidr to-ints 141.212.0.0/14
 ```
 
-Output:
+`from-range` output:
 
 ```text
 141.212.0.0/14
+```
+
+`to-range` output:
+
+```text
+141.212.0.0 141.215.255.255
+```
+
+`to-ints` output:
+
+```text
+2379481088 2379743231
 ```
 
 ### Semantics
 
 - Treat the range as inclusive.
 - Accept full dotted-decimal IPv4 addresses.
-- Require the literal `-` separator.
+- `from-range` takes exactly two dotted-decimal IPv4 arguments.
+- `to-range` and `to-ints` take exactly one slash-notation IPv4 CIDR argument.
 - Reject malformed addresses.
 - Reject `START > END`.
 - Emit the minimal CIDR decomposition, one block per line.
@@ -210,7 +221,7 @@ Include:
 - The full IPv4 address space.
 - Reversed ranges.
 - Invalid octets.
-- Missing or malformed separators.
+- Invalid or non-IPv4 CIDR notation.
 
 ## 7. API Integration
 
@@ -227,7 +238,6 @@ Before implementing API-backed commands, document the endpoint contract for each
 
 Pagination does not need to be implemented.
 
-If the API does not expose equivalents for `export` or `replication status`, define those as separate API requirements rather than recreating database access in the CLI.
 
 ## 8. Configuration and Security
 
@@ -282,7 +292,9 @@ Phase One is complete when:
 - All selected top-level read-only utilities have command equivalents.
 - `objects` is a top-level command group.
 - `authzd_to_coll` remains available under that exact name.
-- `authz cidr START - END` emits minimal CIDR coverage for valid IPv4 ranges.
+- `authz cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
+- `authz cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
+- `authz cidr to-ints CIDR` emits the starting and ending 32-bit integers.
 - No Phase One command requires Oracle, MySQL, Perl DBI, or local database credentials.
 - API-key handling is centralized and secure.
 - No pagination is introduced.

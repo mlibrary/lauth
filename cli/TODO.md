@@ -10,7 +10,7 @@ Before beginning any modification work on the next pass, clarify:
 - [ ] Whether API JSON responses retain the top-level envelopes used by the fixtures.
 - [ ] Configuration file format and environment variable names.
 - [ ] Exact table columns and ordering expected for each command.
-- [ ] Whether `cidr`, `export`, or `replication status` should be implemented next.
+- [x] Decide the remaining local/API command scope: retain `cidr`; retire `export` and `replication status`.
 
 ## Completed
 
@@ -29,18 +29,15 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `authzd_to_coll`.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.
-- [x] Implement `cidr` with inclusive IPv4 range decomposition and validation.
-- [x] Add API-backed `export`.
-- [x] Add API-backed `replication status`.
+- [x] Implement `cidr from-range`, `cidr to-range`, and `cidr to-ints`.
 
 ## Next
 
 - [ ] Document the real REST endpoint contracts and response schemas.
 - [x] Replace fixture-only query services with the shared authenticated HTTP API client.
 - [x] Add centralized API-key, base URL, timeout, and error handling.
-- [x] Implement `cidr` and its complete validation/decomposition test matrix.
-- [x] Implement `export` if the API exposes the required data.
-- [x] Implement `replication status` if the API exposes replication health.
+- [x] Implement the CIDR validation and conversion test matrix.
+- [x] Retire `export` and `replication status`; see `RETIRED_FEATURES.md`.
 - [ ] Add empty-result, invalid-input, API-error, and output-format coverage for every command.
 - [ ] Verify representative results against the legacy utilities.
 

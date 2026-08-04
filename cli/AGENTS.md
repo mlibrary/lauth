@@ -48,5 +48,5 @@
 ## Scope Boundaries
 
 - Phase One query work includes institution, network, user, object, collection, and authorization diagnostic read operations.
-- `cidr`, `export`, and `replication status` remain separate Phase One tasks unless explicitly requested.
+- `cidr` is a local Phase One command. `export` and `replication status` are retired; do not reintroduce them without an explicit scope change.
 - Keep Phase Two mutations, raw dump compatibility, nested MySQL utilities, imports, synchronization, password rotation, email, and destructive loads untouched.
