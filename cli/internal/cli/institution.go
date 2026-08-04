@@ -93,6 +93,7 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 	}
 	institution.AddCommand(search)
 	root.AddCommand(institution)
+	root.AddCommand(cidrCommand(stdout))
 	if service, ok := searcher.(QueryService); ok {
 		addQueryCommands(root, service, stdout)
 	}

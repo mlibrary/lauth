@@ -29,13 +29,14 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `authzd_to_coll`.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.
+- [x] Implement `cidr` with inclusive IPv4 range decomposition and validation.
 
 ## Next
 
 - [ ] Document the real REST endpoint contracts and response schemas.
 - [x] Replace fixture-only query services with the shared authenticated HTTP API client.
 - [x] Add centralized API-key, base URL, timeout, and error handling.
-- [ ] Implement `cidr` and its complete validation/decomposition test matrix.
+- [x] Implement `cidr` and its complete validation/decomposition test matrix.
 - [ ] Implement `export` if the API exposes the required data.
 - [ ] Implement `replication status` if the API exposes replication health.
 - [ ] Add empty-result, invalid-input, API-error, and output-format coverage for every command.
