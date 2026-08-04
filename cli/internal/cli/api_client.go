@@ -22,6 +22,7 @@ type APIClient struct {
 
 var _ QueryService = (*APIClient)(nil)
 var _ ExportService = (*APIClient)(nil)
+var _ ReplicationService = (*APIClient)(nil)
 
 func NewAPIClient(baseURL, apiKey string, httpClient *http.Client) *APIClient {
 	if httpClient == nil {
@@ -153,6 +154,14 @@ func (c *APIClient) AuthzDiagnostic(ip, userID, collection string) (AuthzDiagnos
 func (c *APIClient) Export() (map[string]any, error) {
 	var response map[string]any
 	if err := c.get("/export", nil, &response); err != nil {
+		return nil, err
+	}
+	return response, nil
+}
+
+func (c *APIClient) ReplicationStatus() (map[string]any, error) {
+	var response map[string]any
+	if err := c.get("/replication/status", nil, &response); err != nil {
 		return nil, err
 	}
 	return response, nil

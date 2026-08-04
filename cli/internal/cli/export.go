@@ -13,14 +13,18 @@ type ExportService interface {
 }
 
 func exportCommand(service ExportService, stdout io.Writer) *cobra.Command {
+	return mapQueryCommand("export", "Export authorization data from the REST API.", "Fetch the authorization export from the REST API and write it to standard output.", "authz --output=json export", service.Export, stdout)
+}
+
+func mapQueryCommand(use, short, long, example string, query func() (map[string]any, error), stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:     "export",
-		Short:   "Export authorization data from the REST API.",
-		Long:    "Fetch the authorization export from the REST API and write it to standard output.",
-		Example: "authz --output=json export",
+		Use:     use,
+		Short:   short,
+		Long:    long,
+		Example: example,
 		Args:    cobra.NoArgs,
 		RunE: func(command *cobra.Command, _ []string) error {
-			export, err := service.Export()
+			result, err := query()
 			if err != nil {
 				return err
 			}
@@ -29,12 +33,12 @@ func exportCommand(service ExportService, stdout io.Writer) *cobra.Command {
 				return err
 			}
 			if format == "json" {
-				return json.NewEncoder(stdout).Encode(export)
+				return json.NewEncoder(stdout).Encode(result)
 			}
 			if format != "table" {
 				return fmt.Errorf("unsupported output format %q", format)
 			}
-			return renderQueryTable(stdout, export)
+			return renderQueryTable(stdout, result)
 		},
 	}
 }
