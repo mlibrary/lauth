@@ -79,7 +79,7 @@ var _ = Describe("institution search API", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(networks[0].Inst).To(Equal(7))
 
-		collections, err := client.InstitutionCollections("7")
+		collections, err := client.InstitutionGrants("7")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(collections[0].Coll).To(Equal("example"))
 
@@ -99,7 +99,7 @@ var _ = Describe("institution search API", func() {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(collection.Collection.UniqueIdentifier).To(Equal("example"))
 
-		access, err := client.CollectionAccess("example")
+		access, err := client.CollectionGrants("example")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(access[0].Coll).To(Equal("example"))
 

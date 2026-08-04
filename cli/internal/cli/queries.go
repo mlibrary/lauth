@@ -71,12 +71,12 @@ type QueryService interface {
 	InstitutionSearcher
 	SearchNetworks(string) ([]Network, error)
 	InstitutionNetworks(string) ([]Network, error)
-	InstitutionCollections(string) ([]Access, error)
+	InstitutionGrants(string) ([]Access, error)
 	UserShow(string) (UserInspection, error)
 	ObjectsByPath(string) ([]CollectionObject, error)
 	ObjectsByServer(string) ([]CollectionObject, error)
 	CollectionShow(string) (CollectionInspection, error)
-	CollectionAccess(string) ([]Access, error)
+	CollectionGrants(string) ([]Access, error)
 	AuthzDiagnostic(string, string, string) (AuthzDiagnostic, error)
 }
 
@@ -85,8 +85,8 @@ func addQueryCommands(root *cobra.Command, service QueryService, stdout io.Write
 	institution := findCommand(root, "institution")
 	institution.AddCommand(queryCommand("networks [institution-id]", "List networks associated with an institution.", "authz institution networks 7", func(args []string) (any, error) {
 		return service.InstitutionNetworks(args[0])
-	}, stdout), queryCommand("collections [institution-id]", "List collections associated with an institution.", "authz institution collections 7", func(args []string) (any, error) {
-		return service.InstitutionCollections(args[0])
+	}, stdout), queryCommand("grants [institution-id]", "List collection grants for an institution.", "authz institution grants 7", func(args []string) (any, error) {
+		return service.InstitutionGrants(args[0])
 	}, stdout))
 }
 
@@ -109,7 +109,7 @@ func networkCommands(service QueryService, stdout io.Writer) *cobra.Command {
 
 func userCommands(service QueryService, stdout io.Writer) *cobra.Command {
 	group := &cobra.Command{Use: "user", Short: "Inspect user authorization data."}
-	group.AddCommand(queryCommand("show [userid]", "Show a user, memberships, and direct collection permissions.", "authz user show alice", func(args []string) (any, error) {
+	group.AddCommand(queryCommand("show [userid]", "Show a user, memberships, and direct collection grants.", "authz user show alice", func(args []string) (any, error) {
 		return service.UserShow(args[0])
 	}, stdout))
 	return group
@@ -126,11 +126,11 @@ func objectsCommands(service QueryService, stdout io.Writer) *cobra.Command {
 }
 
 func collectionCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "collection", Short: "Inspect collections and access."}
-	group.AddCommand(queryCommand("show [collection]", "Show collection metadata and access information.", "authz collection show example", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "collection", Short: "Inspect collections and grants."}
+	group.AddCommand(queryCommand("show [collection]", "Show collection metadata and grant information.", "authz collection show example", func(args []string) (any, error) {
 		return service.CollectionShow(args[0] + "%")
-	}, stdout), queryCommand("access [collection]", "List access entries for a collection.", "authz collection access example", func(args []string) (any, error) {
-		return service.CollectionAccess(args[0] + "%")
+	}, stdout), queryCommand("grants [collection]", "List grants for a collection.", "authz collection grants example", func(args []string) (any, error) {
+		return service.CollectionGrants(args[0] + "%")
 	}, stdout))
 	return group
 }

@@ -54,7 +54,7 @@ Use a single command-suite executable with subcommands.
 ```text
 authz institution search
 authz institution networks
-authz institution collections
+authz institution grants
 
 authz user show
 
@@ -62,7 +62,7 @@ authz objects by-path
 authz objects by-server
 
 authz collection show
-authz collection access
+authz collection grants
 
 authz network search
 
@@ -86,21 +86,21 @@ The exact root executable name is an implementation detail; the command and subc
 | `qi` | `institution search` | 1 | Search institutions by organization-name fragments. |
 | `qn` | `network search` | 1 | Search networks by CIDR prefix. |
 | `qin` | `institution networks` | 1 | List networks associated with an institution. |
-| `qic` | `institution collections` | 1 | List collections authorized for an institution. |
+| `qic` | `institution grants` | 1 | List collection grants for an institution. |
 | `qu` | `user show` | 1 | Show user data, institution memberships, and direct collection permissions. |
 | `qp` | `objects by-path` | 1 | Search protected objects by path. |
 | `qs` | `objects by-server` | 1 | Search protected objects by server. |
-| `qc` | `collection show` | 1 | Show collection metadata and matching access information. |
+| `qc` | `collection show` | 1 | Show collection metadata and matching grant information. |
 | `authzd_to_coll` | `authzd_to_coll` | 1 | Call the REST authorization diagnostic endpoint with IP, user, and collection. |
 | `dumpall` | `export` | 1 | Export authorization data locally using API responses. |
 | `check_replication` | `replication status` | 1 | Report stale or unhealthy replication state exposed by the API. |
 | `aggis`/`vip` | `cidr` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
 | `dump_paths.pl` | `objects by-path --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
 | `dump_server.pl` | `objects by-server --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
-| `dump_coll.pl` | `collection access --raw` | 2 | Preserve raw collection-access dump behavior if still required. |
+| `dump_coll.pl` | `collection grants --raw` | 2 | Preserve raw collection-grant dump behavior if still required. |
 | `add_inst` | `institution create` | 2 | Create an institution. |
 | `ain` | `institution network add` | 2 | Add institution network ranges with overlap checks. |
-| `auth_to_acls` | `institution collections grant-default-acls` | 2 | Grant default ACLS collection access. |
+| `auth_to_acls` | `institution grants grant-default-acls` | 2 | Grant default ACLS collection grants. |
 
 ## 5. Internal Architecture
 

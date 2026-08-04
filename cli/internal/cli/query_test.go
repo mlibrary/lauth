@@ -27,8 +27,8 @@ func (f *fakeQueryService) InstitutionNetworks(inst string) ([]Network, error) {
 	f.record("institution networks", inst)
 	return []Network{{Inst: 7, DlpsCIDRAddress: "192.0.2.0/24"}}, nil
 }
-func (f *fakeQueryService) InstitutionCollections(inst string) ([]Access, error) {
-	f.record("institution collections", inst)
+func (f *fakeQueryService) InstitutionGrants(inst string) ([]Access, error) {
+	f.record("institution grants", inst)
 	return []Access{{Coll: "example"}}, nil
 }
 func (f *fakeQueryService) UserShow(user string) (UserInspection, error) {
@@ -47,8 +47,8 @@ func (f *fakeQueryService) CollectionShow(coll string) (CollectionInspection, er
 	f.record("collection show", coll)
 	return CollectionInspection{Collection: Collection{UniqueIdentifier: coll}}, nil
 }
-func (f *fakeQueryService) CollectionAccess(coll string) ([]Access, error) {
-	f.record("collection access", coll)
+func (f *fakeQueryService) CollectionGrants(coll string) ([]Access, error) {
+	f.record("collection grants", coll)
 	return []Access{{Coll: coll}}, nil
 }
 func (f *fakeQueryService) AuthzDiagnostic(ip, user, coll string) (AuthzDiagnostic, error) {
@@ -81,12 +81,12 @@ var _ = Describe("read-only query commands", func() {
 			Expect(service.lastArgs).To(Equal(expectedArgs))
 		},
 		Entry("institution networks", []string{"institution", "networks", "7"}, "institution networks", []string{"7"}),
-		Entry("institution collections", []string{"institution", "collections", "7"}, "institution collections", []string{"7"}),
+		Entry("institution grants", []string{"institution", "grants", "7"}, "institution grants", []string{"7"}),
 		Entry("user show", []string{"user", "show", "alice"}, "user show", []string{"alice"}),
 		Entry("objects by path", []string{"objects", "by-path", "/books"}, "objects by-path", []string{"/books%"}),
 		Entry("objects by server", []string{"objects", "by-server", "server"}, "objects by-server", []string{"server%"}),
 		Entry("collection show", []string{"collection", "show", "example"}, "collection show", []string{"example%"}),
-		Entry("collection access", []string{"collection", "access", "example"}, "collection access", []string{"example%"}),
+		Entry("collection grants", []string{"collection", "grants", "example"}, "collection grants", []string{"example%"}),
 		Entry("authorization diagnostic", []string{"authzd_to_coll", "192.0.2.1", "alice", "example"}, "authzd_to_coll", []string{"192.0.2.1", "alice", "example"}),
 	)
 

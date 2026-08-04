@@ -22,10 +22,10 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add fixture-backed responses for the implemented query commands.
 - [x] Add `network search`.
 - [x] Add `institution networks`.
-- [x] Add `institution collections`.
+- [x] Add `institution grants`.
 - [x] Add `user show`.
 - [x] Add `objects by-path` and `objects by-server`.
-- [x] Add `collection show` and `collection access`.
+- [x] Add `collection show` and `collection grants`.
 - [x] Add `authzd_to_coll`.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.

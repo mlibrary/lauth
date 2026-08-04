@@ -69,7 +69,7 @@ func (f fixtureQueryService) InstitutionNetworks(string) ([]Network, error) {
 	return response.Networks, nil
 }
 
-func (f fixtureQueryService) InstitutionCollections(string) ([]Access, error) {
+func (f fixtureQueryService) InstitutionGrants(string) ([]Access, error) {
 	var response struct {
 		Collections []Access `json:"collections"`
 	}
@@ -115,7 +115,7 @@ func (f fixtureQueryService) CollectionShow(string) (CollectionInspection, error
 	return response, nil
 }
 
-func (f fixtureQueryService) CollectionAccess(string) ([]Access, error) {
+func (f fixtureQueryService) CollectionGrants(string) ([]Access, error) {
 	var response struct {
 		Access []Access `json:"access"`
 	}

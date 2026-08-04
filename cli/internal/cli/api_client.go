@@ -80,7 +80,7 @@ func (c *APIClient) InstitutionNetworks(institutionID string) ([]Network, error)
 	return response.Networks, nil
 }
 
-func (c *APIClient) InstitutionCollections(institutionID string) ([]Access, error) {
+func (c *APIClient) InstitutionGrants(institutionID string) ([]Access, error) {
 	var response struct {
 		Collections []Access `json:"collections"`
 	}
@@ -126,7 +126,7 @@ func (c *APIClient) CollectionShow(collection string) (CollectionInspection, err
 	return response, nil
 }
 
-func (c *APIClient) CollectionAccess(collection string) ([]Access, error) {
+func (c *APIClient) CollectionGrants(collection string) ([]Access, error) {
 	var response struct {
 		Access []Access `json:"access"`
 	}
