@@ -56,8 +56,10 @@ func parseInstitutionSearchResponse(response []byte) ([]Institution, error) {
 
 func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Command {
 	root := &cobra.Command{
-		Use:   "authz",
-		Short: "Query authorization data.",
+		Use:     "authz",
+		Short:   "Query authorization data.",
+		Long:    "Query authorization data from the REST API. Results use table output by default; add --output=json for machine-readable JSON. Configure the API with AUTHZ_API_BASE_URL, AUTHZ_API_KEY, and AUTHZ_API_TIMEOUT.",
+		Example: "  authz institution search Michigan\n  authz --output=json user show alice",
 	}
 	root.PersistentFlags().String("output", "table", "output format: table or json")
 	_ = viper.BindPFlag("output", root.PersistentFlags().Lookup("output"))
@@ -67,9 +69,10 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 		Short: "Look up institutions and their associated resources.",
 	}
 	search := &cobra.Command{
-		Use:   "search [fragments...]",
-		Short: "Search institutions by organization-name fragments.",
-		Args:  cobra.MinimumNArgs(1),
+		Use:     "search [fragments...]",
+		Short:   "Search institutions by organization-name fragments.",
+		Example: "  authz institution search Michigan Library",
+		Args:    cobra.MinimumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			institutions, err := searcher.SearchInstitutions(strings.Join(args, "%"))
 			if err != nil {

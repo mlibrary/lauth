@@ -20,6 +20,8 @@ type APIClient struct {
 	httpClient *http.Client
 }
 
+var _ QueryService = (*APIClient)(nil)
+
 func NewAPIClient(baseURL, apiKey string, httpClient *http.Client) *APIClient {
 	if httpClient == nil {
 		httpClient = &http.Client{Timeout: 30 * time.Second}
@@ -56,6 +58,95 @@ func (c *APIClient) SearchInstitutions(pattern string) ([]Institution, error) {
 		return nil, err
 	}
 	return response.Institutions, nil
+}
+
+func (c *APIClient) SearchNetworks(prefix string) ([]Network, error) {
+	var response struct {
+		Networks []Network `json:"networks"`
+	}
+	if err := c.get("/networks", url.Values{"cidr": {prefix}}, &response); err != nil {
+		return nil, err
+	}
+	return response.Networks, nil
+}
+
+func (c *APIClient) InstitutionNetworks(institutionID string) ([]Network, error) {
+	var response struct {
+		Networks []Network `json:"networks"`
+	}
+	if err := c.get("/institutions/"+url.PathEscape(institutionID)+"/networks", nil, &response); err != nil {
+		return nil, err
+	}
+	return response.Networks, nil
+}
+
+func (c *APIClient) InstitutionCollections(institutionID string) ([]Access, error) {
+	var response struct {
+		Collections []Access `json:"collections"`
+	}
+	if err := c.get("/institutions/"+url.PathEscape(institutionID)+"/collections", nil, &response); err != nil {
+		return nil, err
+	}
+	return response.Collections, nil
+}
+
+func (c *APIClient) UserShow(userID string) (UserInspection, error) {
+	var response UserInspection
+	if err := c.get("/users/"+url.PathEscape(userID), nil, &response); err != nil {
+		return UserInspection{}, err
+	}
+	return response, nil
+}
+
+func (c *APIClient) ObjectsByPath(path string) ([]CollectionObject, error) {
+	var response struct {
+		Objects []CollectionObject `json:"objects"`
+	}
+	if err := c.get("/objects", url.Values{"path": {path}}, &response); err != nil {
+		return nil, err
+	}
+	return response.Objects, nil
+}
+
+func (c *APIClient) ObjectsByServer(server string) ([]CollectionObject, error) {
+	var response struct {
+		Objects []CollectionObject `json:"objects"`
+	}
+	if err := c.get("/objects", url.Values{"server": {server}}, &response); err != nil {
+		return nil, err
+	}
+	return response.Objects, nil
+}
+
+func (c *APIClient) CollectionShow(collection string) (CollectionInspection, error) {
+	var response CollectionInspection
+	if err := c.get("/collections/"+url.PathEscape(collection), nil, &response); err != nil {
+		return CollectionInspection{}, err
+	}
+	return response, nil
+}
+
+func (c *APIClient) CollectionAccess(collection string) ([]Access, error) {
+	var response struct {
+		Access []Access `json:"access"`
+	}
+	if err := c.get("/collections/"+url.PathEscape(collection)+"/access", nil, &response); err != nil {
+		return nil, err
+	}
+	return response.Access, nil
+}
+
+func (c *APIClient) AuthzDiagnostic(ip, userID, collection string) (AuthzDiagnostic, error) {
+	var response AuthzDiagnostic
+	query := url.Values{
+		"ip":         {ip},
+		"userid":     {userID},
+		"collection": {collection},
+	}
+	if err := c.get("/authzd_to_coll", query, &response); err != nil {
+		return AuthzDiagnostic{}, err
+	}
+	return response, nil
 }
 
 func (c *APIClient) get(path string, query url.Values, target any) error {

@@ -28,12 +28,13 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `collection show` and `collection access`.
 - [x] Add `authzd_to_coll`.
 - [x] Define the initial REST contract for authenticated institution search.
+- [x] Back all query commands with the shared authenticated HTTP API client.
 
 ## Next
 
 - [ ] Document the real REST endpoint contracts and response schemas.
-- [ ] Replace fixture-only query services with the shared authenticated HTTP API client.
-- [ ] Add centralized API-key, base URL, timeout, and error handling.
+- [x] Replace fixture-only query services with the shared authenticated HTTP API client.
+- [x] Add centralized API-key, base URL, timeout, and error handling.
 - [ ] Implement `cidr` and its complete validation/decomposition test matrix.
 - [ ] Implement `export` if the API exposes the required data.
 - [ ] Implement `replication status` if the API exposes replication health.

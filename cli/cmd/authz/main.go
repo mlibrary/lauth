@@ -8,13 +8,7 @@ import (
 )
 
 func main() {
-	searcher, err := cli.NewFixtureQueryService("testdata")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	command := cli.NewRootCommand(searcher, os.Stdout)
+	command := cli.NewRootCommand(cli.NewAPIClientFromConfig(), os.Stdout)
 	if err := command.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
