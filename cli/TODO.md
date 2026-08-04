@@ -27,6 +27,7 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `objects by-path` and `objects by-server`.
 - [x] Add `collection show` and `collection access`.
 - [x] Add `authzd_to_coll`.
+- [x] Define the initial REST contract for authenticated institution search.
 
 ## Next
 

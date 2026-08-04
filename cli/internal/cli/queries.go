@@ -83,9 +83,9 @@ type QueryService interface {
 func addQueryCommands(root *cobra.Command, service QueryService, stdout io.Writer) {
 	root.AddCommand(networkCommands(service, stdout), userCommands(service, stdout), objectsCommands(service, stdout), collectionCommands(service, stdout), authzCommand(service, stdout))
 	institution := findCommand(root, "institution")
-	institution.AddCommand(queryCommand("networks [institution-id]", func(args []string) (any, error) {
+	institution.AddCommand(queryCommand("networks [institution-id]", "List networks associated with an institution.", func(args []string) (any, error) {
 		return service.InstitutionNetworks(args[0])
-	}, stdout), queryCommand("collections [institution-id]", func(args []string) (any, error) {
+	}, stdout), queryCommand("collections [institution-id]", "List collections associated with an institution.", func(args []string) (any, error) {
 		return service.InstitutionCollections(args[0])
 	}, stdout))
 }
@@ -100,51 +100,52 @@ func findCommand(root *cobra.Command, use string) *cobra.Command {
 }
 
 func networkCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "network"}
-	group.AddCommand(queryCommand("search [prefix]", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "network", Short: "Search authorization networks."}
+	group.AddCommand(queryCommand("search [prefix]", "Search networks by CIDR prefix.", func(args []string) (any, error) {
 		return service.SearchNetworks(args[0] + "%")
 	}, stdout))
 	return group
 }
 
 func userCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "user"}
-	group.AddCommand(queryCommand("show [userid]", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "user", Short: "Inspect user authorization data."}
+	group.AddCommand(queryCommand("show [userid]", "Show a user, memberships, and direct collection permissions.", func(args []string) (any, error) {
 		return service.UserShow(args[0])
 	}, stdout))
 	return group
 }
 
 func objectsCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "objects"}
-	group.AddCommand(queryCommand("by-path [path]", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "objects", Short: "Search protected objects."}
+	group.AddCommand(queryCommand("by-path [path]", "Search protected objects by path.", func(args []string) (any, error) {
 		return service.ObjectsByPath(args[0] + "%")
-	}, stdout), queryCommand("by-server [server]", func(args []string) (any, error) {
+	}, stdout), queryCommand("by-server [server]", "Search protected objects by server.", func(args []string) (any, error) {
 		return service.ObjectsByServer(args[0] + "%")
 	}, stdout))
 	return group
 }
 
 func collectionCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "collection"}
-	group.AddCommand(queryCommand("show [collection]", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "collection", Short: "Inspect collections and access."}
+	group.AddCommand(queryCommand("show [collection]", "Show collection metadata and access information.", func(args []string) (any, error) {
 		return service.CollectionShow(args[0] + "%")
-	}, stdout), queryCommand("access [collection]", func(args []string) (any, error) {
+	}, stdout), queryCommand("access [collection]", "List access entries for a collection.", func(args []string) (any, error) {
 		return service.CollectionAccess(args[0] + "%")
 	}, stdout))
 	return group
 }
 
 func authzCommand(service QueryService, stdout io.Writer) *cobra.Command {
-	return queryCommand("authzd_to_coll [ip] [userid] [collection]", func(args []string) (any, error) {
+	return queryCommand("authzd_to_coll [ip] [userid] [collection]", "Run an authorization diagnostic for an IP, user, and collection.", func(args []string) (any, error) {
 		return service.AuthzDiagnostic(args[0], args[1], args[2])
 	}, stdout)
 }
 
-func queryCommand(use string, query func([]string) (any, error), stdout io.Writer) *cobra.Command {
+func queryCommand(use, short string, query func([]string) (any, error), stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:  use,
-		Args: cobra.MinimumNArgs(strings.Count(use, "[")),
+		Use:   use,
+		Short: short,
+		Args:  cobra.MinimumNArgs(strings.Count(use, "[")),
 		RunE: func(command *cobra.Command, args []string) error {
 			result, err := query(args)
 			if err != nil {

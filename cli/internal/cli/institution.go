@@ -55,14 +55,21 @@ func parseInstitutionSearchResponse(response []byte) ([]Institution, error) {
 }
 
 func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Command {
-	root := &cobra.Command{Use: "authz"}
+	root := &cobra.Command{
+		Use:   "authz",
+		Short: "Query authorization data.",
+	}
 	root.PersistentFlags().String("output", "table", "output format: table or json")
 	_ = viper.BindPFlag("output", root.PersistentFlags().Lookup("output"))
 
-	institution := &cobra.Command{Use: "institution"}
+	institution := &cobra.Command{
+		Use:   "institution",
+		Short: "Look up institutions and their associated resources.",
+	}
 	search := &cobra.Command{
-		Use:  "search [fragments...]",
-		Args: cobra.MinimumNArgs(1),
+		Use:   "search [fragments...]",
+		Short: "Search institutions by organization-name fragments.",
+		Args:  cobra.MinimumNArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			institutions, err := searcher.SearchInstitutions(strings.Join(args, "%"))
 			if err != nil {
