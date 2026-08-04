@@ -1,5 +1,7 @@
 # Administrative CLI Development Plan
 
+Current implementation progress is tracked in [`TODO.md`](TODO.md).
+
 ## 1. Objective
 
 Replace the selected top-level Perl utilities in `bin/` with a command-suite CLI backed by the existing authorization REST API.

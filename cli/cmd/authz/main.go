@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	searcher, err := cli.NewFixtureInstitutionSearcher("testdata/institution_search_response.json")
+	searcher, err := cli.NewFixtureQueryService("testdata")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
