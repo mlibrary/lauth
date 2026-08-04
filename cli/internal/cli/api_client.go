@@ -21,6 +21,7 @@ type APIClient struct {
 }
 
 var _ QueryService = (*APIClient)(nil)
+var _ ExportService = (*APIClient)(nil)
 
 func NewAPIClient(baseURL, apiKey string, httpClient *http.Client) *APIClient {
 	if httpClient == nil {
@@ -145,6 +146,14 @@ func (c *APIClient) AuthzDiagnostic(ip, userID, collection string) (AuthzDiagnos
 	}
 	if err := c.get("/authzd_to_coll", query, &response); err != nil {
 		return AuthzDiagnostic{}, err
+	}
+	return response, nil
+}
+
+func (c *APIClient) Export() (map[string]any, error) {
+	var response map[string]any
+	if err := c.get("/export", nil, &response); err != nil {
+		return nil, err
 	}
 	return response, nil
 }

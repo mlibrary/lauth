@@ -97,6 +97,9 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 	if service, ok := searcher.(QueryService); ok {
 		addQueryCommands(root, service, stdout)
 	}
+	if service, ok := searcher.(ExportService); ok {
+		root.AddCommand(exportCommand(service, stdout))
+	}
 	return root
 }
 
