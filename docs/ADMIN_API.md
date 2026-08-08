@@ -72,12 +72,29 @@ are not interpreted as SQL pattern syntax.
 
 Results are ordered by `uniqueIdentifier`.
 
+For example, a wildcard search for institutions in the University of
+Michigan system is:
+
+```http
+GET /api/v1/institutions?organizationName=University%20of%20Mich*
+```
+
+It can return all matching organization names:
+
 ```json
 {
   "institutions": [
     {
-      "uniqueIdentifier": 7,
-      "organizationName": "Michigan Library"
+      "uniqueIdentifier": 101,
+      "organizationName": "University of Michigan - Ann Arbor"
+    },
+    {
+      "uniqueIdentifier": 102,
+      "organizationName": "University of Michigan - Dearborn"
+    },
+    {
+      "uniqueIdentifier": 103,
+      "organizationName": "University of Michigan - Flint"
     }
   ]
 }
