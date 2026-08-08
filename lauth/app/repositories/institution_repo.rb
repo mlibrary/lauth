@@ -18,6 +18,14 @@ module Lauth
           .to_a
       end
 
+      def find(id)
+        institutions
+          .dataset
+          .where(uniqueIdentifier: id, dlpsDeleted: "f")
+          .select(:uniqueIdentifier, :organizationName)
+          .first
+      end
+
       private
 
       def wildcard_pattern(value)

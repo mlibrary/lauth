@@ -41,6 +41,16 @@ module Lauth
         search_overlapping(AddressRange.new(start: normalize_integer(start_value), end: normalize_integer(end_value)))
       end
 
+      def for_institution(institution_id)
+        networks
+          .dataset
+          .where(inst: institution_id, dlpsDeleted: "f")
+          .select(:uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
+            :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted)
+          .order(:dlpsAddressStart, :dlpsAccessSwitch, :uniqueIdentifier)
+          .to_a
+      end
+
       private
 
       AddressRange = Data.define(:start, :end)
