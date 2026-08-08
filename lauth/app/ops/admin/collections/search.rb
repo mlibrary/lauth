@@ -7,8 +7,8 @@ module Lauth
         class Search
           include Deps[collection_repo: "repositories.collection_repo"]
 
-          def call(identifier:)
-            {collections: collection_repo.search_by_identifier(identifier)}
+          def call(id:)
+            {collections: collection_repo.search_by_identifier(id)}
           end
         end
       end
