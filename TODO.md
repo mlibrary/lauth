@@ -8,4 +8,5 @@
 - [x] Add collection inspection and grants
 - [x] Add user inspection
 - [x] Add authorization diagnostic
-- [ ] Document endpoint contracts and update the CLI separately
+- [ ] Document administrative API endpoint contracts
+- [ ] Update the CLI to consume the administrative API
