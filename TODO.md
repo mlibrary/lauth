@@ -4,7 +4,7 @@
 - [x] Add institution search
 - [ ] Add network search: `ip`, `prefix`, `cidr`, and `rangeStart`/`rangeEnd`
 - [x] Add institution networks and grants
-- [ ] Add protected-object searches
+- [x] Add protected-object searches
 - [ ] Add collection inspection and grants
 - [ ] Add user inspection
 - [ ] Add authorization diagnostic
