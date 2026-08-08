@@ -6,6 +6,6 @@
 - [x] Add institution networks and grants
 - [x] Add protected-object searches
 - [x] Add collection inspection and grants
-- [ ] Add user inspection
+- [x] Add user inspection
 - [ ] Add authorization diagnostic
 - [ ] Document endpoint contracts and update the CLI separately
