@@ -7,5 +7,5 @@
 - [x] Add protected-object searches
 - [x] Add collection inspection and grants
 - [x] Add user inspection
-- [ ] Add authorization diagnostic
+- [x] Add authorization diagnostic
 - [ ] Document endpoint contracts and update the CLI separately

@@ -27,8 +27,6 @@ module Lauth
         )).order(:coll, :uniqueIdentifier).to_a
       end
 
-      private
-
       def for_collection_class(username:, client_ip:, collection_class:)
         smallest_network = smallest_network_for_ip(client_ip)
         ds = base_grants_for(username: username, network: smallest_network)
