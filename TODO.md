@@ -1,8 +1,8 @@
 # Administrative API
 
-- [ ] Add shared Bearer authentication and JSON errors
+- [x] Add shared Bearer authentication and JSON errors
 - [x] Add institution search
-- [ ] Add network search: `ip`, `prefix`, `cidr`, and `rangeStart`/`rangeEnd`
+- [x] Add network search: `ip`, `prefix`, `cidr`, and `rangeStart`/`rangeEnd`
 - [x] Add institution networks and grants
 - [x] Add protected-object searches
 - [x] Add collection inspection and grants
