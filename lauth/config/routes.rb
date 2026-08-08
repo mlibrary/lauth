@@ -4,5 +4,6 @@ module Lauth
   class Routes < Hanami::Routes
     root { "Hello from Hanami" }
     get "/authorized", to: "authorize"
+    get "/api/v1/institutions", to: "admin/institutions/search"
   end
 end
