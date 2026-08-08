@@ -5,7 +5,10 @@ module Lauth
     module Admin
       module Collections
         class Related
-          include Deps["repositories.collection_repo", "repositories.grant_repo"]
+          include Deps[
+            collection_repo: "repositories.collection_repo",
+            grant_repo: "repositories.grant_repo"
+          ]
 
           def show(collection_id:)
             collection = find_collection(collection_id)

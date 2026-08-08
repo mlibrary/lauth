@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Institutions
         class Search < Lauth::AdminAction
-          include Deps["ops.admin.institutions.search"]
+          include Deps[operation: "ops.admin.institutions.search"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_institutions_search.call(
+            response.body = operation.call(
               organization_name: request.params[:organizationName]
             ).to_json
           rescue ArgumentError => error

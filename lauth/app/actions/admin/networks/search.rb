@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Networks
         class Search < Lauth::AdminAction
-          include Deps["ops.admin.networks.search"]
+          include Deps[operation: "ops.admin.networks.search"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_networks_search.call(request.params).to_json
+            response.body = operation.call(request.params).to_json
           rescue Lauth::Repositories::NetworkRepo::InvalidSearch => error
             response.format = :json
             response.status = 400

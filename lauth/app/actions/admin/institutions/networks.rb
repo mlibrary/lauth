@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Institutions
         class Networks < Lauth::AdminAction
-          include Deps["ops.admin.institutions.related"]
+          include Deps[operation: "ops.admin.institutions.related"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_institutions_related.networks(
+            response.body = operation.networks(
               institution_id: request.params[:id]
             ).to_json
           rescue Lauth::Ops::Admin::Institutions::Related::NotFound => error

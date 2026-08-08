@@ -6,9 +6,9 @@ module Lauth
       module Users
         class Show
           include Deps[
-            "repositories.user_repo",
-            "repositories.institution_membership_repo",
-            "repositories.grant_repo"
+            user_repo: "repositories.user_repo",
+            institution_membership_repo: "repositories.institution_membership_repo",
+            grant_repo: "repositories.grant_repo"
           ]
 
           def call(userid:)

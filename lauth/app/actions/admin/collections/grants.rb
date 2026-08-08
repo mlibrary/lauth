@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Collections
         class Grants < Lauth::AdminAction
-          include Deps["ops.admin.collections.related"]
+          include Deps[operation: "ops.admin.collections.related"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_collections_related.grants(
+            response.body = operation.grants(
               collection_id: request.params[:id]
             ).to_json
           rescue Lauth::Ops::Admin::Collections::Related::NotFound => error

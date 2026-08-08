@@ -5,11 +5,13 @@ module Lauth
     module Admin
       module Networks
         class Search
-          include Deps["repositories.network_repo"]
+          include Deps[network_repo: "repositories.network_repo"]
 
           def call(params)
-            modes = params.slice(:ip, :prefix, :cidr).compact
-            range_values = params.values_at(:rangeStart, :rangeEnd)
+            modes = %i[ip prefix cidr].filter_map do |mode|
+              [mode, params[mode]] unless params[mode].nil?
+            end
+            range_values = [params[:rangeStart], params[:rangeEnd]]
             modes_count = modes.length + (range_values.any?(&:nil?) ? 0 : 1)
             raise Lauth::Repositories::NetworkRepo::InvalidSearch, "exactly one search mode is required" unless modes_count == 1
             raise Lauth::Repositories::NetworkRepo::InvalidSearch, "rangeStart and rangeEnd are required together" if range_values.one?(&:nil?)

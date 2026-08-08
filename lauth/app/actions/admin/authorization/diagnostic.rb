@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Authorization
         class Diagnostic < Lauth::AdminAction
-          include Deps["ops.admin.authorization.diagnostic"]
+          include Deps[operation: "ops.admin.authorization.diagnostic"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_authorization_diagnostic.call(
+            response.body = operation.call(
               ip: request.params[:ip],
               userid: request.params[:userid],
               collection: request.params[:collection]

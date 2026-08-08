@@ -5,7 +5,7 @@ module Lauth
     module Admin
       module Objects
         class Search
-          include Deps["repositories.location_repo"]
+          include Deps[location_repo: "repositories.location_repo"]
 
           def call(path: nil, server: nil)
             raise ArgumentError, "exactly one search value is required" unless path.nil? ^ server.nil?

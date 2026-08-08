@@ -5,7 +5,7 @@ module Lauth
     module Admin
       module Institutions
         class Search
-          include Deps["repositories.institution_repo"]
+          include Deps[institution_repo: "repositories.institution_repo"]
 
           def call(organization_name:)
             {institutions: institution_repo.search_by_organization_name(organization_name)}

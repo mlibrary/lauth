@@ -7,7 +7,10 @@ module Lauth
     module Admin
       module Authorization
         class Diagnostic
-          include Deps["repositories.collection_repo", "repositories.grant_repo"]
+          include Deps[
+            collection_repo: "repositories.collection_repo",
+            grant_repo: "repositories.grant_repo"
+          ]
 
           def call(ip:, userid:, collection:)
             raise ArgumentError, "ip, userid, and collection are required" if [ip, userid, collection].any? { |value| !value.is_a?(String) || value.empty? }

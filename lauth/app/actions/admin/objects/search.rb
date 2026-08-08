@@ -5,13 +5,13 @@ module Lauth
     module Admin
       module Objects
         class Search < Lauth::AdminAction
-          include Deps["ops.admin.objects.search"]
+          include Deps[operation: "ops.admin.objects.search"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = ops_admin_objects_search.call(
+            response.body = operation.call(
               path: request.params[:path],
               server: request.params[:server]
             ).to_json
