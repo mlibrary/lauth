@@ -218,6 +218,26 @@ deleted objects and are ordered by `dlpsPath`, `dlpsServer`, and
 
 ## Collections
 
+### Search Collections
+
+```http
+GET /api/v1/collections?identifier=ampo20*
+```
+
+`identifier` is required. Matching is case-insensitive and operates only on
+`uniqueIdentifier`. The application wildcard `*` may be used for variable
+text; SQL wildcard characters supplied by callers are escaped. Results are
+ordered by `uniqueIdentifier` and contain only the identifier:
+
+```json
+{
+  "collections": [
+    {"uniqueIdentifier": "ampo20"},
+    {"uniqueIdentifier": "ampo20-dev"}
+  ]
+}
+```
+
 ### Show Collection
 
 ```http

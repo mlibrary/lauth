@@ -6,6 +6,7 @@
 - [x] Add institution networks and grants
 - [x] Add protected-object searches
 - [x] Add collection inspection and grants
+- [x] Add collection identifier search
 - [x] Add user inspection
 - [x] Add authorization diagnostic
 - [ ] Document administrative API endpoint contracts

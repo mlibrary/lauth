@@ -42,8 +42,28 @@ module Lauth
           .first
       end
 
+      def search_by_identifier(value)
+        pattern = wildcard_pattern(value)
+        collections
+          .dataset
+          .where(dlpsDeleted: "f")
+          .where(Sequel.ilike(:uniqueIdentifier, pattern))
+          .select(:uniqueIdentifier)
+          .order(:uniqueIdentifier)
+          .to_a
+      end
+
       def public_in_class(collection_class)
         collections.where(dlpsPartlyPublic: "t", dlpsClass: collection_class, dlpsDeleted: "f").to_a
+      end
+
+      private
+
+      def wildcard_pattern(value)
+        raise ArgumentError, "identifier is required" unless value.is_a?(String) && !value.empty?
+
+        escaped = value.chars.map { |character| /[\\%_]/.match?(character) ? "\\#{character}" : character }.join
+        "%#{escaped.tr("*", "%")}%"
       end
     end
   end
