@@ -5,7 +5,7 @@
 - [ ] Add network search: `ip`, `prefix`, `cidr`, and `rangeStart`/`rangeEnd`
 - [x] Add institution networks and grants
 - [x] Add protected-object searches
-- [ ] Add collection inspection and grants
+- [x] Add collection inspection and grants
 - [ ] Add user inspection
 - [ ] Add authorization diagnostic
 - [ ] Document endpoint contracts and update the CLI separately

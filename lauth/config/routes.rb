@@ -9,5 +9,7 @@ module Lauth
     get "/api/v1/institutions/:id/grants", to: "admin/institutions/grants"
     get "/api/v1/networks", to: "admin/networks/search"
     get "/api/v1/objects", to: "admin/objects/search"
+    get "/api/v1/collections/:id", to: "admin/collections/show"
+    get "/api/v1/collections/:id/grants", to: "admin/collections/grants"
   end
 end

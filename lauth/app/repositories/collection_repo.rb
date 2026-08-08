@@ -32,6 +32,16 @@ module Lauth
         collections.class.new(dataset).to_a.first
       end
 
+      def find(id)
+        collections
+          .dataset
+          .where(uniqueIdentifier: id, dlpsDeleted: "f")
+          .select(:uniqueIdentifier, :commonName, :description, :dlpsClass, :dlpsSource,
+            :dlpsAuthenMethod, :dlpsAuthzType, :dlpsPartlyPublic, :manager,
+            :lastModifiedTime, :dlpsDeleted)
+          .first
+      end
+
       def public_in_class(collection_class)
         collections.where(dlpsPartlyPublic: "t", dlpsClass: collection_class, dlpsDeleted: "f").to_a
       end
