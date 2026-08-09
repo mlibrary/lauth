@@ -4,7 +4,7 @@
 
 - `ADMIN_CLI_PLAN.md` is the source of truth for CLI scope and command names.
 - `TODO.md` records current progress and remaining work; update it when completing a meaningful plan item.
-- The new CLI lives under `client/` and uses Go, Cobra, Viper, and Ginkgo/Gomega.
+- The new CLI lives under `cli/` and uses Go, Cobra, Viper, and Ginkgo/Gomega.
 - Legacy Perl utilities under `bin/` are reference behavior only. Do not add database access or migrate their embedded credentials.
 
 ## Development Approach
@@ -25,12 +25,16 @@
 - Do not infer renamed fields such as `id` or `organization_name` when the database schema provides the canonical name.
 - Keep command handlers independent of SQL-equivalent logic.
 - Centralize real HTTP behavior in a shared API client: base URL, Bearer token, timeout, request construction, decoding, and error normalization.
-- Fixture responses should be deterministic JSON files under `client/testdata/` and should model the eventual API response shape.
+- Fixture responses should be deterministic JSON files under `cli/testdata/` and should model the eventual API response shape.
 
 ## CLI Conventions
 
 - Preserve the active plan's command names; `authzd_to_coll` is deferred.
+- The executable is `lauth`; command-group aliases are `inst`, `net`, `coll`,
+  and `loc`. Keep `user` unabridged.
 - Human-readable table output is the default; structured JSON is available through `--output=json`.
+- Use `lauth` as the binary name. Support `inst`, `net`, `coll`, and `loc`
+  aliases, standard option shorthands, and never abbreviate `user`.
 - Keep table headers stable and based on schema field names.
 - Validate required arguments with Cobra and return errors rather than silently accepting malformed input.
 - Keep command wiring thin. Resource services return typed data; output functions render it.
@@ -39,14 +43,15 @@
 ## Verification
 
 - Run `gofmt` on changed Go files.
-- Run `go test ./...` from `client/` after each completed TDD loop.
-- Exercise representative commands with `go run ./cmd/authz ...` when fixture-backed behavior changes.
+- Run `go test ./...` from `cli/` after each completed TDD loop.
+- Exercise representative commands with `go run ./cmd/lauth ...` when fixture-backed behavior changes.
 - Check `git diff --check` before committing.
 - Review `git status`, recent log, and staged diff before committing.
 - Stage only intended files. Do not revert or include unrelated user changes without explicit instruction.
 
 ## Scope Boundaries
 
-- Phase One query work includes institution, network, user, location, and collection read operations. Authorization diagnostic work is deferred.
-- `cidr` is a local Phase One command. `export` and `replication status` are retired; do not reintroduce them without an explicit scope change.
-- Keep Phase Two mutations, raw dump compatibility, nested MySQL utilities, imports, synchronization, password rotation, email, and destructive loads untouched.
+- Active query work includes institution, network, user, location, and collection read operations. Authorization diagnostic work is deferred.
+- `cidr` is a local command. `export` and `replication status` are retired; do not reintroduce them without an explicit scope change.
+- Institution and network creation are in scope. Dump scripts, `auth_to_acls`,
+  and the irrelevant legacy utility groups are retired rather than deferred.

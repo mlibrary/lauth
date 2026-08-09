@@ -1,20 +1,22 @@
 # Administrative API Handoff Plan
 
 This document defines the work required for the Ruby/Hanami application in
-`the lauth project` to support the active `authz` CLI commands.
+`the lauth project` to support the active `lauth` CLI commands.
 The `lauth` project is reference material for this plan; this document does
 not authorize changes to that directory unless the work is explicitly handed
 off there.
 
 ## Scope
 
-Implement a versioned, read-only administrative API backed by Hanami actions,
+Implement a versioned administrative API backed by Hanami actions,
 operations, and ROM repositories.
 
 The API must support:
 
 - Institution search, networks, and grants
+- Institution creation
 - Network search
+- Institution-associated network creation
 - User inspection
 - Protected-location searches by path and server
 - Collection inspection and grants
@@ -22,9 +24,8 @@ The API must support:
 
 The following are intentionally out of scope:
 
-- `authz export`
-- `authz replication status`
-- Database mutations
+- `lauth export`
+- `lauth replication status`
 - Raw dump compatibility endpoints
 - The local `cidr` commands, which do not call the API
 
@@ -74,9 +75,11 @@ the CLI client consistently.
 | CLI command | Method and path | Query or path values | Response envelope |
 |---|---|---|---|
 | `institution search` | `GET /api/v1/institutions` | `organizationName=Michigan` | `{ "institutions": [...] }` |
+| `institution add` | `POST /api/v1/institutions` | JSON body: `organizationName` | `{ "institution": {...} }` |
 | `institution networks` | `GET /api/v1/institutions/{id}/networks` | `id=7` | `{ "networks": [...] }` |
 | `institution grants` | `GET /api/v1/institutions/{id}/grants` | `id=7` | `{ "grants": [...] }` |
 | `network search` | `GET /api/v1/networks` | `cidr=192.0.2` | `{ "networks": [...] }` |
+| `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: `cidr` or `rangeStart`/`rangeEnd`, optional `accessSwitch` | `{ "network": {...} }` |
 | `collection search` | `GET /api/v1/collections` | `id=example*` | `{ "collections": [...] }` |
 | `user show` | `GET /api/v1/users/{userid}` | `userid=alice` | `{ "userid": ..., "user": ..., "memberships": [...], "grants": [...] }` |
 | `locations search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
@@ -85,6 +88,19 @@ the CLI client consistently.
 | `authzd_to_coll` | Deferred | Existing legacy request and response contract | Unchanged until the feature decision |
 
 The API uses `grants` consistently for relationship responses.
+
+### Mutation Semantics
+
+`institution add` requires a non-empty `organizationName` and creates an
+active institution.
+
+`network add` requires an active institution identified by the path `id` and
+accepts exactly one network mode: `cidr`, or both `rangeStart` and `rangeEnd`.
+It rejects `ip`, `prefix`, mixed modes, incomplete ranges, malformed IPv4
+values, and reversed ranges. The API derives `dlpsAddressStart`,
+`dlpsAddressEnd`, and canonical `dlpsCIDRAddress`, rejects overlapping active
+networks according to the legacy `ain` behavior, and sets `dlpsAccessSwitch`
+to `allow` unless the request explicitly supplies `allow` or `deny`.
 
 ## Response Fields
 
@@ -257,13 +273,15 @@ Implement one endpoint at a time:
 Recommended order:
 
 1. `institution search`
-2. `network search`
-3. `institution networks`
-4. `institution grants`
-5. `locations search`
-6. `collection search`, `collection show`, and `collection grants`
-7. `user show`
-8. `authzd_to_coll` (deferred)
+2. `institution add`
+3. `network search`
+4. `network add`
+5. `institution networks`
+6. `institution grants`
+7. `locations search`
+8. `collection search`, `collection show`, and `collection grants`
+9. `user show`
+10. `authzd_to_coll` (deferred)
 
 Each endpoint should have tests for normal results, empty results, malformed
 input, authentication failure, authorization failure, repository/API failure,
@@ -276,6 +294,7 @@ The handoff is complete when:
 - Every active CLI command has a documented endpoint.
 - Every endpoint has a request and response spec.
 - Bearer-token behavior is explicit and tested.
+- Institution and network mutations validate input and association rules.
 - Response envelopes use `grants` consistently.
 - Deleted-row behavior and ordering are documented.
 - User-sensitive fields are excluded from projections.

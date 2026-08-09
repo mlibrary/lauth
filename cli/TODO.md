@@ -14,9 +14,9 @@ Before beginning any modification work on the next pass, clarify:
 
 ## Completed
 
-- [x] Create the local Go module under `client/` using Cobra and Viper.
+- [x] Create the local Go module under `cli/` using Cobra and Viper.
 - [x] Establish Ginkgo/Gomega behavior-driven command tests.
-- [x] Add `authz institution search`.
+- [x] Add `lauth institution search`.
 - [x] Render institution search results as a table by default, with JSON output available.
 - [x] Use `aa_inst` schema attribute names: `uniqueIdentifier` and `organizationName`.
 - [x] Add fixture-backed responses for the implemented query commands.
@@ -28,6 +28,9 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `collection show` and `collection grants`.
 - [x] Add `collection search`.
 - [ ] Revisit deferred `authzd_to_coll` diagnostic support.
+- [ ] Add `institution add` backed by the administrative API.
+- [ ] Add `network add` with required institution association and CIDR/range validation.
+- [ ] Add `lauth` command-group aliases and option shorthands; keep `user` unabridged.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.
 - [x] Implement `cidr from-range`, `cidr to-range`, and `cidr to-ints`.
@@ -39,9 +42,6 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add centralized Bearer-token, base URL, timeout, and error handling.
 - [x] Implement the CIDR validation and conversion test matrix.
 - [x] Retire `export` and `replication status`; see `RETIRED_FEATURES.md`.
+- [x] Retire dump scripts and `auth_to_acls`; see `RETIRED_FEATURES.md`.
 - [ ] Complete empty-result, invalid-input, API-error, and output-format coverage for every active command.
 - [ ] Verify representative results against the legacy utilities.
-
-## Deferred
-
-- [ ] Leave Phase Two mutation, raw dump, MySQL, and nested operational utilities untouched until Phase Two.

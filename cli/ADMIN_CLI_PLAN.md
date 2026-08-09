@@ -12,13 +12,11 @@ The CLI will:
 - Preserve useful administrative and diagnostic behavior.
 - Remove direct Oracle and MySQL dependencies.
 - Keep local IP-range conversion independent of the API.
-- Defer nested MySQL utilities and mutation workflows to later phases.
+- Support institution and network creation through the administrative API.
 
 ## 2. Scope
 
-### Phase One
-
-Port the read-only administrative and diagnostic functionality from top-level `bin/`:
+Implement the selected administrative and diagnostic functionality from top-level `bin/`:
 
 - Institution lookup: `qi`
 - Institution network lookup: `qn`, `qin`
@@ -28,53 +26,45 @@ Port the read-only administrative and diagnostic functionality from top-level `b
 - Protected-location lookup: `qp`, `qs`
 - Authorization diagnostic: `authzd_to_coll` (deferred)
 - CIDR range conversion: `aggis`/`vip` behavior exposed as `cidr`
-
-### Phase Two
-
-Defer:
-
-- All `bin/mysql/*` utilities.
-- Database mutations:
-  - `add_inst`
-  - `ain`
-  - `auth_to_acls`
-- Raw dump utilities:
-  - `dump_paths.pl`
-  - `dump_server.pl`
-  - `dump_coll.pl`
-- Nested operational utilities under `util/`.
-- Bulk imports, synchronization, password rotation, email, and destructive loads.
+- Institution creation: `add_inst`
+- Institution network creation: `ain`
 
 ## 3. Target Command Structure
 
 Use a single command-suite executable with subcommands.
 
 ```text
-authz institution search
-authz institution networks
-authz institution grants
+lauth institution search
+lauth institution add
+lauth institution networks
+lauth institution grants
 
-authz user show
+lauth user show
 
-authz locations search --path PATH
-authz locations search --server SERVER
+lauth locations search --path PATH
+lauth locations search --server SERVER
 
-authz collection search PATTERN
-authz collection show
-authz collection grants
+lauth collection search PATTERN
+lauth collection show
+lauth collection grants
 
-authz network search
+lauth network search
+lauth network add --institution INSTITUTION_ID --cidr CIDR
+lauth network add --institution INSTITUTION_ID --range-start START --range-end END
 
-authz authzd_to_coll
+lauth authzd_to_coll
 
-authz cidr from-range START END
-authz cidr to-range CIDR
-authz cidr to-ints CIDR
+lauth cidr from-range START END
+lauth cidr to-range CIDR
+lauth cidr to-ints CIDR
 ```
 
 The existing `authzd_to_coll` name remains unchanged for now.
 
-The exact root executable name is an implementation detail; the command and subcommand structure is the important boundary.
+Command-group aliases are `inst`, `net`, `coll`, and `loc`; `user` is not
+abbreviated. Frequently used options have standard one-letter shorthands:
+`--institution`/`-i`, `--cidr`/`-c`, `--range-start`/`-s`,
+`--range-end`/`-e`, and `--access-switch`/`-a`.
 
 ## 4. Command Responsibilities
 
@@ -90,12 +80,8 @@ The exact root executable name is an implementation detail; the command and subc
 | `qc` | `collection show` | 1 | Show collection metadata and matching grant information. |
 | `authzd_to_coll` | `authzd_to_coll` | Deferred | Preserve the existing diagnostic contract until its necessity is decided. |
 | `aggis`/`vip` | `cidr from-range` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
-| `dump_paths.pl` | `locations search --path --raw` | 2 | Preserve raw collection-location dump behavior if still required. |
-| `dump_server.pl` | `locations search --server --raw` | 2 | Preserve raw collection-location dump behavior if still required. |
-| `dump_coll.pl` | `collection grants --raw` | 2 | Preserve raw collection-grant dump behavior if still required. |
-| `add_inst` | `institution create` | 2 | Create an institution. |
-| `ain` | `institution network add` | 2 | Add institution network ranges with overlap checks. |
-| `auth_to_acls` | `institution grants grant-default-acls` | 2 | Grant default ACLS collection grants. |
+| `add_inst` | `institution add` | 1 | Create an institution through the administrative API. |
+| `ain` | `network add` | 1 | Add an institution-associated network from CIDR or an inclusive range. |
 
 ## 5. Internal Architecture
 
@@ -123,8 +109,6 @@ Group API calls by domain:
 - Locations.
 - Networks.
 - Authorization diagnostics.
-- Replication/health.
-- Export.
 
 These interfaces should return structured results to command handlers.
 
@@ -140,13 +124,27 @@ Each command should:
 
 Commands should not contain SQL-equivalent logic.
 
+### Mutating Commands
+
+`institution add` accepts an organization name and creates an active
+institution through the administrative API.
+
+`network add` requires an institution ID and accepts exactly one of:
+
+- `--cidr CIDR`
+- `--range-start START --range-end END`
+
+It rejects `--ip`, `--prefix`, mixed modes, incomplete ranges, invalid CIDR,
+and reversed ranges. `--access-switch` accepts `allow` or `deny` and defaults
+to `allow`. The API validates the institution, derives the address bounds and
+canonical CIDR, checks overlap, and associates the new network through `inst`.
+
 ### Output Layer
 
 Use a consistent output strategy:
 
 - Human-readable output by default.
 - Structured JSON output where useful.
-- TSV/raw output only for explicit Phase Two dump compatibility.
 - Stable headers and field ordering.
 
 ## 6. `cidr` Command
@@ -154,17 +152,17 @@ Use a consistent output strategy:
 ### Interfaces
 
 ```text
-authz cidr from-range START END
-authz cidr to-range CIDR
-authz cidr to-ints CIDR
+lauth cidr from-range START END
+lauth cidr to-range CIDR
+lauth cidr to-ints CIDR
 ```
 
 Example:
 
 ```text
-authz cidr from-range 141.212.0.0 141.215.255.255
-authz cidr to-range 141.212.0.0/14
-authz cidr to-ints 141.212.0.0/14
+lauth cidr from-range 141.212.0.0 141.215.255.255
+lauth cidr to-range 141.212.0.0/14
+lauth cidr to-ints 141.212.0.0/14
 ```
 
 `from-range` output:
@@ -288,16 +286,18 @@ For representative existing queries:
 
 ## 10. Acceptance Criteria
 
-Phase One is complete when:
+The active CLI scope is complete when:
 
-- All selected top-level read-only utilities have command equivalents.
+- All selected top-level utilities have command equivalents or an explicit retired status.
 - `locations` is a top-level command group.
 - `authzd_to_coll` remains available under that exact name.
-- `authz cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
-- `authz cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
-- `authz cidr to-ints CIDR` emits the starting and ending 32-bit integers.
-- No Phase One command requires Oracle, MySQL, Perl DBI, or local database credentials.
+- `lauth cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
+- `lauth cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
+- `lauth cidr to-ints CIDR` emits the starting and ending 32-bit integers.
+- `lauth institution add` creates an institution through the administrative API.
+- `lauth network add` creates an institution-associated network from CIDR or range input.
+- Command aliases and option shorthands behave identically to canonical names.
+- No command requires Oracle, MySQL, Perl DBI, or local database credentials.
 - Bearer-token handling is centralized and secure.
 - No pagination is introduced.
-- Phase Two utilities remain untouched.
 - Unit and command-level tests cover normal, empty, invalid, and API-error cases.

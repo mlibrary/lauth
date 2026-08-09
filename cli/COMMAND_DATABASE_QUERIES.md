@@ -43,7 +43,7 @@ columns have been migrated. The following differences require attention:
   `DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s')`.
 ## Query Commands
 
-### `authz institution search Michigan Library`
+### `lauth institution search Michigan Library`
 
 Legacy utility: `bin/qi`
 
@@ -61,7 +61,7 @@ ORDER BY
     uniqueidentifier;
 ```
 
-### `authz network search 192.0.2`
+### `lauth network search 192.0.2`
 
 Legacy utility: `bin/qn`
 
@@ -84,7 +84,7 @@ ORDER BY
     dlpsAccessSwitch;
 ```
 
-### `authz institution networks 7`
+### `lauth institution networks 7`
 
 Legacy utility: `bin/qin`
 
@@ -104,7 +104,7 @@ ORDER BY
     dlpsAccessSwitch;
 ```
 
-### `authz institution grants 7`
+### `lauth institution grants 7`
 
 Legacy utility: `bin/qic`
 
@@ -121,7 +121,7 @@ ORDER BY
     coll;
 ```
 
-### `authz user show alice`
+### `lauth user show alice`
 
 Legacy utility: `bin/qu`
 
@@ -153,7 +153,7 @@ ORDER BY
     userid;
 ```
 
-### `authz objects by-path /books`
+### `lauth locations search --path /books`
 
 Legacy utility: `bin/qp`
 
@@ -165,7 +165,7 @@ FROM authz_umichlib.aa_coll_obj
 WHERE dlpspath LIKE '%/books%';
 ```
 
-### `authz objects by-server server.example`
+### `lauth locations search --server server.example`
 
 Legacy utility: `bin/qs`
 
@@ -175,7 +175,7 @@ FROM authz_umichlib.aa_coll_obj
 WHERE dlpsserver LIKE '%server.example%';
 ```
 
-### `authz collection show example`
+### `lauth collection show example`
 
 Legacy utility: `bin/qc`
 
@@ -195,7 +195,7 @@ FROM authz_umichlib.aa_may_access
 WHERE coll LIKE 'example%';
 ```
 
-### `authz collection grants example`
+### `lauth collection grants example`
 
 Legacy utility: `bin/qc`
 
@@ -207,7 +207,7 @@ FROM authz_umichlib.aa_may_access
 WHERE coll LIKE 'example%';
 ```
 
-### `authz authzd_to_coll 192.0.2.1 alice example`
+### `lauth authzd_to_coll 192.0.2.1 alice example`
 
 Legacy utility: `bin/authzd_to_coll`
 
@@ -232,9 +232,25 @@ has been reimplemented as a procedure:
 CALL authz_umichlib.authzd_to_coll_function(3221225985, '', 'alice', 'example');
 ```
 
+### `lauth institution add "Example University"`
+
+Legacy utility: `add_inst`
+
+This command creates an active institution through `POST /api/v1/institutions`
+and does not connect to the database directly.
+
+### `lauth network add --institution 7 --cidr 192.0.2.0/24`
+
+Legacy utility: `ain`
+
+This command creates an institution-associated network through
+`POST /api/v1/institutions/7/networks`. It accepts CIDR or a complete inclusive
+range, defaults `accessSwitch` to `allow`, and leaves validation and overlap
+checks to the API.
+
 ## Local Command
 
-### `authz cidr from-range 141.212.0.0 141.215.255.255`
+### `lauth cidr from-range 141.212.0.0 141.215.255.255`
 
 These commands perform local IPv4 conversion and do not run a database query
 or call the REST API.
@@ -248,13 +264,13 @@ or call the REST API.
 `to-range` example:
 
 ```text
-$ authz cidr to-range 141.212.0.0/14
+$ lauth cidr to-range 141.212.0.0/14
 141.212.0.0 141.215.255.255
 ```
 
 `to-ints` example:
 
 ```text
-$ authz cidr to-ints 141.212.0.0/14
+$ lauth cidr to-ints 141.212.0.0/14
 2379481088 2379743231
 ```
