@@ -29,7 +29,7 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `collection search`.
 - [ ] Revisit deferred `authzd_to_coll` diagnostic support.
 - [ ] Add `institution add` backed by the administrative API.
-- [ ] Add `network add` with required institution association and CIDR/range validation.
+- [ ] Add `network add` with required institution association, CIDR/range decomposition, confirmation, and permissive overlap handling.
 - [ ] Add `lauth` command-group aliases and option shorthands; keep `user` unabridged.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.
@@ -45,3 +45,4 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Retire dump scripts and `auth_to_acls`; see `RETIRED_FEATURES.md`.
 - [ ] Complete empty-result, invalid-input, API-error, and output-format coverage for every active command.
 - [ ] Verify representative results against the legacy utilities.
+- [ ] Document authorization behavior for cross-institution and equal-sized overlapping networks; do not add creation-time overlap validation.

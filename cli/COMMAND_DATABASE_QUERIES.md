@@ -245,8 +245,9 @@ Legacy utility: `ain`
 
 This command creates an institution-associated network through
 `POST /api/v1/institutions/7/networks`. It accepts CIDR or a complete inclusive
-range, defaults `accessSwitch` to `allow`, and leaves validation and overlap
-checks to the API.
+range. Range mode is decomposed into minimal CIDRs and confirmed before one
+request is posted per CIDR. It defaults `accessSwitch` to `allow`; overlapping
+networks are permitted to preserve historical behavior.
 
 ## Local Command
 

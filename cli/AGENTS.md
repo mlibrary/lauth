@@ -37,6 +37,9 @@
   aliases, standard option shorthands, and never abbreviate `user`.
 - Keep table headers stable and based on schema field names.
 - Validate required arguments with Cobra and return errors rather than silently accepting malformed input.
+- For `network add`, decompose range input into minimal CIDRs, show the full
+  set, and require confirmation before posting; do not reject historical
+  network overlaps.
 - Keep command wiring thin. Resource services return typed data; output functions render it.
 - Do not expose API keys, database credentials, Oracle environment variables, or local database details.
 

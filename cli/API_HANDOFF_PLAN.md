@@ -79,7 +79,7 @@ the CLI client consistently.
 | `institution networks` | `GET /api/v1/institutions/{id}/networks` | `id=7` | `{ "networks": [...] }` |
 | `institution grants` | `GET /api/v1/institutions/{id}/grants` | `id=7` | `{ "grants": [...] }` |
 | `network search` | `GET /api/v1/networks` | `cidr=192.0.2` | `{ "networks": [...] }` |
-| `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: `cidr` or `rangeStart`/`rangeEnd`, optional `accessSwitch` | `{ "network": {...} }` |
+| `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: canonical `cidr`, optional `accessSwitch` | `{ "network": {...} }` |
 | `collection search` | `GET /api/v1/collections` | `id=example*` | `{ "collections": [...] }` |
 | `user show` | `GET /api/v1/users/{userid}` | `userid=alice` | `{ "userid": ..., "user": ..., "memberships": [...], "grants": [...] }` |
 | `locations search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
@@ -95,12 +95,24 @@ The API uses `grants` consistently for relationship responses.
 active institution.
 
 `network add` requires an active institution identified by the path `id` and
-accepts exactly one network mode: `cidr`, or both `rangeStart` and `rangeEnd`.
-It rejects `ip`, `prefix`, mixed modes, incomplete ranges, malformed IPv4
-values, and reversed ranges. The API derives `dlpsAddressStart`,
-`dlpsAddressEnd`, and canonical `dlpsCIDRAddress`, rejects overlapping active
-networks according to the legacy `ain` behavior, and sets `dlpsAccessSwitch`
-to `allow` unless the request explicitly supplies `allow` or `deny`.
+accepts one canonical CIDR per request. The CLI may accept an inclusive range,
+but it must decompose that range into minimal CIDRs, display the complete set,
+and obtain confirmation before posting one request per CIDR. The API rejects
+`ip`, `prefix`, malformed CIDR, and invalid address bounds. It derives
+`dlpsAddressStart` and `dlpsAddressEnd`, sets `dlpsAccessSwitch` to `allow`
+unless the request explicitly supplies `allow` or `deny`, and does not reject
+overlap with existing networks.
+
+Overlapping networks within one institution and cross-institution containment
+are valid historical configurations. Preserve them when creating networks;
+authorization continues to use the most-specific matching network.
+
+### Historical Overlap Follow-Up
+
+Historical behavior did not enforce or otherwise manage cross-institution
+overlap rules. Add focused coverage later for multiple institutions matching
+the same client IP, especially equal-sized overlaps, so the authorization
+behavior is documented without introducing new creation-time validation.
 
 ## Response Fields
 
