@@ -21,6 +21,7 @@ jobs:
           - 'app'
           - 'client-tests'
           - 'test'
+          - 'cli'
         ruby:
           - '4.0.6'
 
@@ -49,3 +50,9 @@ jobs:
           docker compose build --build-arg RUBY_VERSION=${{ matrix.ruby }} app apache
           docker compose up dbsetup
           docker compose run test
+
+      - if: matrix.suite == 'cli'
+        working-directory: cli
+        run: |
+          go test ./...
+          go vet ./...

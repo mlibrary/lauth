@@ -40,6 +40,21 @@ example, to run in the background (with `up -d` or `up --detach`).
 docker compose run --rm test
 ```
 
+## Building and Testing the CLI
+
+The Go administrative CLI lives under `cli/` and uses the versioned
+administrative API. From the repository root:
+
+```sh
+cd cli
+go test ./...
+go vet ./...
+```
+
+The CLI configuration uses `AUTHZ_API_BASE_URL`, `AUTHZ_API_TOKEN`, and the
+optional `AUTHZ_API_TIMEOUT` environment variables. Run `go run ./cmd/authz
+--help` from `cli/` to inspect the command suite.
+
 ## Resetting Everything
 
 TODO: These need to be cleaned up/scripted
