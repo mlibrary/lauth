@@ -8,12 +8,11 @@ module Lauth
       struct_namespace Lauth
 
       def for_user(userid)
-        institution_memberships
+        dataset = institution_memberships
           .dataset
           .where(userid: userid, dlpsDeleted: "f")
-          .select(:userid, :inst, :lastModifiedTime, :dlpsDeleted)
           .order(:inst)
-          .to_a
+        institution_memberships.class.new(dataset).to_a
       end
     end
   end

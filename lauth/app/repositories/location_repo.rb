@@ -22,13 +22,12 @@ module Lauth
 
         escaped = value.chars.map { |character| /[\\%_]/.match?(character) ? "\\#{character}" : character }.join
         pattern = "%#{escaped}%"
-        locations
+        dataset = locations
           .dataset
           .where(dlpsDeleted: "f")
           .where(Sequel.ilike(column, pattern))
-          .select(:uniqueIdentifier, :coll, :dlpsPath, :dlpsServer, :lastModifiedTime, :dlpsDeleted)
-          .order(:dlpsPath, :dlpsServer, :uniqueIdentifier)
-          .to_a
+          .order(:dlpsPath, :dlpsServer, :coll)
+        locations.class.new(dataset).to_a
       end
     end
   end

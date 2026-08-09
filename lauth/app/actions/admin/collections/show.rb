@@ -11,9 +11,15 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.show(
+            result = operation.show(
               collection_id: request.params[:id]
-            ).to_json
+            )
+            result[:collection] = result[:collection].to_h.slice(
+              :uniqueIdentifier, :commonName, :description, :dlpsClass, :dlpsSource,
+              :dlpsAuthenMethod, :dlpsAuthzType, :dlpsPartlyPublic, :manager,
+              :lastModifiedTime, :dlpsDeleted
+            )
+            response.body = result.to_json
           rescue Lauth::Ops::Admin::Collections::Related::NotFound => error
             response.format = :json
             response.status = 404

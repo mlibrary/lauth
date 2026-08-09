@@ -11,9 +11,12 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.call(
+            result = operation.call(
               organization_name: request.params[:organizationName]
-            ).to_json
+            )
+            response.body = {institutions: result[:institutions].map { |institution|
+              institution.to_h.slice(:uniqueIdentifier, :organizationName)
+            }}.to_json
           rescue ArgumentError => error
             response.format = :json
             response.status = 400

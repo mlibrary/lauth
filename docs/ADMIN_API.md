@@ -198,14 +198,12 @@ GET /api/v1/objects?server=server.example
 
 Exactly one of `path` or `server` is required. Values use case-insensitive
 fragment matching. SQL wildcard characters are escaped. Results exclude
-deleted objects and are ordered by `dlpsPath`, `dlpsServer`, and
-`uniqueIdentifier`.
+deleted objects and are ordered by `dlpsPath`, `dlpsServer`, and `coll`.
 
 ```json
 {
   "objects": [
     {
-      "uniqueIdentifier": 3,
       "coll": "example",
       "dlpsPath": "/books%",
       "dlpsServer": "server.example",

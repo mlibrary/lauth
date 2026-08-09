@@ -11,9 +11,15 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.networks(
+            result = operation.networks(
               institution_id: request.params[:id]
-            ).to_json
+            )
+            response.body = {networks: result[:networks].map { |network|
+              network.to_h.slice(
+                :uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
+                :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted
+              )
+            }}.to_json
           rescue Lauth::Ops::Admin::Institutions::Related::NotFound => error
             response.format = :json
             response.status = 404

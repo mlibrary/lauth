@@ -8,14 +8,10 @@ module Lauth
       struct_namespace Lauth
 
       def find(userid)
-        users
+        dataset = users
           .dataset
           .where(userid: userid, dlpsDeleted: "f")
-          .select(:userid, :givenName, :surname, :rfc822Mailbox, :organizationalUnitName,
-            :localityName, :stateOrProvinceName, :postalCode, :countryName,
-            :telephoneNumber, :organizationalStatus, :dlpsCourse, :manager,
-            :lastModifiedBy, :dlpsDeleted)
-          .first
+        users.class.new(dataset).to_a.first
       end
     end
   end

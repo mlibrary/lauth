@@ -9,21 +9,19 @@ module Lauth
 
       def search_by_organization_name(value)
         pattern = wildcard_pattern(value)
-        institutions
+        dataset = institutions
           .dataset
           .where(dlpsDeleted: "f")
           .where(Sequel.ilike(:organizationName, pattern))
-          .select(:uniqueIdentifier, :organizationName)
           .order(:uniqueIdentifier)
-          .to_a
+        institutions.class.new(dataset).to_a
       end
 
       def find(id)
-        institutions
+        dataset = institutions
           .dataset
           .where(uniqueIdentifier: id, dlpsDeleted: "f")
-          .select(:uniqueIdentifier, :organizationName)
-          .first
+        institutions.class.new(dataset).to_a.first
       end
 
       private

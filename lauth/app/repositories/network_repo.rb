@@ -42,13 +42,11 @@ module Lauth
       end
 
       def for_institution(institution_id)
-        networks
+        dataset = networks
           .dataset
           .where(inst: institution_id, dlpsDeleted: "f")
-          .select(:uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
-            :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted)
           .order(:dlpsAddressStart, :dlpsAccessSwitch, :uniqueIdentifier)
-          .to_a
+        networks.class.new(dataset).to_a
       end
 
       private
@@ -63,14 +61,12 @@ module Lauth
       def search_overlapping(range)
         raise InvalidSearch, "range start must not exceed range end" if range.start > range.end
 
-        networks
+        dataset = networks
           .dataset
           .where(dlpsDeleted: "f")
           .where(Sequel.lit("dlpsAddressStart <= ? AND dlpsAddressEnd >= ?", range.end, range.start))
-          .select(:uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
-            :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted)
           .order(:dlpsAddressStart, :dlpsAccessSwitch, :uniqueIdentifier)
-          .to_a
+        networks.class.new(dataset).to_a
       end
 
       def parse_octets(value, allow_partial: false)

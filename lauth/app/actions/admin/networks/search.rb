@@ -11,7 +11,13 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.call(request.params).to_json
+            result = operation.call(request.params)
+            response.body = {networks: result[:networks].map { |network|
+              network.to_h.slice(
+                :uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
+                :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted
+              )
+            }}.to_json
           rescue Lauth::Repositories::NetworkRepo::InvalidSearch => error
             response.format = :json
             response.status = 400

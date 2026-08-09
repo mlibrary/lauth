@@ -11,7 +11,12 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.call(userid: request.params[:userid]).to_json
+            result = operation.call(userid: request.params[:userid])
+            result[:user] = result[:user].to_h.except(:userPassword, :dlpsKey)
+            result[:memberships] = result[:memberships].map { |membership|
+              membership.to_h.slice(:userid, :inst, :lastModifiedTime, :dlpsDeleted)
+            }
+            response.body = result.to_json
           rescue Lauth::Ops::Admin::Users::Show::NotFound => error
             response.format = :json
             response.status = 404
