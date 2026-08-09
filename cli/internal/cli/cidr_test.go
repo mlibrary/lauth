@@ -65,4 +65,18 @@ var _ = Describe("cidr", func() {
 		Entry("missing prefix", []string{"to-ints", "192.0.2.0"}),
 		Entry("IPv6 block", []string{"to-range", "2001:db8::/32"}),
 	)
+
+	DescribeTable("rejects missing or extra conversion arguments", func(args []string) {
+		command := NewRootCommand(&fakeQueryService{}, &bytes.Buffer{})
+		command.SetArgs(args)
+
+		Expect(command.Execute()).NotTo(Succeed())
+	},
+		Entry("missing range end", []string{"cidr", "from-range", "192.0.2.0"}),
+		Entry("extra range argument", []string{"cidr", "from-range", "192.0.2.0", "192.0.2.1", "extra"}),
+		Entry("missing CIDR", []string{"cidr", "to-range"}),
+		Entry("extra CIDR argument", []string{"cidr", "to-range", "192.0.2.0/24", "extra"}),
+		Entry("missing integer CIDR", []string{"cidr", "to-ints"}),
+		Entry("extra integer CIDR", []string{"cidr", "to-ints", "192.0.2.0/24", "extra"}),
+	)
 })

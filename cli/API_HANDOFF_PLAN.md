@@ -92,21 +92,31 @@ The API uses `grants` consistently for relationship responses.
 ### Mutation Semantics
 
 `institution add` requires a non-empty `organizationName` and creates an
-active institution.
+active institution. The request body is `{ "organizationName": "..." }` and
+the successful response is `{ "institution": {...} }` with status `201
+Created`. Unknown request fields, including legacy fields, are ignored.
+Duplicate active organization names are currently allowed. Malformed JSON,
+non-object bodies, and invalid or missing `organizationName` currently return
+`400` with the `invalid_parameter` error envelope.
 
 `network add` requires an active institution identified by the path `id` and
 accepts a non-empty `cidrs` array containing canonicalizable IPv4 CIDRs. The
 CLI may accept an inclusive range, but it must decompose that range into
 minimal CIDRs, display the complete set, obtain confirmation when required,
-and post the complete array as one operation. The API rejects `ip`, `prefix`,
-`rangeStart`, `rangeEnd`, malformed CIDR, duplicate canonical CIDRs, and
-invalid address bounds. It derives `dlpsAddressStart` and `dlpsAddressEnd`,
-sets `dlpsAccessSwitch` to `allow` unless the request explicitly supplies
-`allow` or `deny`, and does not reject overlap with existing networks.
+and post the complete array as one operation. The request body is
+`{ "cidrs": [...], "accessSwitch": "allow|deny" }`; `accessSwitch` defaults
+to `allow`. The API ignores unknown fields, including legacy `ip`, `prefix`,
+`rangeStart`, and `rangeEnd` fields. It canonicalizes each CIDR, derives
+`dlpsAddressStart` and `dlpsAddressEnd`, and rejects malformed CIDRs,
+duplicate canonical CIDRs, invalid address bounds, invalid `accessSwitch`,
+and missing, empty, or incorrectly typed `cidrs` with `400` and an
+`invalid_parameter` error envelope.
 
 Network creation is atomic: all CIDRs are validated before insertion and the
-batch is committed in one database transaction. A successful response is
-`{ "networks": [...] }` with status `201 Created`.
+batch is committed in one database transaction; an invalid batch creates no
+networks. A successful response is `{ "networks": [...] }` with status `201
+Created`. A missing or inactive institution returns `404` with a `not_found`
+error.
 
 Overlapping networks within one institution and cross-institution containment
 are valid historical configurations. Preserve them when creating networks;

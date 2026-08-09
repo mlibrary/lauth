@@ -17,6 +17,9 @@ func addMutationCommands(root *cobra.Command, service MutationService, stdout io
 		Short: "Create an active institution.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(command *cobra.Command, args []string) error {
+			if strings.TrimSpace(args[0]) == "" {
+				return fmt.Errorf("organization name cannot be empty")
+			}
 			created, err := service.CreateInstitution(args[0])
 			if err != nil {
 				return err
@@ -39,6 +42,9 @@ func networkCreateCommand(service MutationService, stdout io.Writer) *cobra.Comm
 		RunE: func(command *cobra.Command, _ []string) error {
 			if institutionID == "" {
 				return fmt.Errorf("--institution is required")
+			}
+			if accessSwitch != "allow" && accessSwitch != "deny" {
+				return fmt.Errorf("invalid access switch %q: must be allow or deny", accessSwitch)
 			}
 			cidrs, requiresConfirmation, err := networkCIDRs(cidr, rangeStart, rangeEnd)
 			if err != nil {
@@ -91,7 +97,7 @@ func confirmNetworks(command *cobra.Command, cidrs []string) error {
 	}
 	fmt.Fprint(output, "Confirm network creation? [y/N]: ")
 	answer, err := bufio.NewReader(command.InOrStdin()).ReadString('\n')
-	if err != nil && len(answer) == 0 {
+	if err != nil {
 		return fmt.Errorf("network creation cancelled")
 	}
 	if strings.ToLower(strings.TrimSpace(answer)) != "y" {

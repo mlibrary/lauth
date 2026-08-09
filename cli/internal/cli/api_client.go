@@ -92,6 +92,9 @@ func (c *APIClient) CreateNetworks(institutionID string, cidrs []string, accessS
 	}, &response); err != nil {
 		return nil, err
 	}
+	if response.Networks == nil {
+		response.Networks = []Network{}
+	}
 	return response.Networks, nil
 }
 

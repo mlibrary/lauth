@@ -13,6 +13,8 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             body = JSON.parse(request.body.read)
+            raise ArgumentError, "request body must be an object" unless body.is_a?(Hash)
+
             result = operation.call(
               institution_id: request.params[:id],
               cidrs: body["cidrs"],

@@ -1,8 +1,8 @@
 # Administrative API
 
-This document describes the read-only administrative API exposed by Lauth.
-The API is versioned under `/api/v1`. CLI integration is intentionally
-documented and implemented separately.
+This document describes the administrative API exposed by Lauth. The API is
+versioned under `/api/v1`. CLI integration is intentionally documented and
+implemented separately.
 
 ## Authentication
 
@@ -28,12 +28,14 @@ Tokens are never included in responses or API error messages.
 
 ## Common Behavior
 
-- All endpoints are read-only and use `GET`.
+- Read endpoints use `GET`; mutation endpoints use `POST` as documented below.
 - Deleted rows are excluded by default (`dlpsDeleted = "f"`).
 - List endpoints return `200` with an empty array when there are no matches.
 - Results use database field names and explicit projections.
 - Results have stable ordering documented with each endpoint.
 - Pagination is not currently supported.
+- JSON request bodies ignore unknown fields. Only fields documented for the
+  endpoint are read.
 
 Administrative errors use this shape:
 
@@ -100,6 +102,34 @@ It can return all matching organization names:
 }
 ```
 
+### Create Institution
+
+```http
+POST /api/v1/institutions
+Content-Type: application/json
+
+{"organizationName":"Example University"}
+```
+
+`organizationName` must be a non-empty string after trimming. The API creates
+an active institution and returns `201 Created`:
+
+```json
+{
+  "institution": {
+    "uniqueIdentifier": 104,
+    "organizationName": "Example University"
+  }
+}
+```
+
+Duplicate active organization names are currently allowed. Unknown request
+fields, including legacy fields, are ignored.
+
+Malformed JSON, a non-object JSON body, a missing or blank
+`organizationName`, and a non-string `organizationName` return `400` with the
+common `invalid_parameter` error envelope.
+
 ### Institution Networks
 
 ```http
@@ -126,6 +156,53 @@ GET /api/v1/institutions/{id}/networks
   ]
 }
 ```
+
+### Create Institution Networks
+
+```http
+POST /api/v1/institutions/{id}/networks
+Content-Type: application/json
+
+{"cidrs":["192.0.2.17/24","198.51.100.0/25"],"accessSwitch":"deny"}
+```
+
+`id` must identify an active institution. The request requires a non-empty
+`cidrs` array of IPv4 CIDR strings. Each CIDR is canonicalized before
+insertion, so `192.0.2.17/24` is stored and returned as `192.0.2.0/24`.
+`accessSwitch` defaults to `allow`; when supplied, it must be `allow` or
+`deny`. Unknown request fields, including legacy search fields such as `ip`,
+`prefix`, `rangeStart`, and `rangeEnd`, are ignored rather than rejected.
+
+The complete batch is validated before any row is inserted and is committed as
+one atomic operation. Duplicate canonical CIDRs within the request return
+`400` and create no networks. Malformed JSON, a non-object body, missing or
+invalid `cidrs`, invalid CIDRs or address bounds, and an invalid
+`accessSwitch` also return `400` with the common `invalid_parameter` error
+envelope. Overlap with existing networks, including networks belonging to
+another institution, is allowed.
+
+A successful request returns `201 Created`:
+
+```json
+{
+  "networks": [
+    {
+      "uniqueIdentifier": 13,
+      "dlpsDNSName": null,
+      "dlpsCIDRAddress": "192.0.2.0/24",
+      "dlpsAddressStart": 3221225984,
+      "dlpsAddressEnd": 3221226239,
+      "dlpsAccessSwitch": "deny",
+      "inst": 7,
+      "lastModifiedTime": "2026-08-04T12:00:00Z",
+      "dlpsDeleted": "f"
+    }
+  ]
+}
+```
+
+If `{id}` does not identify an active institution, the API returns `404` with
+`{"error":{"code":"not_found","message":"institution not found"}}`.
 
 ### Institution Grants
 
@@ -327,7 +404,6 @@ returns `400`.
 
 This API does not provide:
 
-- Database mutations.
 - Export or replication endpoints.
 - Raw dump compatibility endpoints.
 - CIDR conversion commands.

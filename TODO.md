@@ -10,7 +10,7 @@
 - [x] Add user inspection
 - [x] Add authorization diagnostic
 - [x] Document administrative API endpoint contracts
-- [ ] Update the CLI to consume the administrative API
+- [x] Update the CLI to consume the administrative API
 
 ## Next Handoff
 

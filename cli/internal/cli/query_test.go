@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -11,6 +12,8 @@ import (
 type fakeQueryService struct {
 	lastOperation string
 	lastArgs      []string
+	empty         bool
+	queryErr      error
 }
 
 func (f *fakeQueryService) record(operation string, args ...string) {
@@ -19,34 +22,76 @@ func (f *fakeQueryService) record(operation string, args ...string) {
 func (f *fakeQueryService) SearchInstitutions(string) ([]Institution, error) { return nil, nil }
 func (f *fakeQueryService) SearchNetworks(search NetworkSearch) ([]Network, error) {
 	f.record("network search", search.IP, search.Prefix, search.CIDR, search.RangeStart, search.RangeEnd)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Network{}, nil
+	}
 	return []Network{{Inst: 7, DlpsCIDRAddress: "192.0.2.0/24"}}, nil
 }
 func (f *fakeQueryService) InstitutionNetworks(inst string) ([]Network, error) {
 	f.record("institution networks", inst)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Network{}, nil
+	}
 	return []Network{{Inst: 7}}, nil
 }
 func (f *fakeQueryService) InstitutionGrants(inst string) ([]Grant, error) {
 	f.record("institution grants", inst)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Grant{}, nil
+	}
 	return []Grant{{Coll: "example"}}, nil
 }
 func (f *fakeQueryService) UserShow(user string) (UserInspection, error) {
 	f.record("user show", user)
+	if f.queryErr != nil {
+		return UserInspection{}, f.queryErr
+	}
 	return UserInspection{UserID: user}, nil
 }
 func (f *fakeQueryService) SearchLocations(path, server string) ([]Location, error) {
 	f.record("locations search", path, server)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Location{}, nil
+	}
 	return []Location{{DlpsPath: path, DlpsServer: server}}, nil
 }
 func (f *fakeQueryService) CollectionSearch(pattern string) ([]Collection, error) {
 	f.record("collection search", pattern)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Collection{}, nil
+	}
 	return []Collection{{UniqueIdentifier: pattern}}, nil
 }
 func (f *fakeQueryService) CollectionShow(coll string) (CollectionInspection, error) {
 	f.record("collection show", coll)
+	if f.queryErr != nil {
+		return CollectionInspection{}, f.queryErr
+	}
 	return CollectionInspection{Collection: Collection{UniqueIdentifier: coll}}, nil
 }
 func (f *fakeQueryService) CollectionGrants(coll string) ([]Grant, error) {
 	f.record("collection grants", coll)
+	if f.queryErr != nil {
+		return nil, f.queryErr
+	}
+	if f.empty {
+		return []Grant{}, nil
+	}
 	return []Grant{{Coll: coll}}, nil
 }
 func (f *fakeQueryService) AuthzDiagnostic(ip, user, coll string) (AuthzDiagnostic, error) {
@@ -97,6 +142,96 @@ var _ = Describe("read-only query commands", func() {
 		Expect(json.Unmarshal(output.Bytes(), &response)).To(Succeed())
 		Expect(response.UserID).To(Equal("alice"))
 	})
+
+	It("returns structured JSON for collection inspection", func() {
+		service := &fakeQueryService{}
+		var output bytes.Buffer
+		command := NewRootCommand(service, &output)
+		command.SetArgs([]string{"--output=json", "collection", "show", "example"})
+
+		Expect(command.Execute()).To(Succeed())
+		var response CollectionInspection
+		Expect(json.Unmarshal(output.Bytes(), &response)).To(Succeed())
+		Expect(response.Collection.UniqueIdentifier).To(Equal("example"))
+	})
+
+	DescribeTable("returns an empty JSON envelope", func(args []string, expected string) {
+		service := &fakeQueryService{empty: true}
+		var output bytes.Buffer
+		command := NewRootCommand(service, &output)
+		command.SetArgs(append([]string{"--output=json"}, args...))
+
+		Expect(command.Execute()).To(Succeed())
+		Expect(output.String()).To(Equal(expected + "\n"))
+	},
+		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}, `{"networks":[]}`),
+		Entry("institution networks", []string{"institution", "networks", "7"}, `{"networks":[]}`),
+		Entry("institution grants", []string{"institution", "grants", "7"}, `{"grants":[]}`),
+		Entry("locations search", []string{"locations", "search", "--path", "/books"}, `{"locations":[]}`),
+		Entry("collection search", []string{"collection", "search", "example"}, `{"collections":[]}`),
+		Entry("collection grants", []string{"collection", "grants", "example"}, `{"grants":[]}`),
+	)
+
+	DescribeTable("propagates service errors at the command boundary", func(args []string) {
+		service := &fakeQueryService{queryErr: errors.New("api unavailable")}
+		var output bytes.Buffer
+		command := NewRootCommand(service, &output)
+		command.SetArgs(args)
+
+		Expect(command.Execute()).To(MatchError("api unavailable"))
+		Expect(output.String()).To(BeEmpty())
+	},
+		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}),
+		Entry("institution networks", []string{"institution", "networks", "7"}),
+		Entry("institution grants", []string{"institution", "grants", "7"}),
+		Entry("locations search", []string{"locations", "search", "--path", "/books"}),
+		Entry("collection search", []string{"collection", "search", "example"}),
+		Entry("collection show", []string{"collection", "show", "example"}),
+		Entry("collection grants", []string{"collection", "grants", "example"}),
+		Entry("user show", []string{"user", "show", "alice"}),
+	)
+
+	DescribeTable("renders active query results as tables by default", func(args []string, expected []string) {
+		var output bytes.Buffer
+		command := NewRootCommand(&fakeQueryService{}, &output)
+		command.SetArgs(args)
+
+		Expect(command.Execute()).To(Succeed())
+		for _, value := range expected {
+			Expect(output.String()).To(ContainSubstring(value))
+		}
+	},
+		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}, []string{"INST", "DLPSCIDRADDRESS", "192.0.2.0/24"}),
+		Entry("institution networks", []string{"institution", "networks", "7"}, []string{"INST", "DLPSCIDRADDRESS", "7"}),
+		Entry("institution grants", []string{"institution", "grants", "7"}, []string{"COLL", "LASTMODIFIEDTIME", "example"}),
+		Entry("locations search", []string{"locations", "search", "--path", "/books"}, []string{"DLPSPATH", "DLPSSERVER", "/books"}),
+		Entry("collection search", []string{"collection", "search", "example"}, []string{"UNIQUEIDENTIFIER", "example"}),
+		Entry("collection show", []string{"collection", "show", "example"}, []string{"UNIQUEIDENTIFIER", "COMMONNAME", "DESCRIPTION", "example"}),
+		Entry("collection grants", []string{"collection", "grants", "example"}, []string{"COLL", "LASTMODIFIEDTIME", "example"}),
+		Entry("user show", []string{"user", "show", "alice"}, []string{"USERID", "alice"}),
+	)
+
+	It("rejects unsupported output formats", func() {
+		service := &fakeQueryService{}
+		command := NewRootCommand(service, &bytes.Buffer{})
+		command.SetArgs([]string{"--output=csv", "collection", "search", "example"})
+
+		Expect(command.Execute()).To(MatchError(`unsupported output format "csv"`))
+	})
+
+	DescribeTable("rejects missing or extra query arguments", func(args []string) {
+		command := NewRootCommand(&fakeQueryService{}, &bytes.Buffer{})
+		command.SetArgs(args)
+
+		Expect(command.Execute()).NotTo(Succeed())
+	},
+		Entry("missing user", []string{"user", "show"}),
+		Entry("extra user", []string{"user", "show", "alice", "extra"}),
+		Entry("missing collection", []string{"collection", "show"}),
+		Entry("extra collection", []string{"collection", "show", "example", "extra"}),
+		Entry("missing institution", []string{"institution", "networks"}),
+		Entry("extra institution", []string{"institution", "networks", "7", "extra"}),
+	)
 
 	It("rejects a location search without filters", func() {
 		command := NewRootCommand(&fakeQueryService{}, &bytes.Buffer{})

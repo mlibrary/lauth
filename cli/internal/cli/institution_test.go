@@ -3,6 +3,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -45,6 +46,44 @@ var _ = Describe("institution search", func() {
 		}))
 	})
 
+	It("returns an empty JSON envelope when the API finds no institutions", func() {
+		searcher := &fakeInstitutionSearcher{institutions: []Institution{}}
+		var output bytes.Buffer
+		command := NewRootCommand(searcher, &output)
+		command.SetArgs([]string{"--output=json", "institution", "search", "missing"})
+
+		Expect(command.Execute()).To(Succeed())
+		Expect(output.String()).To(Equal(`{"institutions":[]}` + "\n"))
+	})
+
+	It("propagates an institution search service error without output", func() {
+		searcher := &errorInstitutionSearcher{err: errors.New("api unavailable")}
+		var output bytes.Buffer
+		command := NewRootCommand(searcher, &output)
+		command.SetArgs([]string{"institution", "search", "Example"})
+
+		Expect(command.Execute()).To(MatchError("api unavailable"))
+		Expect(output.String()).To(BeEmpty())
+	})
+
+	It("rejects unsupported output formats", func() {
+		searcher := &fakeInstitutionSearcher{}
+		command := NewRootCommand(searcher, &bytes.Buffer{})
+		command.SetArgs([]string{"--output=csv", "institution", "search", "Example"})
+
+		Expect(command.Execute()).To(MatchError(`unsupported output format "csv"`))
+	})
+
+	DescribeTable("rejects missing or extra search arguments", func(args []string) {
+		command := NewRootCommand(&fakeInstitutionSearcher{}, &bytes.Buffer{})
+		command.SetArgs(args)
+
+		Expect(command.Execute()).NotTo(Succeed())
+	},
+		Entry("missing pattern", []string{"institution", "search"}),
+		Entry("extra pattern", []string{"institution", "search", "Example", "extra"}),
+	)
+
 	It("lists institutions using database schema attribute names", func() {
 		response, err := os.ReadFile(filepath.Join("..", "..", "testdata", "institution_search_response.json"))
 		Expect(err).NotTo(HaveOccurred())
@@ -60,4 +99,12 @@ var _ = Describe("institution search", func() {
 func TestInstitutionSearch(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Institution Search Suite")
+}
+
+type errorInstitutionSearcher struct {
+	err error
+}
+
+func (f *errorInstitutionSearcher) SearchInstitutions(string) ([]Institution, error) {
+	return nil, f.err
 }

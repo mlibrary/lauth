@@ -12,7 +12,10 @@ module Lauth
           def handle(request, response)
             return unless authenticate_admin(request, response)
 
-            result = operation.call(organization_name: request_body(request).fetch("organizationName"))
+            body = request_body(request)
+            raise ArgumentError, "request body must be an object" unless body.is_a?(Hash)
+
+            result = operation.call(organization_name: body.fetch("organizationName"))
             response.format = :json
             response.status = 201
             response.body = {institution: Lauth::Presenters::Admin::Institution.call(result[:institution])}.to_json

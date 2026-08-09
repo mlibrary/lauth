@@ -124,6 +124,25 @@ var _ = Describe("administrative API", func() {
 		Expect(err).To(MatchError("invalid_parameter: bad input"))
 	})
 
+	It("propagates structured errors from mutation endpoints", func() {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			if r.URL.Path == "/api/v1/institutions" {
+				_, _ = w.Write([]byte(`{"error":{"code":"duplicate_institution","message":"already exists"}}`))
+				return
+			}
+			_, _ = w.Write([]byte(`{"error":{"code":"invalid_network","message":"network rejected"}}`))
+		}))
+		DeferCleanup(server.Close)
+
+		client := NewAPIClient(server.URL, "test-token", server.Client())
+		_, err := client.CreateInstitution("Example University")
+		Expect(err).To(MatchError("duplicate_institution: already exists"))
+		_, err = client.CreateNetworks("7", []string{"192.0.2.0/24"}, "allow")
+		Expect(err).To(MatchError("invalid_network: network rejected"))
+	})
+
 	It("requires the active API base URL and token", func() {
 		_, err := NewAPIClient("", "test-token", nil).SearchInstitutions("Example")
 		Expect(err).To(MatchError("AUTHZ_API_BASE_URL is required"))
