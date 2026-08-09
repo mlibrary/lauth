@@ -5,7 +5,9 @@ module Lauth
     root { "Hello from Hanami" }
     get "/authorized", to: "authorize"
     get "/api/v1/institutions", to: "admin.institutions.search"
+    post "/api/v1/institutions", to: "admin.institutions.create"
     get "/api/v1/institutions/:id/networks", to: "admin.institutions.networks"
+    post "/api/v1/institutions/:id/networks", to: "admin.institutions.network_create"
     get "/api/v1/institutions/:id/grants", to: "admin.institutions.grants"
     get "/api/v1/networks", to: "admin.networks.search"
     get "/api/v1/locations", to: "admin.locations.search"

@@ -37,14 +37,20 @@
   aliases, standard option shorthands, and never abbreviate `user`.
 - Keep table headers stable and based on schema field names.
 - Validate required arguments with Cobra and return errors rather than silently accepting malformed input.
-- For `network add`, decompose range input into minimal CIDRs, show the full
-  set, and require confirmation before posting; do not reject historical
-  network overlaps.
+- For `network add`, send one batch of CIDRs to the API. Decompose range input
+  into minimal CIDRs, show the full set, and require confirmation before
+  posting; do not reject historical network overlaps.
 - Keep command wiring thin. Resource services return typed data; output functions render it.
 - Do not expose API keys, database credentials, Oracle environment variables, or local database details.
 
 ## Verification
 
+- Run Ruby unit and request specs from the repository root with
+  `docker compose run --rm app-dev`; this service uses RSpec as its default
+  command.
+- Run Ruby integration tests with `docker compose run --rm test`.
+- Do not assume the host Ruby environment or local database is configured for
+  Ruby tests.
 - Run `gofmt` on changed Go files.
 - Run `go test ./...` from `cli/` after each completed TDD loop.
 - Exercise representative commands with `go run ./cmd/lauth ...` when fixture-backed behavior changes.

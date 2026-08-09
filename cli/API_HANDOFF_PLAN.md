@@ -79,7 +79,7 @@ the CLI client consistently.
 | `institution networks` | `GET /api/v1/institutions/{id}/networks` | `id=7` | `{ "networks": [...] }` |
 | `institution grants` | `GET /api/v1/institutions/{id}/grants` | `id=7` | `{ "grants": [...] }` |
 | `network search` | `GET /api/v1/networks` | `cidr=192.0.2` | `{ "networks": [...] }` |
-| `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: canonical `cidr`, optional `accessSwitch` | `{ "network": {...} }` |
+| `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: canonical `cidrs` array, optional `accessSwitch` | `{ "networks": [...] }` |
 | `collection search` | `GET /api/v1/collections` | `id=example*` | `{ "collections": [...] }` |
 | `user show` | `GET /api/v1/users/{userid}` | `userid=alice` | `{ "userid": ..., "user": ..., "memberships": [...], "grants": [...] }` |
 | `locations search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
@@ -95,13 +95,18 @@ The API uses `grants` consistently for relationship responses.
 active institution.
 
 `network add` requires an active institution identified by the path `id` and
-accepts one canonical CIDR per request. The CLI may accept an inclusive range,
-but it must decompose that range into minimal CIDRs, display the complete set,
-and obtain confirmation before posting one request per CIDR. The API rejects
-`ip`, `prefix`, malformed CIDR, and invalid address bounds. It derives
-`dlpsAddressStart` and `dlpsAddressEnd`, sets `dlpsAccessSwitch` to `allow`
-unless the request explicitly supplies `allow` or `deny`, and does not reject
-overlap with existing networks.
+accepts a non-empty `cidrs` array containing canonicalizable IPv4 CIDRs. The
+CLI may accept an inclusive range, but it must decompose that range into
+minimal CIDRs, display the complete set, obtain confirmation when required,
+and post the complete array as one operation. The API rejects `ip`, `prefix`,
+`rangeStart`, `rangeEnd`, malformed CIDR, duplicate canonical CIDRs, and
+invalid address bounds. It derives `dlpsAddressStart` and `dlpsAddressEnd`,
+sets `dlpsAccessSwitch` to `allow` unless the request explicitly supplies
+`allow` or `deny`, and does not reject overlap with existing networks.
+
+Network creation is atomic: all CIDRs are validated before insertion and the
+batch is committed in one database transaction. A successful response is
+`{ "networks": [...] }` with status `201 Created`.
 
 Overlapping networks within one institution and cross-institution containment
 are valid historical configurations. Preserve them when creating networks;

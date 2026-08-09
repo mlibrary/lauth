@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -38,7 +39,20 @@ var _ = Describe("administrative API", func() {
 				Expect(r.URL.Query()).To(Equal(url.Values{"prefix": {"192.0.2"}}))
 				_, _ = w.Write([]byte(`{"networks":[{"inst":7,"dlpsCIDRAddress":"192.0.2.0/24"}]}`))
 			case "/api/v1/institutions/7/networks":
-				_, _ = w.Write([]byte(`{"networks":[{"inst":7,"dlpsCIDRAddress":"192.0.2.0/24"}]}`))
+				if r.Method == http.MethodGet {
+					_, _ = w.Write([]byte(`{"networks":[{"inst":7,"dlpsCIDRAddress":"192.0.2.0/24"}]}`))
+					break
+				}
+				Expect(r.Method).To(Equal(http.MethodPost))
+				var body struct {
+					CIDRs        []string `json:"cidrs"`
+					AccessSwitch string   `json:"accessSwitch"`
+				}
+				Expect(json.NewDecoder(r.Body).Decode(&body)).To(Succeed())
+				Expect(body.CIDRs).To(Equal([]string{"192.0.2.0/24", "198.51.100.0/25"}))
+				Expect(body.AccessSwitch).To(Equal("allow"))
+				w.WriteHeader(http.StatusCreated)
+				_, _ = w.Write([]byte(`{"networks":[{"inst":7,"dlpsCIDRAddress":"192.0.2.0/24"},{"inst":7,"dlpsCIDRAddress":"198.51.100.0/25"}]}`))
 			case "/api/v1/institutions/7/grants":
 				_, _ = w.Write([]byte(`{"grants":[{"coll":"example","inst":7}]}`))
 			case "/api/v1/users/alice":
@@ -52,6 +66,14 @@ var _ = Describe("administrative API", func() {
 				_, _ = w.Write([]byte(`{"collection":{"uniqueIdentifier":"example"},"grants":[]}`))
 			case "/api/v1/collections/example/grants":
 				_, _ = w.Write([]byte(`{"grants":[{"coll":"example","inst":7}]}`))
+			case "/api/v1/institutions":
+				Expect(r.Method).To(Equal(http.MethodPost))
+				Expect(r.Header.Get("Content-Type")).To(Equal("application/json"))
+				var body map[string]string
+				Expect(json.NewDecoder(r.Body).Decode(&body)).To(Succeed())
+				Expect(body).To(Equal(map[string]string{"organizationName": "Example University"}))
+				w.WriteHeader(http.StatusCreated)
+				_, _ = w.Write([]byte(`{"institution":{"uniqueIdentifier":8,"organizationName":"Example University"}}`))
 			case "/authzd_to_coll":
 				_, _ = w.Write([]byte(`{"authorized":true}`))
 			default:
@@ -83,6 +105,12 @@ var _ = Describe("administrative API", func() {
 		grants, err = client.CollectionGrants("example")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(grants[0].Coll).To(Equal("example"))
+		institution, err := client.CreateInstitution("Example University")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(institution.UniqueIdentifier).To(Equal(8))
+		networks, err = client.CreateNetworks("7", []string{"192.0.2.0/24", "198.51.100.0/25"}, "allow")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(networks).To(HaveLen(2))
 	})
 
 	It("normalizes structured API errors", func() {

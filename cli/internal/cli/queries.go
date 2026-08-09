@@ -80,6 +80,11 @@ type QueryService interface {
 	AuthzDiagnostic(string, string, string) (AuthzDiagnostic, error)
 }
 
+type MutationService interface {
+	CreateInstitution(string) (Institution, error)
+	CreateNetworks(string, []string, string) ([]Network, error)
+}
+
 type NetworkSearch struct {
 	IP         string
 	Prefix     string
@@ -104,10 +109,10 @@ type collectionResponse struct {
 func addQueryCommands(root *cobra.Command, service QueryService, stdout io.Writer) {
 	root.AddCommand(networkCommands(service, stdout), userCommands(service, stdout), locationCommands(service, stdout), collectionCommands(service, stdout), authzCommand(service, stdout))
 	institution := findCommand(root, "institution")
-	institution.AddCommand(queryCommand("networks [institution-id]", "List networks associated with an institution.", "authz institution networks 7", func(args []string) (any, error) {
+	institution.AddCommand(queryCommand("networks [institution-id]", "List networks associated with an institution.", "lauth institution networks 7", func(args []string) (any, error) {
 		items, err := service.InstitutionNetworks(args[0])
 		return networkResponse{Networks: items}, err
-	}, stdout), queryCommand("grants [institution-id]", "List collection grants for an institution.", "authz institution grants 7", func(args []string) (any, error) {
+	}, stdout), queryCommand("grants [institution-id]", "List collection grants for an institution.", "lauth institution grants 7", func(args []string) (any, error) {
 		items, err := service.InstitutionGrants(args[0])
 		return grantResponse{Grants: items}, err
 	}, stdout))
@@ -123,7 +128,7 @@ func findCommand(root *cobra.Command, use string) *cobra.Command {
 }
 
 func networkCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "network", Short: "Search authorization networks."}
+	group := &cobra.Command{Use: "network", Aliases: []string{"net"}, Short: "Search authorization networks."}
 	var search NetworkSearch
 	command := &cobra.Command{
 		Use:   "search",
@@ -164,14 +169,14 @@ func networkCommands(service QueryService, stdout io.Writer) *cobra.Command {
 
 func userCommands(service QueryService, stdout io.Writer) *cobra.Command {
 	group := &cobra.Command{Use: "user", Short: "Inspect user authorization data."}
-	group.AddCommand(queryCommand("show [userid]", "Show a user, memberships, and direct grants.", "authz user show alice", func(args []string) (any, error) {
+	group.AddCommand(queryCommand("show [userid]", "Show a user, memberships, and direct grants.", "lauth user show alice", func(args []string) (any, error) {
 		return service.UserShow(args[0])
 	}, stdout))
 	return group
 }
 
 func locationCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "locations", Short: "Search protected locations."}
+	group := &cobra.Command{Use: "locations", Aliases: []string{"loc"}, Short: "Search protected locations."}
 	var path, server string
 	command := &cobra.Command{
 		Use:   "search",
@@ -195,13 +200,13 @@ func locationCommands(service QueryService, stdout io.Writer) *cobra.Command {
 }
 
 func collectionCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "collection", Short: "Search and inspect collections and grants."}
-	group.AddCommand(queryCommand("search [pattern]", "Search collection identifiers.", "authz collection search example*", func(args []string) (any, error) {
+	group := &cobra.Command{Use: "collection", Aliases: []string{"coll"}, Short: "Search and inspect collections and grants."}
+	group.AddCommand(queryCommand("search [pattern]", "Search collection identifiers.", "lauth collection search example*", func(args []string) (any, error) {
 		items, err := service.CollectionSearch(args[0])
 		return collectionResponse{Collections: items}, err
-	}, stdout), queryCommand("show [collection]", "Show collection metadata and grant information.", "authz collection show example", func(args []string) (any, error) {
+	}, stdout), queryCommand("show [collection]", "Show collection metadata and grant information.", "lauth collection show example", func(args []string) (any, error) {
 		return service.CollectionShow(args[0])
-	}, stdout), queryCommand("grants [collection]", "List grants for a collection.", "authz collection grants example", func(args []string) (any, error) {
+	}, stdout), queryCommand("grants [collection]", "List grants for a collection.", "lauth collection grants example", func(args []string) (any, error) {
 		items, err := service.CollectionGrants(args[0])
 		return grantResponse{Grants: items}, err
 	}, stdout))
@@ -209,7 +214,7 @@ func collectionCommands(service QueryService, stdout io.Writer) *cobra.Command {
 }
 
 func authzCommand(service QueryService, stdout io.Writer) *cobra.Command {
-	return queryCommand("authzd_to_coll [ip] [userid] [collection]", "Run an authorization diagnostic for an IP, user, and collection.", "authz authzd_to_coll 192.0.2.1 alice example", func(args []string) (any, error) {
+	return queryCommand("authzd_to_coll [ip] [userid] [collection]", "Run an authorization diagnostic for an IP, user, and collection.", "lauth authzd_to_coll 192.0.2.1 alice example", func(args []string) (any, error) {
 		return service.AuthzDiagnostic(args[0], args[1], args[2])
 	}, stdout)
 }

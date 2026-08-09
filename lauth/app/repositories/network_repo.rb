@@ -8,6 +8,13 @@ module Lauth
       include Deps[container: "persistence.rom"]
 
       struct_namespace Lauth
+      commands :create
+
+      def create_batch(attributes)
+        container.gateways[:default].connection.transaction do
+          attributes.map { |network| create(**network) }
+        end
+      end
 
       def search_by_ip(value)
         search_overlapping(range_for_ip(value))

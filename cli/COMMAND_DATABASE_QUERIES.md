@@ -243,11 +243,11 @@ and does not connect to the database directly.
 
 Legacy utility: `ain`
 
-This command creates an institution-associated network through
-`POST /api/v1/institutions/7/networks`. It accepts CIDR or a complete inclusive
-range. Range mode is decomposed into minimal CIDRs and confirmed before one
-request is posted per CIDR. It defaults `accessSwitch` to `allow`; overlapping
-networks are permitted to preserve historical behavior.
+This command creates an institution-associated network batch through
+`POST /api/v1/institutions/7/networks`. The API accepts only a non-empty CIDR
+array; the CLI accepts CIDR or a complete inclusive range, converts ranges to
+minimal CIDRs, and posts the full array in one atomic operation. It defaults
+`accessSwitch` to `allow`; overlapping networks are permitted.
 
 ## Local Command
 

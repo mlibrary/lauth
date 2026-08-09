@@ -28,7 +28,7 @@ func fromRangeCommand(stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "from-range START END",
 		Short:   "Convert an inclusive IPv4 range to minimal CIDR blocks.",
-		Example: "authz cidr from-range 141.212.0.0 141.215.255.255",
+		Example: "lauth cidr from-range 141.212.0.0 141.215.255.255",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(_ *cobra.Command, args []string) error {
 			blocks, err := decomposeCIDRRange(args[0], args[1])
@@ -49,7 +49,7 @@ func toRangeCommand(stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "to-range CIDR",
 		Short:   "Convert an IPv4 CIDR block to its starting and ending addresses.",
-		Example: "authz cidr to-range 141.212.0.0/14",
+		Example: "lauth cidr to-range 141.212.0.0/14",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			start, end, err := cidrRange(args[0])
@@ -66,7 +66,7 @@ func toIntsCommand(stdout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:     "to-ints CIDR",
 		Short:   "Convert an IPv4 CIDR block to 32-bit start and end integers.",
-		Example: "authz cidr to-ints 141.212.0.0/14",
+		Example: "lauth cidr to-ints 141.212.0.0/14",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			start, end, err := cidrRange(args[0])
@@ -134,6 +134,21 @@ func cidrRange(block string) (uint32, uint32, error) {
 	blockSize := uint64(1) << (32 - ones)
 	end := uint32(uint64(start) + blockSize - 1)
 	return start, end, nil
+}
+
+func canonicalCIDR(block string) (string, error) {
+	if strings.Contains(block, ":") {
+		return "", fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	ip, network, err := net.ParseCIDR(strings.TrimSpace(block))
+	if err != nil || ip.To4() == nil {
+		return "", fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	ones, width := network.Mask.Size()
+	if width != 32 {
+		return "", fmt.Errorf("invalid CIDR block %q: expected IPv4 slash notation", block)
+	}
+	return fmt.Sprintf("%s/%d", formatIPv4(binary.BigEndian.Uint32(network.IP.To4())), ones), nil
 }
 
 func formatIPv4(address uint32) string {

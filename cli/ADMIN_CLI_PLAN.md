@@ -137,10 +137,12 @@ institution through the administrative API.
 It rejects `--ip`, `--prefix`, mixed modes, incomplete ranges, invalid CIDR,
 and reversed ranges. Range mode decomposes the inclusive range into the
 minimal CIDR set, displays every CIDR that will be added, and requires explicit
-confirmation before posting. Each confirmed CIDR is posted as one associated
-network. `--access-switch` accepts `allow` or `deny` and defaults to `allow`.
-The API validates the institution, derives the address bounds, and associates
-each network through `inst`.
+confirmation before posting. A direct CIDR posts immediately when it is
+already canonical; a CIDR whose host bits would be truncated is displayed in
+canonical form and requires confirmation. The CLI posts the complete CIDR set
+as one API batch. `--access-switch` accepts `allow` or `deny` and defaults to
+`allow`. The API validates the institution, derives the address bounds, and
+associates every network through `inst` atomically.
 
 Network creation does not reject overlaps. Overlapping networks within one
 institution and a network contained by a network associated with another
@@ -304,7 +306,7 @@ The active CLI scope is complete when:
 - `lauth institution add` creates an institution through the administrative API.
 - `lauth network add` creates an institution-associated network from CIDR or range input.
 - Command aliases and option shorthands behave identically to canonical names.
-- Range-mode network creation confirms the complete CIDR set before posting.
+- Network creation posts one atomic CIDR batch; range mode and non-canonical direct CIDRs confirm before posting.
 - No command requires Oracle, MySQL, Perl DBI, or local database credentials.
 - Bearer-token handling is centralized and secure.
 - No pagination is introduced.

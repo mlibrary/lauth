@@ -55,10 +55,10 @@ func parseInstitutionSearchResponse(response []byte) ([]Institution, error) {
 
 func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Command {
 	root := &cobra.Command{
-		Use:     "authz",
+		Use:     "lauth",
 		Short:   "Query authorization data.",
 		Long:    "Query authorization data from the REST API. Results use legacy-compatible tables by default; add --output=json for the complete API response. Configure the API with AUTHZ_API_BASE_URL, AUTHZ_API_TOKEN, and AUTHZ_API_TIMEOUT.",
-		Example: "  authz institution search Michigan\n  authz --output=json user show alice",
+		Example: "  lauth institution search Michigan\n  lauth --output=json user show alice",
 	}
 	root.PersistentFlags().String("output", "table", "output format: table or json")
 	_ = viper.BindPFlag("output", root.PersistentFlags().Lookup("output"))
@@ -77,13 +77,14 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 	}
 
 	institution := &cobra.Command{
-		Use:   "institution",
-		Short: "Look up institutions and their associated resources.",
+		Use:     "institution",
+		Aliases: []string{"inst"},
+		Short:   "Look up institutions and their associated resources.",
 	}
 	search := &cobra.Command{
 		Use:     "search [pattern]",
 		Short:   "Search institutions by organization-name pattern.",
-		Example: "  authz institution search 'Michigan*'",
+		Example: "  lauth institution search 'Michigan*'",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			institutions, err := searcher.SearchInstitutions(args[0])
@@ -108,6 +109,9 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 	root.AddCommand(cidrCommands(stdout))
 	if service, ok := searcher.(QueryService); ok {
 		addQueryCommands(root, service, stdout)
+	}
+	if service, ok := searcher.(MutationService); ok {
+		addMutationCommands(root, service, stdout)
 	}
 	return root
 }

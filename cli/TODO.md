@@ -28,9 +28,9 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `collection show` and `collection grants`.
 - [x] Add `collection search`.
 - [ ] Revisit deferred `authzd_to_coll` diagnostic support.
-- [ ] Add `institution add` backed by the administrative API.
-- [ ] Add `network add` with required institution association, CIDR/range decomposition, confirmation, and permissive overlap handling.
-- [ ] Add `lauth` command-group aliases and option shorthands; keep `user` unabridged.
+- [x] Add `institution add` backed by the administrative API.
+- [x] Add `network add` with required institution association, CIDR/range decomposition, confirmation, and permissive overlap handling.
+- [x] Add `lauth` command-group aliases and option shorthands; keep `user` unabridged.
 - [x] Define the initial REST contract for authenticated institution search.
 - [x] Back all query commands with the shared authenticated HTTP API client.
 - [x] Implement `cidr from-range`, `cidr to-range`, and `cidr to-ints`.
@@ -46,3 +46,5 @@ Before beginning any modification work on the next pass, clarify:
 - [ ] Complete empty-result, invalid-input, API-error, and output-format coverage for every active command.
 - [ ] Verify representative results against the legacy utilities.
 - [ ] Document authorization behavior for cross-institution and equal-sized overlapping networks; do not add creation-time overlap validation.
+- [ ] Follow up: map Bearer tokens to audit identities instead of using `root` for mutation audit fields.
+- [ ] Follow up: duplicate active institution names are currently permitted by the API and schema.

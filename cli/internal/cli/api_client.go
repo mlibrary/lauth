@@ -21,6 +21,7 @@ type APIClient struct {
 }
 
 var _ QueryService = (*APIClient)(nil)
+var _ MutationService = (*APIClient)(nil)
 
 func NewAPIClient(baseURL, token string, httpClient *http.Client) *APIClient {
 	if httpClient == nil {
@@ -71,6 +72,27 @@ func (c *APIClient) SearchInstitutions(pattern string) ([]Institution, error) {
 		return nil, err
 	}
 	return response.Institutions, nil
+}
+
+func (c *APIClient) CreateInstitution(name string) (Institution, error) {
+	var response struct {
+		Institution Institution `json:"institution"`
+	}
+	if err := c.post("/institutions", map[string]string{"organizationName": name}, &response); err != nil {
+		return Institution{}, err
+	}
+	return response.Institution, nil
+}
+
+func (c *APIClient) CreateNetworks(institutionID string, cidrs []string, accessSwitch string) ([]Network, error) {
+	var response networkResponse
+	if err := c.post("/institutions/"+url.PathEscape(institutionID)+"/networks", map[string]any{
+		"cidrs":        cidrs,
+		"accessSwitch": accessSwitch,
+	}, &response); err != nil {
+		return nil, err
+	}
+	return response.Networks, nil
 }
 
 func (c *APIClient) SearchNetworks(search NetworkSearch) ([]Network, error) {
@@ -186,6 +208,10 @@ func (c *APIClient) getLegacy(path string, query url.Values, target any) error {
 	return c.request(path, query, target, false)
 }
 
+func (c *APIClient) post(path string, body any, target any) error {
+	return c.requestJSON("/api/v1"+path, body, target)
+}
+
 func (c *APIClient) request(path string, query url.Values, target any, bearer bool) error {
 	if c.baseURL == "" {
 		return fmt.Errorf("AUTHZ_API_BASE_URL is required")
@@ -209,6 +235,59 @@ func (c *APIClient) request(path string, query url.Values, target any, bearer bo
 		request.Header.Set("X-API-Key", c.token)
 	}
 
+	response, err := c.httpClient.Do(request)
+	if err != nil {
+		return fmt.Errorf("API request: %w", err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		body, readErr := io.ReadAll(io.LimitReader(response.Body, 4<<10))
+		if readErr != nil {
+			return fmt.Errorf("API request failed with status %s: read error: %w", response.Status, readErr)
+		}
+		var apiError struct {
+			Error struct {
+				Code    string `json:"code"`
+				Message string `json:"message"`
+			} `json:"error"`
+		}
+		if json.Unmarshal(body, &apiError) == nil && apiError.Error.Message != "" {
+			return fmt.Errorf("%s: %s", apiError.Error.Code, apiError.Error.Message)
+		}
+		return fmt.Errorf("API request failed with status %s", response.Status)
+	}
+	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+		return fmt.Errorf("decode API response: %w", err)
+	}
+	return nil
+}
+
+func (c *APIClient) requestJSON(path string, body any, target any) error {
+	if c.baseURL == "" {
+		return fmt.Errorf("AUTHZ_API_BASE_URL is required")
+	}
+	if c.token == "" {
+		return fmt.Errorf("AUTHZ_API_TOKEN is required")
+	}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("encode API request: %w", err)
+	}
+	requestURL, err := url.Parse(c.baseURL + path)
+	if err != nil {
+		return fmt.Errorf("build API request: %w", err)
+	}
+	request, err := http.NewRequest(http.MethodPost, requestURL.String(), strings.NewReader(string(payload)))
+	if err != nil {
+		return fmt.Errorf("build API request: %w", err)
+	}
+	request.Header.Set("Accept", "application/json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Authorization", "Bearer "+c.token)
+	return c.do(request, target)
+}
+
+func (c *APIClient) do(request *http.Request, target any) error {
 	response, err := c.httpClient.Do(request)
 	if err != nil {
 		return fmt.Errorf("API request: %w", err)

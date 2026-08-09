@@ -6,6 +6,7 @@ module Lauth
       include Deps[container: "persistence.rom"]
 
       struct_namespace Lauth
+      commands :create
 
       def search_by_organization_name(value)
         pattern = wildcard_pattern(value)
