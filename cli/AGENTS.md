@@ -24,12 +24,12 @@
 - Use attribute names from `sql/primary/create_tables.sql` in response models and JSON tags, including their database spelling and casing. Examples: `uniqueIdentifier`, `organizationName`, `dlpsCIDRAddress`, `dlpsPath`, and `dlpsServer`.
 - Do not infer renamed fields such as `id` or `organization_name` when the database schema provides the canonical name.
 - Keep command handlers independent of SQL-equivalent logic.
-- Centralize real HTTP behavior in a shared API client once endpoint contracts are documented: base URL, API key, timeout, request construction, decoding, and error normalization.
+- Centralize real HTTP behavior in a shared API client: base URL, Bearer token, timeout, request construction, decoding, and error normalization.
 - Fixture responses should be deterministic JSON files under `client/testdata/` and should model the eventual API response shape.
 
 ## CLI Conventions
 
-- Preserve the plan's command names, including `authzd_to_coll`.
+- Preserve the active plan's command names; `authzd_to_coll` is deferred.
 - Human-readable table output is the default; structured JSON is available through `--output=json`.
 - Keep table headers stable and based on schema field names.
 - Validate required arguments with Cobra and return errors rather than silently accepting malformed input.
@@ -47,6 +47,6 @@
 
 ## Scope Boundaries
 
-- Phase One query work includes institution, network, user, object, collection, and authorization diagnostic read operations.
+- Phase One query work includes institution, network, user, location, and collection read operations. Authorization diagnostic work is deferred.
 - `cidr` is a local Phase One command. `export` and `replication status` are retired; do not reintroduce them without an explicit scope change.
 - Keep Phase Two mutations, raw dump compatibility, nested MySQL utilities, imports, synchronization, password rotation, email, and destructive loads untouched.

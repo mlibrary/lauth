@@ -19,10 +19,10 @@ var _ = Describe("institution search", func() {
 		}}}
 		var output bytes.Buffer
 		command := NewRootCommand(searcher, &output)
-		command.SetArgs([]string{"institution", "search", "Example", "University"})
+		command.SetArgs([]string{"institution", "search", "Example*University"})
 
 		Expect(command.Execute()).To(Succeed())
-		Expect(searcher.pattern).To(Equal("Example%University"))
+		Expect(searcher.pattern).To(Equal("Example*University"))
 		Expect(output.String()).To(Equal("UNIQUEIDENTIFIER  ORGANIZATIONNAME\n1                 Example University\n"))
 	})
 

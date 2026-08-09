@@ -49,7 +49,7 @@ func (f fixtureQueryService) SearchInstitutions(string) ([]Institution, error) {
 	return response.Institutions, nil
 }
 
-func (f fixtureQueryService) SearchNetworks(string) ([]Network, error) {
+func (f fixtureQueryService) SearchNetworks(NetworkSearch) ([]Network, error) {
 	var response struct {
 		Networks []Network `json:"networks"`
 	}
@@ -69,14 +69,14 @@ func (f fixtureQueryService) InstitutionNetworks(string) ([]Network, error) {
 	return response.Networks, nil
 }
 
-func (f fixtureQueryService) InstitutionGrants(string) ([]Access, error) {
+func (f fixtureQueryService) InstitutionGrants(string) ([]Grant, error) {
 	var response struct {
-		Collections []Access `json:"collections"`
+		Grants []Grant `json:"grants"`
 	}
-	if err := f.decode("institution_collections_response", &response); err != nil {
+	if err := f.decode("institution_grants_response", &response); err != nil {
 		return nil, err
 	}
-	return response.Collections, nil
+	return response.Grants, nil
 }
 
 func (f fixtureQueryService) UserShow(string) (UserInspection, error) {
@@ -87,24 +87,28 @@ func (f fixtureQueryService) UserShow(string) (UserInspection, error) {
 	return response, nil
 }
 
-func (f fixtureQueryService) ObjectsByPath(string) ([]CollectionObject, error) {
+func (f fixtureQueryService) SearchLocations(path, server string) ([]Location, error) {
 	var response struct {
-		Objects []CollectionObject `json:"objects"`
+		Locations []Location `json:"locations"`
 	}
-	if err := f.decode("objects_by_path_response", &response); err != nil {
+	fixture := "locations_search_response"
+	if server != "" {
+		fixture = "locations_search_response"
+	}
+	if err := f.decode(fixture, &response); err != nil {
 		return nil, err
 	}
-	return response.Objects, nil
+	return response.Locations, nil
 }
 
-func (f fixtureQueryService) ObjectsByServer(string) ([]CollectionObject, error) {
+func (f fixtureQueryService) CollectionSearch(string) ([]Collection, error) {
 	var response struct {
-		Objects []CollectionObject `json:"objects"`
+		Collections []Collection `json:"collections"`
 	}
-	if err := f.decode("objects_by_server_response", &response); err != nil {
+	if err := f.decode("collection_search_response", &response); err != nil {
 		return nil, err
 	}
-	return response.Objects, nil
+	return response.Collections, nil
 }
 
 func (f fixtureQueryService) CollectionShow(string) (CollectionInspection, error) {
@@ -115,14 +119,14 @@ func (f fixtureQueryService) CollectionShow(string) (CollectionInspection, error
 	return response, nil
 }
 
-func (f fixtureQueryService) CollectionGrants(string) ([]Access, error) {
+func (f fixtureQueryService) CollectionGrants(string) ([]Grant, error) {
 	var response struct {
-		Access []Access `json:"access"`
+		Grants []Grant `json:"grants"`
 	}
-	if err := f.decode("collection_access_response", &response); err != nil {
+	if err := f.decode("collection_grants_response", &response); err != nil {
 		return nil, err
 	}
-	return response.Access, nil
+	return response.Grants, nil
 }
 
 func (f fixtureQueryService) AuthzDiagnostic(string, string, string) (AuthzDiagnostic, error) {

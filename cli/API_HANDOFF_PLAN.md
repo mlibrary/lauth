@@ -16,9 +16,9 @@ The API must support:
 - Institution search, networks, and grants
 - Network search
 - User inspection
-- Protected-object searches by path and server
+- Protected-location searches by path and server
 - Collection inspection and grants
-- Authorization diagnostics
+- Authorization diagnostics (deferred)
 
 The following are intentionally out of scope:
 
@@ -51,16 +51,14 @@ Do not overload `/authorized` with administrative list operations.
 
 ## Authentication Decision
 
-The current Go client sends `X-API-Key`, while Lauth currently validates:
+The active Go client sends a Bearer token, while Lauth validates:
 
 ```http
 Authorization: Bearer <bearer-token>
 ```
 
-The recommended implementation is to reuse the existing Bearer-token scheme
-for the administrative API and configure the CLI with `AUTHZ_API_TOKEN`. If an
-API-key scheme is required instead, document and implement a separate
-authentication policy; do not silently treat an API key as a Bearer token.
+The administrative API reuses the existing Bearer-token scheme and the CLI is
+configured with `AUTHZ_API_TOKEN`.
 
 Every administrative route must define its required scope or role. A shared
 Bearer token is acceptable for the first local implementation, but the
@@ -79,16 +77,14 @@ the CLI client consistently.
 | `institution networks` | `GET /api/v1/institutions/{id}/networks` | `id=7` | `{ "networks": [...] }` |
 | `institution grants` | `GET /api/v1/institutions/{id}/grants` | `id=7` | `{ "grants": [...] }` |
 | `network search` | `GET /api/v1/networks` | `cidr=192.0.2` | `{ "networks": [...] }` |
+| `collection search` | `GET /api/v1/collections` | `id=example*` | `{ "collections": [...] }` |
 | `user show` | `GET /api/v1/users/{userid}` | `userid=alice` | `{ "userid": ..., "user": ..., "memberships": [...], "grants": [...] }` |
-| `objects by-path` | `GET /api/v1/objects` | `path=/books` | `{ "objects": [...] }` |
-| `objects by-server` | `GET /api/v1/objects` | `server=server.example` | `{ "objects": [...] }` |
+| `locations search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
 | `collection show` | `GET /api/v1/collections/{id}` | `id=example` | `{ "collection": ..., "grants": [...] }` |
 | `collection grants` | `GET /api/v1/collections/{id}/grants` | `id=example` | `{ "grants": [...] }` |
-| `authzd_to_coll` | `GET /api/v1/authorization/diagnostic` | `ip`, `userid`, `collection` | `{ "authorized": ..., "authorizedCollection": ..., "publicCollection": ... }` |
+| `authzd_to_coll` | Deferred | Existing legacy request and response contract | Unchanged until the feature decision |
 
-The current CLI uses legacy fixture names such as `collections` and `access`
-inside some JSON responses. The new API contract should use `grants` for the
-relationship consistently; update the CLI decoders when the API is adopted.
+The API uses `grants` consistently for relationship responses.
 
 ## Response Fields
 
@@ -175,7 +171,7 @@ authorization; do not replace it with a simple first-match query.
 
 ## Authorization Diagnostic
 
-Implement a dedicated diagnostic operation for:
+If authorization diagnostics are reinstated, implement a dedicated diagnostic operation for:
 
 ```text
 ip=192.0.2.1
@@ -264,10 +260,10 @@ Recommended order:
 2. `network search`
 3. `institution networks`
 4. `institution grants`
-5. `objects by-path` and `objects by-server`
-6. `collection show` and `collection grants`
+5. `locations search`
+6. `collection search`, `collection show`, and `collection grants`
 7. `user show`
-8. `authzd_to_coll`
+8. `authzd_to_coll` (deferred)
 
 Each endpoint should have tests for normal results, empty results, malformed
 input, authentication failure, authorization failure, repository/API failure,
@@ -279,7 +275,7 @@ The handoff is complete when:
 
 - Every active CLI command has a documented endpoint.
 - Every endpoint has a request and response spec.
-- Bearer/API-key behavior is explicit and tested.
+- Bearer-token behavior is explicit and tested.
 - Response envelopes use `grants` consistently.
 - Deleted-row behavior and ordering are documented.
 - User-sensitive fields are excluded from projections.

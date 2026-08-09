@@ -8,7 +8,7 @@ Replace the selected top-level Perl utilities in `bin/` with a command-suite CLI
 
 The CLI will:
 
-- Use an API key for authenticated API requests.
+- Use a Bearer token for authenticated API requests.
 - Preserve useful administrative and diagnostic behavior.
 - Remove direct Oracle and MySQL dependencies.
 - Keep local IP-range conversion independent of the API.
@@ -25,8 +25,8 @@ Port the read-only administrative and diagnostic functionality from top-level `b
 - Institution collection lookup: `qic`
 - User inspection: `qu`
 - Collection inspection: `qc`
-- Protected-object lookup: `qp`, `qs`
-- Authorization diagnostic: `authzd_to_coll`
+- Protected-location lookup: `qp`, `qs`
+- Authorization diagnostic: `authzd_to_coll` (deferred)
 - CIDR range conversion: `aggis`/`vip` behavior exposed as `cidr`
 
 ### Phase Two
@@ -56,9 +56,10 @@ authz institution grants
 
 authz user show
 
-authz objects by-path
-authz objects by-server
+authz locations search --path PATH
+authz locations search --server SERVER
 
+authz collection search PATTERN
 authz collection show
 authz collection grants
 
@@ -84,13 +85,13 @@ The exact root executable name is an implementation detail; the command and subc
 | `qin` | `institution networks` | 1 | List networks associated with an institution. |
 | `qic` | `institution grants` | 1 | List collection grants for an institution. |
 | `qu` | `user show` | 1 | Show user data, institution memberships, and direct collection permissions. |
-| `qp` | `objects by-path` | 1 | Search protected objects by path. |
-| `qs` | `objects by-server` | 1 | Search protected objects by server. |
+| `qp` | `locations search --path` | 1 | Search protected locations by path. |
+| `qs` | `locations search --server` | 1 | Search protected locations by server. |
 | `qc` | `collection show` | 1 | Show collection metadata and matching grant information. |
-| `authzd_to_coll` | `authzd_to_coll` | 1 | Call the REST authorization diagnostic endpoint with IP, user, and collection. |
+| `authzd_to_coll` | `authzd_to_coll` | Deferred | Preserve the existing diagnostic contract until its necessity is decided. |
 | `aggis`/`vip` | `cidr from-range` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
-| `dump_paths.pl` | `objects by-path --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
-| `dump_server.pl` | `objects by-server --raw` | 2 | Preserve raw collection-object dump behavior if still required. |
+| `dump_paths.pl` | `locations search --path --raw` | 2 | Preserve raw collection-location dump behavior if still required. |
+| `dump_server.pl` | `locations search --server --raw` | 2 | Preserve raw collection-location dump behavior if still required. |
 | `dump_coll.pl` | `collection grants --raw` | 2 | Preserve raw collection-grant dump behavior if still required. |
 | `add_inst` | `institution create` | 2 | Create an institution. |
 | `ain` | `institution network add` | 2 | Add institution network ranges with overlap checks. |
@@ -103,7 +104,7 @@ The exact root executable name is an implementation detail; the command and subc
 Provide one shared API client responsible for:
 
 - Base URL configuration.
-- API-key authentication.
+- Bearer-token authentication.
 - HTTP methods.
 - Request timeouts.
 - Response decoding.
@@ -119,7 +120,7 @@ Group API calls by domain:
 - Institutions.
 - Users.
 - Collections.
-- Objects.
+- Locations.
 - Networks.
 - Authorization diagnostics.
 - Replication/health.
@@ -244,14 +245,14 @@ Pagination does not need to be implemented.
 Configuration should support:
 
 - API base URL.
-- API key from an environment variable or protected config file.
+- Bearer token from `AUTHZ_API_TOKEN` or the explicit CLI override.
 - Request timeout.
 - Optional output format.
 - Optional verbosity/debug mode.
 
 Do not carry forward embedded database credentials, Oracle environment variables, hard-coded filesystem paths, or shell pipelines.
 
-API keys must never appear in normal command output or error messages.
+Tokens must never appear in normal command output or error messages.
 
 ## 9. Verification Strategy
 
@@ -290,13 +291,13 @@ For representative existing queries:
 Phase One is complete when:
 
 - All selected top-level read-only utilities have command equivalents.
-- `objects` is a top-level command group.
+- `locations` is a top-level command group.
 - `authzd_to_coll` remains available under that exact name.
 - `authz cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
 - `authz cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
 - `authz cidr to-ints CIDR` emits the starting and ending 32-bit integers.
 - No Phase One command requires Oracle, MySQL, Perl DBI, or local database credentials.
-- API-key handling is centralized and secure.
+- Bearer-token handling is centralized and secure.
 - No pagination is introduced.
 - Phase Two utilities remain untouched.
 - Unit and command-level tests cover normal, empty, invalid, and API-error cases.
