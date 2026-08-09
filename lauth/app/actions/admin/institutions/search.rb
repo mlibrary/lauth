@@ -15,7 +15,7 @@ module Lauth
               organization_name: request.params[:organizationName]
             )
             response.body = {institutions: result[:institutions].map { |institution|
-              institution.to_h.slice(:uniqueIdentifier, :organizationName)
+              Lauth::Presenters::Admin::Institution.call(institution)
             }}.to_json
           rescue ArgumentError => error
             response.format = :json

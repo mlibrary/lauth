@@ -13,7 +13,7 @@ module Lauth
             response.format = :json
             result = operation.call(id: request.params[:id])
             response.body = {collections: result[:collections].map { |collection|
-              collection.to_h.slice(:uniqueIdentifier)
+              Lauth::Presenters::Admin::Collection.summary(collection)
             }}.to_json
           rescue ArgumentError => error
             response.format = :json

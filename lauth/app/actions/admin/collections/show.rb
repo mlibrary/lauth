@@ -14,11 +14,7 @@ module Lauth
             result = operation.show(
               collection_id: request.params[:id]
             )
-            result[:collection] = result[:collection].to_h.slice(
-              :uniqueIdentifier, :commonName, :description, :dlpsClass, :dlpsSource,
-              :dlpsAuthenMethod, :dlpsAuthzType, :dlpsPartlyPublic, :manager,
-              :lastModifiedTime, :dlpsDeleted
-            )
+            result[:collection] = Lauth::Presenters::Admin::Collection.call(result[:collection])
             response.body = result.to_json
           rescue Lauth::Ops::Admin::Collections::Related::NotFound => error
             response.format = :json

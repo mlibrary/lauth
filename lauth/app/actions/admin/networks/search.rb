@@ -13,10 +13,7 @@ module Lauth
             response.format = :json
             result = operation.call(request.params)
             response.body = {networks: result[:networks].map { |network|
-              network.to_h.slice(
-                :uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
-                :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted
-              )
+              Lauth::Presenters::Admin::Network.call(network)
             }}.to_json
           rescue Lauth::Repositories::NetworkRepo::InvalidSearch => error
             response.format = :json

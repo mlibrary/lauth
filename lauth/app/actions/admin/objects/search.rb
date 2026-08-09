@@ -16,9 +16,7 @@ module Lauth
               server: request.params[:server]
             )
             response.body = {objects: result[:objects].map { |location|
-              location.to_h.slice(
-                :coll, :dlpsPath, :dlpsServer, :lastModifiedTime, :dlpsDeleted
-              )
+              Lauth::Presenters::Admin::Location.call(location)
             }}.to_json
           rescue ArgumentError => error
             response.format = :json

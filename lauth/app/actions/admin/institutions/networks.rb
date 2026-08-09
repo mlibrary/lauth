@@ -15,10 +15,7 @@ module Lauth
               institution_id: request.params[:id]
             )
             response.body = {networks: result[:networks].map { |network|
-              network.to_h.slice(
-                :uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
-                :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted
-              )
+              Lauth::Presenters::Admin::Network.call(network)
             }}.to_json
           rescue Lauth::Ops::Admin::Institutions::Related::NotFound => error
             response.format = :json

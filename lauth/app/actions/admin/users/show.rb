@@ -12,9 +12,9 @@ module Lauth
 
             response.format = :json
             result = operation.call(userid: request.params[:userid])
-            result[:user] = result[:user].to_h.except(:userPassword, :dlpsKey)
+            result[:user] = Lauth::Presenters::Admin::User.call(result[:user])
             result[:memberships] = result[:memberships].map { |membership|
-              membership.to_h.slice(:userid, :inst, :lastModifiedTime, :dlpsDeleted)
+              Lauth::Presenters::Admin::Membership.call(membership)
             }
             response.body = result.to_json
           rescue Lauth::Ops::Admin::Users::Show::NotFound => error
