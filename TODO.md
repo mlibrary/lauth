@@ -14,12 +14,9 @@
 
 ## Next Handoff
 
-- Reconcile the terminology mismatch where the `/api/v1/objects` endpoint
-  returns location records. Decide whether to rename the endpoint/response
-  terminology or preserve it for compatibility, then update code, docs, and
-  tests consistently.
-- Propagate the finalized API v1 shapes to the CLI. Use `docs/ADMIN_API.md` as
-  the contract, including Bearer authentication, `id` for collection search,
-  explicit response projections, and the resolved location/object naming.
-- Keep CLI integration separate until the API terminology and response shapes
-  are finalized.
+- The administrative API contract is finalized around `/api/v1`, Bearer
+  authentication, explicit projections, and location terminology.
+- The Go CLI under `cli/` is the replacement
+  CLI. The Ruby CLI is out of scope.
+- The authorization diagnostic remains deferred and behaviorally unchanged
+  until its necessity is decided.

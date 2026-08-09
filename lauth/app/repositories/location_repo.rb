@@ -15,17 +15,24 @@ module Lauth
         search(:dlpsServer, value)
       end
 
+      def search_by_path_and_server(path, server)
+        search({dlpsPath: path, dlpsServer: server})
+      end
+
       private
 
-      def search(column, value)
-        raise ArgumentError, "search value is required" unless value.is_a?(String) && !value.empty?
+      def search(criteria, value = nil)
+        criteria = {criteria => value} unless criteria.is_a?(Hash)
+        patterns = criteria.transform_values do |search_value|
+          raise ArgumentError, "search value is required" unless search_value.is_a?(String) && !search_value.empty?
 
-        escaped = value.chars.map { |character| /[\\%_]/.match?(character) ? "\\#{character}" : character }.join
-        pattern = "%#{escaped}%"
+          escaped = search_value.chars.map { |character| /[\\%_]/.match?(character) ? "\\#{character}" : character }.join
+          "%#{escaped.tr("*", "%")}%"
+        end
         dataset = locations
           .dataset
           .where(dlpsDeleted: "f")
-          .where(Sequel.ilike(column, pattern))
+          .where(patterns.map { |column, pattern| Sequel.ilike(column, pattern) }.reduce(:&))
           .order(:dlpsPath, :dlpsServer, :coll)
         locations.class.new(dataset).to_a
       end

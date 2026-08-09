@@ -3,9 +3,9 @@
 module Lauth
   module Actions
     module Admin
-      module Objects
+      module Locations
         class Search < Lauth::AdminAction
-          include Deps[operation: "ops.admin.objects.search"]
+          include Deps[operation: "ops.admin.locations.search"]
 
           def handle(request, response)
             return unless authenticate_admin(request, response)
@@ -15,7 +15,7 @@ module Lauth
               path: request.params[:path],
               server: request.params[:server]
             )
-            response.body = {objects: result[:objects].map { |location|
+            response.body = {locations: result[:locations].map { |location|
               Lauth::Presenters::Admin::Location.call(location)
             }}.to_json
           rescue ArgumentError => error

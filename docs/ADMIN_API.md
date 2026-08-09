@@ -189,20 +189,23 @@ AND network.dlpsAddressEnd >= search_start
 Results are ordered by `dlpsAddressStart`, `dlpsAccessSwitch`, and
 `uniqueIdentifier`. Invalid or combined modes return `400`.
 
-## Protected Objects
+## Protected Locations
 
 ```http
-GET /api/v1/objects?path=/books
-GET /api/v1/objects?server=server.example
+GET /api/v1/locations?path=/books
+GET /api/v1/locations?server=server.example
+GET /api/v1/locations?path=/books&server=server.example
 ```
 
-Exactly one of `path` or `server` is required. Values use case-insensitive
-fragment matching. SQL wildcard characters are escaped. Results exclude
-deleted objects and are ordered by `dlpsPath`, `dlpsServer`, and `coll`.
+At least one of `path` or `server` is required. Values use case-insensitive
+fragment matching. Both values may be supplied and are combined with AND.
+The application wildcard `*` is supported; SQL wildcard characters are
+escaped. Results exclude deleted locations and are ordered by `dlpsPath`,
+`dlpsServer`, and `coll`.
 
 ```json
 {
-  "objects": [
+  "locations": [
     {
       "coll": "example",
       "dlpsPath": "/books%",
