@@ -5,6 +5,15 @@ module Lauth
     class NetworkRepo < ROM::Repository[:networks]
       class InvalidSearch < ArgumentError; end
 
+      class DuplicateCIDR < ArgumentError
+        attr_reader :canonical
+
+        def initialize(canonical, owner_id:, owner_name:)
+          @canonical = canonical
+          super("cidr #{canonical} already exists for institution #{owner_id} (#{owner_name})")
+        end
+      end
+
       include Deps[container: "persistence.rom"]
 
       struct_namespace Lauth
@@ -12,8 +21,18 @@ module Lauth
 
       def create_batch(attributes)
         container.gateways[:default].connection.transaction do
-          attributes.map { |network| create(**network) }
+          attributes.map do |network|
+            ensure_cidr_available!(network)
+            create(**network)
+          end
         end
+      rescue ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
+        # A concurrent writer can pass preflight; resolve the committed owner
+        # so the API still returns the public duplicate contract.
+        duplicate = attributes.lazy.map { |network| find_active_owner(network) }.find(&:itself)
+        raise duplicate if duplicate
+
+        raise
       end
 
       def search_by_ip(value)
@@ -57,6 +76,28 @@ module Lauth
       end
 
       private
+
+      def ensure_cidr_available!(network)
+        owner = find_active_owner(network)
+        raise owner if owner
+      end
+
+      def find_active_owner(network)
+        row = container.gateways[:default].connection[:aa_network]
+          .join(:aa_inst, uniqueIdentifier: :inst)
+          .where(
+            Sequel[:aa_network][:dlpsAddressStart] => network.fetch(:dlpsAddressStart),
+            Sequel[:aa_network][:dlpsAddressEnd] => network.fetch(:dlpsAddressEnd),
+            Sequel[:aa_network][:dlpsDeleted] => "f"
+          )
+          .select(
+            Sequel[:aa_inst][:uniqueIdentifier].as(:owner_id),
+            Sequel[:aa_inst][:organizationName].as(:owner_name)
+          ).first
+        return unless row
+
+        DuplicateCIDR.new(network.fetch(:dlpsCIDRAddress), owner_id: row[:owner_id], owner_name: row[:owner_name])
+      end
 
       AddressRange = Data.define(:start, :end)
 

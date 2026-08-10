@@ -144,9 +144,17 @@ as one API batch. `--access-switch` accepts `allow` or `deny` and defaults to
 `allow`. The API validates the institution, derives the address bounds, and
 associates every network through `inst` atomically.
 
-Network creation does not reject overlaps. Overlapping networks within one
-institution and a network contained by a network associated with another
-institution are valid historical configurations.
+Network creation rejects an exact active address-range duplicate globally,
+regardless of institution or `allow`/`deny` access switch. The API compares
+canonical address bounds, so host bits are normalized before uniqueness is
+checked. An owner-aware `400 invalid_parameter` error identifies the canonical
+CIDR, owning institution ID, and organization name. Canonical duplicates in a
+single request are also rejected with a message containing the canonical CIDR;
+the batch is atomic. Different-size and other non-identical overlaps remain
+allowed, and a soft-deleted range can be recreated while its historical row
+remains deleted. The current composite key permits only one deleted historical
+row for a range; repeated delete/recreate cycles and a future history table
+remain deferred.
 
 ### Output Layer
 
@@ -155,6 +163,8 @@ Use a consistent output strategy:
 - Human-readable output by default.
 - Structured JSON output where useful.
 - Stable headers and field ordering.
+- Normalize structured API errors to `<code>: <message>` and emit no mutation
+  success output when a mutation fails.
 
 ## 6. `cidr` Command
 

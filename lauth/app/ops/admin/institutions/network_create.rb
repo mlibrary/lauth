@@ -18,7 +18,9 @@ module Lauth
             raise ArgumentError, "accessSwitch must be allow or deny" unless %w[allow deny].include?(access_switch)
 
             parsed = cidrs.map { |cidr| Lauth::IPv4CIDR.parse(cidr) }
-            raise ArgumentError, "cidrs must not contain duplicates" unless parsed.map(&:to_s).uniq.length == parsed.length
+            canonical_cidrs = parsed.map(&:to_s)
+            duplicate = canonical_cidrs.group_by(&:itself).find { |_cidr, values| values.length > 1 }&.first
+            raise ArgumentError, "cidr #{duplicate} is duplicated in request" if duplicate
 
             {networks: network_repo.create_batch(parsed.map { |cidr|
               {

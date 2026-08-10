@@ -221,6 +221,17 @@ var _ = Describe("mutation commands", func() {
 		Expect(output.String()).To(BeEmpty())
 	})
 
+	It("propagates duplicate CIDR owner details unchanged after canonicalization", func() {
+		service := &fakeMutationService{networkErr: errors.New("invalid_parameter: cidr 192.0.2.0/24 already exists for institution 7 (Example University)")}
+		var output bytes.Buffer
+		command := NewRootCommand(service, &output)
+		command.SetArgs([]string{"network", "add", "--institution", "7", "--cidr", "192.0.2.17/24", "--yes"})
+
+		Expect(command.Execute()).To(MatchError("invalid_parameter: cidr 192.0.2.0/24 already exists for institution 7 (Example University)"))
+		Expect(service.cidrs).To(Equal([]string{"192.0.2.0/24"}))
+		Expect(output.String()).To(BeEmpty())
+	})
+
 	It("renders network creation as the documented table", func() {
 		service := &fakeMutationService{}
 		var output bytes.Buffer

@@ -174,12 +174,35 @@ insertion, so `192.0.2.17/24` is stored and returned as `192.0.2.0/24`.
 `prefix`, `rangeStart`, and `rangeEnd`, are ignored rather than rejected.
 
 The complete batch is validated before any row is inserted and is committed as
-one atomic operation. Duplicate canonical CIDRs within the request return
-`400` and create no networks. Malformed JSON, a non-object body, missing or
-invalid `cidrs`, invalid CIDRs or address bounds, and an invalid
-`accessSwitch` also return `400` with the common `invalid_parameter` error
-envelope. Overlap with existing networks, including networks belonging to
-another institution, is allowed.
+one atomic operation. Each CIDR's canonical address bounds are the uniqueness
+key for active networks globally: the check covers all institutions and both
+`allow` and `deny` access switches. An exact duplicate canonical range returns
+`400` with the common `invalid_parameter` error envelope. For an existing
+active range, the message includes the canonical CIDR, owning institution ID,
+and owning organization name:
+
+```json
+{
+  "error": {
+    "code": "invalid_parameter",
+    "message": "cidr 192.0.2.0/24 already exists for institution 7 (Example University)"
+  }
+}
+```
+
+Two CIDRs in the same request that canonicalize to the same range are rejected
+before insertion with a message containing the canonical CIDR, for example
+`cidr 192.0.2.0/24 is duplicated in request`. The batch creates no networks
+in either duplicate case. Different-size or otherwise non-identical
+overlapping ranges remain allowed. Soft-deleted ranges are not considered
+active owners and may be recreated while the historical row remains deleted.
+Because the current schema uses `dlpsDeleted` in the unique key, only one
+deleted historical row can exist for a range; repeated delete/recreate cycles
+are a deferred limitation. A future history table can remove that limitation.
+
+Malformed JSON, a non-object body, missing or invalid `cidrs`, invalid CIDRs or
+address bounds, and an invalid `accessSwitch` also return `400` with the
+common `invalid_parameter` error envelope.
 
 A successful request returns `201 Created`:
 

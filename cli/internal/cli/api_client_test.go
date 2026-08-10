@@ -143,6 +143,20 @@ var _ = Describe("administrative API", func() {
 		Expect(err).To(MatchError("invalid_network: network rejected"))
 	})
 
+	It("normalizes a duplicate CIDR error with its canonical owner details", func() {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			Expect(r.Method).To(Equal(http.MethodPost))
+			Expect(r.URL.Path).To(Equal("/api/v1/institutions/7/networks"))
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":{"code":"invalid_parameter","message":"cidr 192.0.2.0/24 already exists for institution 7 (Example University)"}}`))
+		}))
+		DeferCleanup(server.Close)
+
+		_, err := NewAPIClient(server.URL, "test-token", server.Client()).CreateNetworks("7", []string{"192.0.2.0/24"}, "allow")
+
+		Expect(err).To(MatchError("invalid_parameter: cidr 192.0.2.0/24 already exists for institution 7 (Example University)"))
+	})
+
 	It("requires the active API base URL and token", func() {
 		_, err := NewAPIClient("", "test-token", nil).SearchInstitutions("Example")
 		Expect(err).To(MatchError("AUTHZ_API_BASE_URL is required"))

@@ -109,15 +109,53 @@ RSpec.describe "POST /api/v1/institutions/:id/networks", type: [:request, :datab
     expect(Lauth::Repositories::NetworkRepo.new.networks.to_a).to be_empty
   end
 
-  it "rejects duplicate canonical CIDRs" do
+  it "rolls back a mixed batch when one exact CIDR is already active" do
+    Factory[:institution, uniqueIdentifier: 7]
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"]), json_headers
+
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["198.51.100.0/24", "192.0.2.17/24"]), json_headers
+
+    expect(last_response.status).to eq(400)
+    expect(Lauth::Repositories::NetworkRepo.new.networks.dataset.where(dlpsCIDRAddress: "198.51.100.0/24", dlpsDeleted: "f").count).to eq(0)
+  end
+
+  it "rejects duplicate canonical CIDRs in one request with the CIDR in the message" do
     Factory[:institution, uniqueIdentifier: 7]
 
     post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24", "192.0.2.17/24"]), json_headers
 
     expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to eq(
+      "error" => {"code" => "invalid_parameter", "message" => "cidr 192.0.2.0/24 is duplicated in request"}
+    )
   end
 
-  it "allows overlapping networks across institutions" do
+  it "rejects an exact active CIDR owned by another institution" do
+    Factory[:institution, uniqueIdentifier: 7, organizationName: "First Institution"]
+    Factory[:institution, uniqueIdentifier: 8, organizationName: "Second Institution"]
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"]), json_headers
+
+    post "/api/v1/institutions/8/networks", JSON.generate(cidrs: ["192.0.2.17/24"]), json_headers
+
+    expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to eq(
+      "error" => {"code" => "invalid_parameter", "message" => "cidr 192.0.2.0/24 already exists for institution 7 (First Institution)"}
+    )
+  end
+
+  it "rejects an exact active CIDR on the opposite access switch" do
+    Factory[:institution, uniqueIdentifier: 7, organizationName: "First Institution"]
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"], accessSwitch: "allow"), json_headers
+
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"], accessSwitch: "deny"), json_headers
+
+    expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to eq(
+      "error" => {"code" => "invalid_parameter", "message" => "cidr 192.0.2.0/24 already exists for institution 7 (First Institution)"}
+    )
+  end
+
+  it "allows containment and other non-exact overlaps" do
     Factory[:institution, uniqueIdentifier: 7]
     Factory[:institution, uniqueIdentifier: 8]
     post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"]), json_headers
@@ -125,7 +163,18 @@ RSpec.describe "POST /api/v1/institutions/:id/networks", type: [:request, :datab
     post "/api/v1/institutions/8/networks", JSON.generate(cidrs: ["192.0.2.0/25"]), json_headers
 
     expect(last_response.status).to eq(201)
-    expect(JSON.parse(last_response.body, symbolize_names: true).dig(:networks, 0, :inst)).to eq(8)
+  end
+
+  it "allows a soft-deleted CIDR to be recreated once" do
+    Factory[:institution, uniqueIdentifier: 7]
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"]), json_headers
+    expect(last_response.status).to eq(201)
+    Lauth::Repositories::NetworkRepo.new.networks.dataset.where(dlpsCIDRAddress: "192.0.2.0/24").update(dlpsDeleted: "t")
+
+    post "/api/v1/institutions/7/networks", JSON.generate(cidrs: ["192.0.2.0/24"]), json_headers
+
+    expect(last_response.status).to eq(201)
+    expect(Lauth::Repositories::NetworkRepo.new.networks.dataset.where(dlpsCIDRAddress: "192.0.2.0/24", dlpsDeleted: "f").count).to eq(1)
   end
 
   it "returns not found for an inactive institution" do

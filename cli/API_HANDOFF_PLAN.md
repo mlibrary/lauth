@@ -118,16 +118,34 @@ networks. A successful response is `{ "networks": [...] }` with status `201
 Created`. A missing or inactive institution returns `404` with a `not_found`
 error.
 
-Overlapping networks within one institution and cross-institution containment
-are valid historical configurations. Preserve them when creating networks;
-authorization continues to use the most-specific matching network.
+The canonical address bounds are also a global active-range uniqueness key
+across all institutions and both access switch values. An exact active
+duplicate returns `400` with `invalid_parameter`; its message contains the
+canonical CIDR and the owning institution's ID and organization name, for
+example `cidr 192.0.2.0/24 already exists for institution 7 (Example
+University)`. Duplicate canonical ranges within one request are rejected with
+`400` and a message containing the canonical CIDR, and the complete batch is
+atomic in both cases. Different-size and other non-identical overlaps remain
+allowed. Soft-deleted ranges are excluded from active-owner checks and can be
+recreated while the historical row remains deleted. The current composite key
+permits only one deleted historical row for a range, so repeated
+delete/recreate cycles remain a deferred limitation; a future history table can
+remove it.
+
+Different-size and other non-identical overlapping networks within one
+institution and across institutions remain valid configurations. Preserve
+them when creating networks; authorization continues to use the most-specific
+matching network. Exact active address-range duplicates are the exception,
+regardless of institution or access switch.
 
 ### Historical Overlap Follow-Up
 
-Historical behavior did not enforce or otherwise manage cross-institution
-overlap rules. Add focused coverage later for multiple institutions matching
-the same client IP, especially equal-sized overlaps, so the authorization
-behavior is documented without introducing new creation-time validation.
+Multiple institutions may still match the same client IP through different-size
+or otherwise non-identical overlaps. Equal-sized exact active ranges cannot be
+created more than once globally; soft-deleted ranges may be recreated once
+under the current composite key. The
+authorization behavior for permitted overlaps should remain covered without
+adding broader creation-time overlap validation.
 
 ## Response Fields
 
@@ -257,6 +275,10 @@ Recommended status mapping:
 - `404` exact resource does not exist
 - `422` valid syntax with invalid semantics
 - `500` unexpected server error
+
+The CLI API client normalizes a structured API error to `<code>: <message>`.
+For a failed mutation, the command returns that error and emits no mutation
+success output.
 
 Do not include API tokens, SQL, database URLs, stack traces, or credentials in
 error responses.
