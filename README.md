@@ -49,12 +49,26 @@ docker compose run --rm app-dev rspec <spec paths>
 ## Building and Testing the CLI
 
 The Go administrative CLI lives under `cli/` and uses the versioned
-administrative API. From the repository root:
+administrative API. Its tests and release configuration checks can run in the
+Compose development container from the repository root:
 
 ```sh
-cd cli
+docker compose run --rm cli-dev
+```
+
+The default `cli-dev` command runs `go test ./...`, `go vet ./...`, and
+`goreleaser check`. To run a focused test directly:
+
+```sh
+docker compose run --rm cli-dev go test ./internal/cli
+```
+
+For host-side development, the equivalent commands can be run from `cli/`:
+
+```sh
 go test ./...
 go vet ./...
+goreleaser check
 ```
 
 The CLI configuration uses `AUTHZ_API_BASE_URL`, `AUTHZ_API_TOKEN`, and the

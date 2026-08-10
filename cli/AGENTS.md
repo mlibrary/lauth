@@ -17,7 +17,7 @@ Shared repository and test-environment guidance is in `../AGENTS.md`.
   2. Add a failing Ginkgo/Gomega spec.
   3. Confirm the request and response contract, especially JSON field names.
   4. Implement the smallest production slice that makes the spec pass.
-  5. Run the focused spec and then `go test ./...`.
+  5. Run the focused spec and then `docker compose run --rm cli-dev`.
 - Keep work incremental. Do not implement unrelated commands in the same loop.
 - Preserve passing behavior and tests from earlier slices.
 - For API-backed commands, use a fake or fixture-backed service in command tests; do not make tests depend on a live API.
@@ -49,7 +49,10 @@ Shared repository and test-environment guidance is in `../AGENTS.md`.
 ## Verification
 
 - Run `gofmt` on changed Go files.
-- Run `go test ./...` from `cli/` after each completed TDD loop.
+- Run `docker compose run --rm cli-dev` from the repository root after each
+  completed TDD loop. This runs `go test ./...`, `go vet ./...`, and
+  `goreleaser check`.
+- Run focused tests with `docker compose run --rm cli-dev go test ./internal/cli`.
 - Exercise representative commands with `go run ./cmd/lauth ...` when fixture-backed behavior changes.
 - Ruby verification and shared repository checks follow `../AGENTS.md`.
 

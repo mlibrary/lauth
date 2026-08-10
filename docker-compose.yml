@@ -57,6 +57,15 @@ services:
       - ./lauth:/lauth/lauth
     command: ["rspec"]
 
+  cli-dev:
+    profiles: ["test"]
+    build:
+      context: ./
+      dockerfile: ./cli/Dockerfile
+    volumes:
+      - .:/lauth
+    working_dir: /lauth/cli
+
   mariadb:
     image: bitnami/mariadb
     hostname: db.lauth.local
