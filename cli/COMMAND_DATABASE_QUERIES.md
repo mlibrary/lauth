@@ -153,7 +153,7 @@ ORDER BY
     userid;
 ```
 
-### `lauth locations search --path /books`
+### `lauth location search --path /books`
 
 Legacy utility: `bin/qp`
 
@@ -165,7 +165,7 @@ FROM authz_umichlib.aa_coll_obj
 WHERE dlpspath LIKE '%/books%';
 ```
 
-### `lauth locations search --server server.example`
+### `lauth location search --server server.example`
 
 Legacy utility: `bin/qs`
 
@@ -207,9 +207,13 @@ FROM authz_umichlib.aa_may_access
 WHERE coll LIKE 'example%';
 ```
 
-### `lauth authzd_to_coll 192.0.2.1 alice example`
+### `lauth access check alice example 192.0.2.1`
 
 Legacy utility: `bin/authzd_to_coll`
+
+The new command accepts the user ID and collection ID first, with the IP as an
+optional third argument. The API returns the same access result structure as
+`/authorized` while resolving the collection directly by identifier.
 
 The utility converts `192.0.2.1` to its unsigned numeric IPv4 value
 `3221225985` before calling the Oracle table function.

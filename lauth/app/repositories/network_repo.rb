@@ -8,10 +8,15 @@ module Lauth
       class DuplicateCIDR < ArgumentError
         attr_reader :canonical
 
-        def initialize(canonical, owner_id:, owner_name:)
-          @canonical = canonical
-          super("cidr #{canonical} already exists for institution #{owner_id} (#{owner_name})")
+        def initialize(conflicts)
+          @canonical = conflicts.first.canonical
+          message = conflicts.map do |conflict|
+            "cidr #{conflict.canonical} already exists for institution #{conflict.owner_id} (#{conflict.owner_name})"
+          end.join("; ")
+          super(message)
         end
+
+        Conflict = Data.define(:canonical, :owner_id, :owner_name)
       end
 
       include Deps[container: "persistence.rom"]
@@ -21,16 +26,16 @@ module Lauth
 
       def create_batch(attributes)
         container.gateways[:default].connection.transaction do
-          attributes.map do |network|
-            ensure_cidr_available!(network)
-            create(**network)
-          end
+          conflicts = attributes.filter_map { |network| find_active_owner(network) }
+          raise DuplicateCIDR, conflicts unless conflicts.empty?
+
+          attributes.map { |network| create(**network) }
         end
       rescue ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
         # A concurrent writer can pass preflight; resolve the committed owner
         # so the API still returns the public duplicate contract.
-        duplicate = attributes.lazy.map { |network| find_active_owner(network) }.find(&:itself)
-        raise duplicate if duplicate
+        conflicts = attributes.filter_map { |network| find_active_owner(network) }
+        raise DuplicateCIDR, conflicts unless conflicts.empty?
 
         raise
       end
@@ -77,11 +82,6 @@ module Lauth
 
       private
 
-      def ensure_cidr_available!(network)
-        owner = find_active_owner(network)
-        raise owner if owner
-      end
-
       def find_active_owner(network)
         row = container.gateways[:default].connection[:aa_network]
           .join(:aa_inst, uniqueIdentifier: :inst)
@@ -96,7 +96,9 @@ module Lauth
           ).first
         return unless row
 
-        DuplicateCIDR.new(network.fetch(:dlpsCIDRAddress), owner_id: row[:owner_id], owner_name: row[:owner_name])
+        DuplicateCIDR::Conflict.new(
+          network.fetch(:dlpsCIDRAddress), row[:owner_id], row[:owner_name]
+        )
       end
 
       AddressRange = Data.define(:start, :end)

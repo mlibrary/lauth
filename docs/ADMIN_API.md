@@ -401,27 +401,29 @@ institution memberships, and active direct grants:
 
 `userPassword` and `dlpsKey` are never returned.
 
-## Authorization Diagnostic
+## Access Check
 
 ```http
-GET /api/v1/authorization/diagnostic?ip=192.0.2.1&userid=alice&collection=example
+GET /api/v1/access?userid=alice&collection=example&ip=192.0.2.1
 ```
 
-The operation evaluates the requested collection using direct, institution,
-group, and network-aware grant policy. Delegated collections evaluate grants
-for the collection class. Deleted collections and grants are excluded.
+The operation evaluates the requested collection using the same collection-based
+access policy as `/authorized`. The collection is resolved directly by its
+identifier rather than by URI. Delegated collections evaluate grants for the
+collection class. Deleted collections and grants are excluded.
 
 ```json
 {
-  "authorized": true,
-  "authorizedCollection": "example",
-  "publicCollection": null
+  "determination": "allowed",
+  "authorized_collections": [],
+  "public_collections": []
 }
 ```
 
-`ip` must be a complete IPv4 address. `userid` and `collection` are required
-exact identifiers. A missing collection returns `404`; malformed input
-returns `400`.
+`userid` and `collection` are required exact identifiers. `ip` is optional when
+checking access without a client address, and must be a complete IPv4 address
+when supplied. A missing collection returns `404`; malformed input returns
+`400`.
 
 ## Out Of Scope
 

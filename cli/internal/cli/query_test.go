@@ -58,7 +58,7 @@ func (f *fakeQueryService) UserShow(user string) (UserInspection, error) {
 	return UserInspection{UserID: user}, nil
 }
 func (f *fakeQueryService) SearchLocations(path, server string) ([]Location, error) {
-	f.record("locations search", path, server)
+	f.record("location search", path, server)
 	if f.queryErr != nil {
 		return nil, f.queryErr
 	}
@@ -94,12 +94,25 @@ func (f *fakeQueryService) CollectionGrants(coll string) ([]Grant, error) {
 	}
 	return []Grant{{Coll: coll}}, nil
 }
-func (f *fakeQueryService) AuthzDiagnostic(ip, user, coll string) (AuthzDiagnostic, error) {
-	f.record("authzd_to_coll", ip, user, coll)
-	return AuthzDiagnostic{Authorized: true}, nil
+func (f *fakeQueryService) CheckAccess(user, coll, ip string) (AccessResult, error) {
+	f.record("access check", user, coll, ip)
+	return AccessResult{Determination: "allowed"}, nil
 }
 
 var _ = Describe("read-only query commands", func() {
+	It("renders the active legacy script mappings without invoking a service", func() {
+		var output bytes.Buffer
+		command := NewRootCommand(&fakeQueryService{}, &output)
+		command.SetArgs([]string{"legacy-scripts"})
+
+		Expect(command.Execute()).To(Succeed())
+		Expect(output.String()).To(ContainSubstring("qi               institution search"))
+		Expect(output.String()).To(ContainSubstring("authzd_to_coll   access check"))
+		Expect(output.String()).To(ContainSubstring("location search"))
+		Expect(output.String()).NotTo(ContainSubstring("aggis"))
+		Expect(output.String()).NotTo(ContainSubstring("vip"))
+	})
+
 	It("routes network search flags and returns the API response", func() {
 		service := &fakeQueryService{}
 		var output bytes.Buffer
@@ -125,11 +138,12 @@ var _ = Describe("read-only query commands", func() {
 		Entry("institution networks", []string{"institution", "networks", "7"}, "institution networks", []string{"7"}),
 		Entry("institution grants", []string{"institution", "grants", "7"}, "institution grants", []string{"7"}),
 		Entry("user show", []string{"user", "show", "alice"}, "user show", []string{"alice"}),
-		Entry("locations search", []string{"locations", "search", "--path", "/books", "--server", "server.example"}, "locations search", []string{"/books", "server.example"}),
+		Entry("location search", []string{"location", "search", "--path", "/books", "--server", "server.example"}, "location search", []string{"/books", "server.example"}),
 		Entry("collection search", []string{"collection", "search", "example*"}, "collection search", []string{"example*"}),
 		Entry("collection show", []string{"collection", "show", "example"}, "collection show", []string{"example"}),
 		Entry("collection grants", []string{"collection", "grants", "example"}, "collection grants", []string{"example"}),
-		Entry("authorization diagnostic", []string{"authzd_to_coll", "192.0.2.1", "alice", "example"}, "authzd_to_coll", []string{"192.0.2.1", "alice", "example"}),
+		Entry("access check", []string{"access", "check", "alice", "example", "192.0.2.1"}, "access check", []string{"alice", "example", "192.0.2.1"}),
+		Entry("access check without IP", []string{"access", "check", "alice", "example"}, "access check", []string{"alice", "example", ""}),
 	)
 
 	It("returns structured JSON for user inspection", func() {
@@ -167,7 +181,7 @@ var _ = Describe("read-only query commands", func() {
 		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}, `{"networks":[]}`),
 		Entry("institution networks", []string{"institution", "networks", "7"}, `{"networks":[]}`),
 		Entry("institution grants", []string{"institution", "grants", "7"}, `{"grants":[]}`),
-		Entry("locations search", []string{"locations", "search", "--path", "/books"}, `{"locations":[]}`),
+		Entry("location search", []string{"location", "search", "--path", "/books"}, `{"locations":[]}`),
 		Entry("collection search", []string{"collection", "search", "example"}, `{"collections":[]}`),
 		Entry("collection grants", []string{"collection", "grants", "example"}, `{"grants":[]}`),
 	)
@@ -184,7 +198,7 @@ var _ = Describe("read-only query commands", func() {
 		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}),
 		Entry("institution networks", []string{"institution", "networks", "7"}),
 		Entry("institution grants", []string{"institution", "grants", "7"}),
-		Entry("locations search", []string{"locations", "search", "--path", "/books"}),
+		Entry("location search", []string{"location", "search", "--path", "/books"}),
 		Entry("collection search", []string{"collection", "search", "example"}),
 		Entry("collection show", []string{"collection", "show", "example"}),
 		Entry("collection grants", []string{"collection", "grants", "example"}),
@@ -204,7 +218,7 @@ var _ = Describe("read-only query commands", func() {
 		Entry("network search", []string{"network", "search", "--ip", "192.0.2.1"}, []string{"INST", "DLPSCIDRADDRESS", "192.0.2.0/24"}),
 		Entry("institution networks", []string{"institution", "networks", "7"}, []string{"INST", "DLPSCIDRADDRESS", "7"}),
 		Entry("institution grants", []string{"institution", "grants", "7"}, []string{"COLL", "LASTMODIFIEDTIME", "example"}),
-		Entry("locations search", []string{"locations", "search", "--path", "/books"}, []string{"DLPSPATH", "DLPSSERVER", "/books"}),
+		Entry("location search", []string{"location", "search", "--path", "/books"}, []string{"DLPSPATH", "DLPSSERVER", "/books"}),
 		Entry("collection search", []string{"collection", "search", "example"}, []string{"UNIQUEIDENTIFIER", "example"}),
 		Entry("collection show", []string{"collection", "show", "example"}, []string{"UNIQUEIDENTIFIER", "COMMONNAME", "DESCRIPTION", "example"}),
 		Entry("collection grants", []string{"collection", "grants", "example"}, []string{"COLL", "LASTMODIFIEDTIME", "example"}),
@@ -235,7 +249,7 @@ var _ = Describe("read-only query commands", func() {
 
 	It("rejects a location search without filters", func() {
 		command := NewRootCommand(&fakeQueryService{}, &bytes.Buffer{})
-		command.SetArgs([]string{"locations", "search"})
+		command.SetArgs([]string{"location", "search"})
 		Expect(command.Execute()).To(MatchError("at least one of --path or --server is required"))
 	})
 

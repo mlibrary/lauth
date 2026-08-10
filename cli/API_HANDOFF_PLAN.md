@@ -20,7 +20,7 @@ The API must support:
 - User inspection
 - Protected-location searches by path and server
 - Collection inspection and grants
-- Authorization diagnostics (deferred)
+- Access checks by collection ID
 
 The following are intentionally out of scope:
 
@@ -45,8 +45,9 @@ The current Hanami application has:
 
 The existing `/authorized` endpoint accepts `user`, `uri`, and `ip`, and returns
 an `Access::Result` containing `determination`, `authorized_collections`, and
-`public_collections`. It is not a drop-in implementation of the CLI's
-`authzd_to_coll` diagnostic, whose input includes a collection identifier.
+`public_collections`. The administrative access endpoint uses a collection ID
+instead of resolving a URI, but reuses the same collection-based evaluation and
+response structure.
 
 Do not overload `/authorized` with administrative list operations.
 
@@ -82,10 +83,10 @@ the CLI client consistently.
 | `network add` | `POST /api/v1/institutions/{id}/networks` | JSON body: canonical `cidrs` array, optional `accessSwitch` | `{ "networks": [...] }` |
 | `collection search` | `GET /api/v1/collections` | `id=example*` | `{ "collections": [...] }` |
 | `user show` | `GET /api/v1/users/{userid}` | `userid=alice` | `{ "userid": ..., "user": ..., "memberships": [...], "grants": [...] }` |
-| `locations search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
+| `location search` | `GET /api/v1/locations` | `path=/books`, `server=server.example`, or both | `{ "locations": [...] }` |
 | `collection show` | `GET /api/v1/collections/{id}` | `id=example` | `{ "collection": ..., "grants": [...] }` |
 | `collection grants` | `GET /api/v1/collections/{id}/grants` | `id=example` | `{ "grants": [...] }` |
-| `authzd_to_coll` | Deferred | Existing legacy request and response contract | Unchanged until the feature decision |
+| `access check` | `GET /api/v1/access` | `userid=alice`, `collection=example`, optional `ip=192.0.2.1` | `{ "determination": ..., "authorized_collections": [...], "public_collections": [...] }` |
 
 The API uses `grants` consistently for relationship responses.
 
@@ -230,17 +231,19 @@ deleted collections and locations, matches `dlpsPath`, and selects the most
 specific path by depth and length. Preserve and test that behavior for
 authorization; do not replace it with a simple first-match query.
 
-## Authorization Diagnostic
+## Access Check
 
-If authorization diagnostics are reinstated, implement a dedicated diagnostic operation for:
+The access operation accepts:
 
 ```text
-ip=192.0.2.1
 userid=alice
 collection=example
+ip=192.0.2.1 (optional)
 ```
 
-The operation should define whether it:
+It should reuse the collection-based authorization evaluation used by
+`/authorized`, while resolving the collection directly by identifier. The
+operation should define whether it:
 
 - Checks a direct user grant
 - Checks institution membership grants
@@ -327,10 +330,10 @@ Recommended order:
 4. `network add`
 5. `institution networks`
 6. `institution grants`
-7. `locations search`
+7. `location search`
 8. `collection search`, `collection show`, and `collection grants`
 9. `user show`
-10. `authzd_to_coll` (deferred)
+10. `access check`
 
 Each endpoint should have tests for normal results, empty results, malformed
 input, authentication failure, authorization failure, repository/API failure,

@@ -119,6 +119,25 @@ RSpec.describe "POST /api/v1/institutions/:id/networks", type: [:request, :datab
     expect(Lauth::Repositories::NetworkRepo.new.networks.dataset.where(dlpsCIDRAddress: "198.51.100.0/24", dlpsDeleted: "f").count).to eq(0)
   end
 
+  it "reports every exact conflict in submitted order and rolls back the batch" do
+    Factory[:institution, uniqueIdentifier: 7, organizationName: "Existing Institution"]
+    post "/api/v1/institutions/7/networks", JSON.generate(
+      cidrs: ["192.0.2.0/24", "198.51.100.0/24"]
+    ), json_headers
+
+    post "/api/v1/institutions/7/networks", JSON.generate(
+      cidrs: ["203.0.113.0/24", "198.51.100.17/24", "192.0.2.17/24"]
+    ), json_headers
+
+    expect(last_response.status).to eq(400)
+    message = JSON.parse(last_response.body).dig("error", "message")
+    expect(message).to eq(
+      "cidr 198.51.100.0/24 already exists for institution 7 (Existing Institution); " \
+      "cidr 192.0.2.0/24 already exists for institution 7 (Existing Institution)"
+    )
+    expect(Lauth::Repositories::NetworkRepo.new.networks.dataset.where(dlpsCIDRAddress: "203.0.113.0/24", dlpsDeleted: "f").count).to eq(0)
+  end
+
   it "rejects duplicate canonical CIDRs in one request with the CIDR in the message" do
     Factory[:institution, uniqueIdentifier: 7]
 

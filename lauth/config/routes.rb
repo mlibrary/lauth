@@ -15,6 +15,6 @@ module Lauth
     get "/api/v1/collections/:id", to: "admin.collections.show"
     get "/api/v1/collections/:id/grants", to: "admin.collections.grants"
     get "/api/v1/users/:userid", to: "admin.users.show"
-    get "/api/v1/authorization/diagnostic", to: "admin.authorization.diagnostic"
+    get "/api/v1/access", to: "admin.access"
   end
 end

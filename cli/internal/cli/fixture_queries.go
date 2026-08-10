@@ -129,10 +129,10 @@ func (f fixtureQueryService) CollectionGrants(string) ([]Grant, error) {
 	return response.Grants, nil
 }
 
-func (f fixtureQueryService) AuthzDiagnostic(string, string, string) (AuthzDiagnostic, error) {
-	var response AuthzDiagnostic
-	if err := f.decode("authzd_to_coll_response", &response); err != nil {
-		return AuthzDiagnostic{}, err
+func (f fixtureQueryService) CheckAccess(string, string, string) (AccessResult, error) {
+	var response AccessResult
+	if err := f.decode("access_response", &response); err != nil {
+		return AccessResult{}, err
 	}
 	return response, nil
 }

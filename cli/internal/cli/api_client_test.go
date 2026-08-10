@@ -74,8 +74,13 @@ var _ = Describe("administrative API", func() {
 				Expect(body).To(Equal(map[string]string{"organizationName": "Example University"}))
 				w.WriteHeader(http.StatusCreated)
 				_, _ = w.Write([]byte(`{"institution":{"uniqueIdentifier":8,"organizationName":"Example University"}}`))
-			case "/authzd_to_coll":
-				_, _ = w.Write([]byte(`{"authorized":true}`))
+			case "/api/v1/access":
+				if r.URL.Query().Get("ip") == "" {
+					Expect(r.URL.Query()).To(Equal(url.Values{"userid": {"alice"}, "collection": {"example"}}))
+				} else {
+					Expect(r.URL.Query()).To(Equal(url.Values{"userid": {"alice"}, "collection": {"example"}, "ip": {"192.0.2.1"}}))
+				}
+				_, _ = w.Write([]byte(`{"determination":"allowed","authorized_collections":[],"public_collections":[]}`))
 			default:
 				Fail("unexpected API path: " + r.URL.Path)
 			}
@@ -111,6 +116,11 @@ var _ = Describe("administrative API", func() {
 		networks, err = client.CreateNetworks("7", []string{"192.0.2.0/24", "198.51.100.0/25"}, "allow")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(networks).To(HaveLen(2))
+		access, err := client.CheckAccess("alice", "example", "")
+		Expect(err).NotTo(HaveOccurred())
+		Expect(access.Determination).To(Equal("allowed"))
+		_, err = client.CheckAccess("alice", "example", "192.0.2.1")
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	It("normalizes structured API errors", func() {

@@ -107,6 +107,7 @@ func NewRootCommand(searcher InstitutionSearcher, stdout io.Writer) *cobra.Comma
 	institution.AddCommand(search)
 	root.AddCommand(institution)
 	root.AddCommand(cidrCommands(stdout))
+	root.AddCommand(legacyScriptsCommand(stdout))
 	if service, ok := searcher.(QueryService); ok {
 		addQueryCommands(root, service, stdout)
 	}

@@ -24,10 +24,10 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Add `institution networks`.
 - [x] Add `institution grants`.
 - [x] Add `user show`.
-- [x] Add `locations search` with path and/or server filters.
+- [x] Add `location search` with path and/or server filters.
 - [x] Add `collection show` and `collection grants`.
 - [x] Add `collection search`.
-- [ ] Revisit deferred `authzd_to_coll` diagnostic support.
+- [x] Add `access check` for a user, collection, and optional IP.
 - [x] Add `institution add` backed by the administrative API.
 - [x] Add `network add` with required institution association, CIDR/range decomposition, confirmation, and permissive overlap handling.
 - [x] Add `lauth` command-group aliases and option shorthands; keep `user` unabridged.
@@ -44,7 +44,8 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Retire `export` and `replication status`; see `RETIRED_FEATURES.md`.
 - [x] Retire dump scripts and `auth_to_acls`; see `RETIRED_FEATURES.md`.
 - [x] Complete empty-result, invalid-input, API-error, and output-format coverage for every active command.
-- [ ] Verify representative results against the legacy utilities.
+- [x] Verify representative results against the legacy utilities.
+- [x] Add the help-only `legacy-scripts` command.
 - [ ] Document authorization behavior for cross-institution and equal-sized overlapping networks; do not add creation-time overlap validation.
 - [ ] Follow up: map Bearer tokens to audit identities instead of using `root` for mutation audit fields.
 - [ ] Follow up: duplicate active institution names are currently permitted by the API and schema.

@@ -29,7 +29,7 @@
 
 ## CLI Conventions
 
-- Preserve the active plan's command names; `authzd_to_coll` is deferred.
+- Preserve the active plan's command names; access checks use `access check`.
 - The executable is `lauth`; command-group aliases are `inst`, `net`, `coll`,
   and `loc`. Keep `user` unabridged.
 - Human-readable table output is the default; structured JSON is available through `--output=json`.
@@ -60,7 +60,7 @@
 
 ## Scope Boundaries
 
-- Active query work includes institution, network, user, location, and collection read operations. Authorization diagnostic work is deferred.
+- Active query work includes institution, network, user, location, collection, and access checks.
 - `cidr` is a local command. `export` and `replication status` are retired; do not reintroduce them without an explicit scope change.
 - Institution and network creation are in scope. Dump scripts, `auth_to_acls`,
   and the irrelevant legacy utility groups are retired rather than deferred.

@@ -61,10 +61,10 @@ type CollectionInspection struct {
 	Grants     []Grant    `json:"grants,omitempty"`
 }
 
-type AuthzDiagnostic struct {
-	Authorized           bool   `json:"authorized"`
-	AuthorizedCollection string `json:"authorizedCollection,omitempty"`
-	PublicCollection     string `json:"publicCollection,omitempty"`
+type AccessResult struct {
+	Determination         string   `json:"determination"`
+	AuthorizedCollections []string `json:"authorized_collections"`
+	PublicCollections     []string `json:"public_collections"`
 }
 
 type QueryService interface {
@@ -77,7 +77,7 @@ type QueryService interface {
 	CollectionSearch(string) ([]Collection, error)
 	CollectionShow(string) (CollectionInspection, error)
 	CollectionGrants(string) ([]Grant, error)
-	AuthzDiagnostic(string, string, string) (AuthzDiagnostic, error)
+	CheckAccess(string, string, string) (AccessResult, error)
 }
 
 type MutationService interface {
@@ -107,7 +107,7 @@ type collectionResponse struct {
 }
 
 func addQueryCommands(root *cobra.Command, service QueryService, stdout io.Writer) {
-	root.AddCommand(networkCommands(service, stdout), userCommands(service, stdout), locationCommands(service, stdout), collectionCommands(service, stdout), authzCommand(service, stdout))
+	root.AddCommand(networkCommands(service, stdout), userCommands(service, stdout), locationCommands(service, stdout), collectionCommands(service, stdout), accessCommands(service, stdout))
 	institution := findCommand(root, "institution")
 	institution.AddCommand(queryCommand("networks [institution-id]", "List networks associated with an institution.", "lauth institution networks 7", func(args []string) (any, error) {
 		items, err := service.InstitutionNetworks(args[0])
@@ -176,7 +176,7 @@ func userCommands(service QueryService, stdout io.Writer) *cobra.Command {
 }
 
 func locationCommands(service QueryService, stdout io.Writer) *cobra.Command {
-	group := &cobra.Command{Use: "locations", Aliases: []string{"loc"}, Short: "Search protected locations."}
+	group := &cobra.Command{Use: "location", Aliases: []string{"loc"}, Short: "Search protected locations."}
 	var path, server string
 	command := &cobra.Command{
 		Use:   "search",
@@ -213,10 +213,26 @@ func collectionCommands(service QueryService, stdout io.Writer) *cobra.Command {
 	return group
 }
 
-func authzCommand(service QueryService, stdout io.Writer) *cobra.Command {
-	return queryCommand("authzd_to_coll [ip] [userid] [collection]", "Run an authorization diagnostic for an IP, user, and collection.", "lauth authzd_to_coll 192.0.2.1 alice example", func(args []string) (any, error) {
-		return service.AuthzDiagnostic(args[0], args[1], args[2])
-	}, stdout)
+func accessCommands(service QueryService, stdout io.Writer) *cobra.Command {
+	group := &cobra.Command{Use: "access", Short: "Check access to collections."}
+	group.AddCommand(&cobra.Command{
+		Use:     "check [userid] [collection] [ip]",
+		Short:   "Check access for a given IP, user, and collection.",
+		Example: "lauth access check alice example 192.0.2.1",
+		Args:    cobra.RangeArgs(2, 3),
+		RunE: func(command *cobra.Command, args []string) error {
+			ip := ""
+			if len(args) == 3 {
+				ip = args[2]
+			}
+			result, err := service.CheckAccess(args[0], args[1], ip)
+			if err != nil {
+				return err
+			}
+			return renderResult(command, stdout, result)
+		},
+	})
+	return group
 }
 
 func queryCommand(use, short, example string, query func([]string) (any, error), stdout io.Writer) *cobra.Command {
@@ -308,11 +324,11 @@ func renderQueryTable(stdout io.Writer, result any) error {
 		if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", value.Collection.UniqueIdentifier, value.Collection.CommonName, value.Collection.Description); err != nil {
 			return err
 		}
-	case AuthzDiagnostic:
-		if _, err := fmt.Fprintln(writer, "AUTHORIZED\tAUTHORIZEDCOLLECTION\tPUBLICCOLLECTION"); err != nil {
+	case AccessResult:
+		if _, err := fmt.Fprintln(writer, "DETERMINATION\tAUTHORIZED_COLLECTIONS\tPUBLIC_COLLECTIONS"); err != nil {
 			return err
 		}
-		if _, err := fmt.Fprintf(writer, "%t\t%s\t%s\n", value.Authorized, value.AuthorizedCollection, value.PublicCollection); err != nil {
+		if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", value.Determination, strings.Join(value.AuthorizedCollections, ","), strings.Join(value.PublicCollections, ",")); err != nil {
 			return err
 		}
 	default:

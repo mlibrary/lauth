@@ -9,14 +9,14 @@ Replace the selected top-level Perl utilities in `bin/` with a command-suite CLI
 The CLI will:
 
 - Use a Bearer token for authenticated API requests.
-- Preserve useful administrative and diagnostic behavior.
+- Preserve useful administrative and access-check behavior.
 - Remove direct Oracle and MySQL dependencies.
 - Keep local IP-range conversion independent of the API.
 - Support institution and network creation through the administrative API.
 
 ## 2. Scope
 
-Implement the selected administrative and diagnostic functionality from top-level `bin/`:
+Implement the selected administrative and access-check functionality from top-level `bin/`:
 
 - Institution lookup: `qi`
 - Institution network lookup: `qn`, `qin`
@@ -24,8 +24,8 @@ Implement the selected administrative and diagnostic functionality from top-leve
 - User inspection: `qu`
 - Collection inspection: `qc`
 - Protected-location lookup: `qp`, `qs`
-- Authorization diagnostic: `authzd_to_coll` (deferred)
-- CIDR range conversion: `aggis`/`vip` behavior exposed as `cidr`
+- Access check: `authzd_to_coll` mapped to `access check`
+- CIDR range conversion: local `cidr` behavior
 - Institution creation: `add_inst`
 - Institution network creation: `ain`
 
@@ -41,8 +41,8 @@ lauth institution grants
 
 lauth user show
 
-lauth locations search --path PATH
-lauth locations search --server SERVER
+lauth location search --path PATH
+lauth location search --server SERVER
 
 lauth collection search PATTERN
 lauth collection show
@@ -52,14 +52,15 @@ lauth network search
 lauth network add --institution INSTITUTION_ID --cidr CIDR
 lauth network add --institution INSTITUTION_ID --range-start START --range-end END
 
-lauth authzd_to_coll
+lauth access check USERID COLLECTION [IP]
 
 lauth cidr from-range START END
 lauth cidr to-range CIDR
 lauth cidr to-ints CIDR
 ```
 
-The existing `authzd_to_coll` name remains unchanged for now.
+The legacy `authzd_to_coll` behavior is available as `access check`; its
+parameters are ordered as `USERID COLLECTION [IP]`, with IP optional.
 
 Command-group aliases are `inst`, `net`, `coll`, and `loc`; `user` is not
 abbreviated. Frequently used options have standard one-letter shorthands:
@@ -75,11 +76,10 @@ abbreviated. Frequently used options have standard one-letter shorthands:
 | `qin` | `institution networks` | 1 | List networks associated with an institution. |
 | `qic` | `institution grants` | 1 | List collection grants for an institution. |
 | `qu` | `user show` | 1 | Show user data, institution memberships, and direct collection permissions. |
-| `qp` | `locations search --path` | 1 | Search protected locations by path. |
-| `qs` | `locations search --server` | 1 | Search protected locations by server. |
+| `qp` | `location search --path` | 1 | Search protected locations by path. |
+| `qs` | `location search --server` | 1 | Search protected locations by server. |
 | `qc` | `collection show` | 1 | Show collection metadata and matching grant information. |
-| `authzd_to_coll` | `authzd_to_coll` | Deferred | Preserve the existing diagnostic contract until its necessity is decided. |
-| `aggis`/`vip` | `cidr from-range` | 1 | Convert an inclusive IPv4 range into minimal CIDR blocks. |
+| `authzd_to_coll` | `access check` | 1 | Check access for a user, collection, and optional IP. |
 | `add_inst` | `institution add` | 1 | Create an institution through the administrative API. |
 | `ain` | `network add` | 1 | Add an institution-associated network from CIDR or an inclusive range. |
 
@@ -108,7 +108,7 @@ Group API calls by domain:
 - Collections.
 - Locations.
 - Networks.
-- Authorization diagnostics.
+- Access checks.
 
 These interfaces should return structured results to command handlers.
 
@@ -212,7 +212,7 @@ lauth cidr to-ints 141.212.0.0/14
 - Reject `START > END`.
 - Emit the minimal CIDR decomposition, one block per line.
 - Do not call the API.
-- Do not preserve `aggis` classful-network explanations or unrelated output modes.
+- Do not preserve legacy classful-network explanations or unrelated output modes.
 
 ### Algorithm
 
@@ -224,7 +224,7 @@ At each current start address:
 4. Advance to the next address.
 5. Repeat until the end address is covered.
 
-This is a clean-room implementation based on CIDR properties, not a source translation of `aggis`.
+This is a clean-room implementation based on CIDR properties, not a source translation of a legacy utility.
 
 ### Tests
 
@@ -300,7 +300,7 @@ For representative existing queries:
 - Compare institution results.
 - Compare network results.
 - Compare collection and user inspection results.
-- Compare `authzd_to_coll` diagnostic fields.
+- Compare `access check` results with the legacy `authzd_to_coll` fields and the `/authorized` result structure.
 - Compare CIDR output against mathematically expected decompositions.
 
 ## 10. Acceptance Criteria
@@ -308,8 +308,8 @@ For representative existing queries:
 The active CLI scope is complete when:
 
 - All selected top-level utilities have command equivalents or an explicit retired status.
-- `locations` is a top-level command group.
-- `authzd_to_coll` remains available under that exact name.
+- `location` is a top-level command group.
+- `access check` is available under the access command group.
 - `lauth cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
 - `lauth cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
 - `lauth cidr to-ints CIDR` emits the starting and ending 32-bit integers.

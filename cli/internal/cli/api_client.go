@@ -193,22 +193,20 @@ func (c *APIClient) CollectionGrants(collection string) ([]Grant, error) {
 	return response.Grants, nil
 }
 
-// AuthzDiagnostic remains on the deferred legacy contract until its necessity is decided.
-func (c *APIClient) AuthzDiagnostic(ip, userID, collection string) (AuthzDiagnostic, error) {
-	var response AuthzDiagnostic
-	query := url.Values{"ip": {ip}, "userid": {userID}, "collection": {collection}}
-	if err := c.getLegacy("/authzd_to_coll", query, &response); err != nil {
-		return AuthzDiagnostic{}, err
+func (c *APIClient) CheckAccess(userID, collection, ip string) (AccessResult, error) {
+	var response AccessResult
+	query := url.Values{"userid": {userID}, "collection": {collection}}
+	if ip != "" {
+		query.Set("ip", ip)
+	}
+	if err := c.get("/access", query, &response); err != nil {
+		return AccessResult{}, err
 	}
 	return response, nil
 }
 
 func (c *APIClient) get(path string, query url.Values, target any) error {
 	return c.request("/api/v1"+path, query, target, true)
-}
-
-func (c *APIClient) getLegacy(path string, query url.Values, target any) error {
-	return c.request(path, query, target, false)
 }
 
 func (c *APIClient) post(path string, body any, target any) error {
