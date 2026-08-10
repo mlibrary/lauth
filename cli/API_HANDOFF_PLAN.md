@@ -11,7 +11,10 @@ off there.
 The active API handoff is implemented in commit `60d17b6`. The access contract,
 shared authorization evaluation, multi-conflict network behavior, and CLI
 integration are complete. Remaining unchecked items in `cli/TODO.md` are
-intentional follow-ups rather than blockers for the current CLI handoff.
+intentional follow-ups rather than blockers for the current CLI handoff. The
+current PR retains the shared Bearer-token authentication scheme and the
+existing `root` mutation audit value; token-to-audit-identity mapping is
+deferred until its identity contract is defined.
 
 ## Scope
 

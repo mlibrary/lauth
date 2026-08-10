@@ -52,7 +52,7 @@ go vet ./...
 ```
 
 The CLI configuration uses `AUTHZ_API_BASE_URL`, `AUTHZ_API_TOKEN`, and the
-optional `AUTHZ_API_TIMEOUT` environment variables. Run `go run ./cmd/authz
+optional `AUTHZ_API_TIMEOUT` environment variables. Run `go run ./cmd/lauth
 --help` from `cli/` to inspect the command suite.
 
 ## Resetting Everything
