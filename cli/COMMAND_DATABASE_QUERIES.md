@@ -1,5 +1,9 @@
 # Command-to-Database Query Reference
 
+> Historical compatibility reference only. The CLI uses the REST API and must
+> not recreate these SQL queries in production code. Current API behavior is
+> defined by [`docs/ADMIN_API.md`](../docs/ADMIN_API.md).
+
 This document maps the administrative CLI commands to the SQL used by their
 legacy Perl utilities. The SQL examples show representative values inserted
 for readability; the legacy utilities actually used bind parameters where

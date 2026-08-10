@@ -7,10 +7,10 @@ than database-oriented.
 
 The modules are:
 
- - **[apache/](./apache/)** - Apache module for compatibility
- - **[api/](./api/)** - REST API for authentication/authorization
- - **[cli/](./cli/)** - Command-line client for data management
- - **[test/](./test/)** - End-to-end acceptance tests
+  - **[apache/](./apache/)** - Apache module for compatibility
+  - **[lauth/](./lauth/)** - REST API for authentication/authorization
+  - **[cli/](./cli/)** - Command-line client for data management
+  - **[test/](./test/)** - End-to-end acceptance tests
 
 These modules may be broken out to individual repositories at some time, but
 they are colocated for convenience and shared evolution for now.
@@ -40,6 +40,12 @@ example, to run in the background (with `up -d` or `up --detach`).
 docker compose run --rm test
 ```
 
+Run focused Ruby unit or request specs in the application container:
+
+```sh
+docker compose run --rm app-dev rspec <spec paths>
+```
+
 ## Building and Testing the CLI
 
 The Go administrative CLI lives under `cli/` and uses the versioned
@@ -55,12 +61,10 @@ The CLI configuration uses `AUTHZ_API_BASE_URL`, `AUTHZ_API_TOKEN`, and the
 optional `AUTHZ_API_TIMEOUT` environment variables. Run `go run ./cmd/lauth
 --help` from `cli/` to inspect the command suite.
 
-## Resetting Everything
+## Resetting Local Services
 
-TODO: These need to be cleaned up/scripted
+To stop the Compose services and remove their containers:
 
 ```
 docker compose down --remove-orphans
-docker rm -sfv
-docker volume rm lauth_mariadb_data
 ```

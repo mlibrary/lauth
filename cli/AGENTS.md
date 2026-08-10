@@ -1,9 +1,12 @@
 # Agent Guidance
 
+Shared repository and test-environment guidance is in `../AGENTS.md`.
+
 ## Project Context
 
-- `ADMIN_CLI_PLAN.md` is the source of truth for CLI scope and command names.
-- `TODO.md` records current progress and remaining work; update it when completing a meaningful plan item.
+- `CLI_CONTRACT.md` is the source of truth for active CLI scope and command
+  behavior.
+- `FOLLOWUPS.md` records intentionally deferred decisions.
 - The new CLI lives under `cli/` and uses Go, Cobra, Viper, and Ginkgo/Gomega.
 - Legacy Perl utilities under `bin/` are reference behavior only. Do not add database access or migrate their embedded credentials.
 
@@ -21,7 +24,7 @@
 
 ## Schema And API Contracts
 
-- Use attribute names from `sql/primary/create_tables.sql` in response models and JSON tags, including their database spelling and casing. Examples: `uniqueIdentifier`, `organizationName`, `dlpsCIDRAddress`, `dlpsPath`, and `dlpsServer`.
+- Use attribute names from `db/tables.sql` in response models and JSON tags, including their database spelling and casing. Examples: `uniqueIdentifier`, `organizationName`, `dlpsCIDRAddress`, `dlpsPath`, and `dlpsServer`.
 - Do not infer renamed fields such as `id` or `organization_name` when the database schema provides the canonical name.
 - Keep command handlers independent of SQL-equivalent logic.
 - Centralize real HTTP behavior in a shared API client: base URL, Bearer token, timeout, request construction, decoding, and error normalization.
@@ -45,18 +48,10 @@
 
 ## Verification
 
-- Run Ruby unit and request specs from the repository root with
-  `docker compose run --rm app-dev`; this service uses RSpec as its default
-  command.
-- Run Ruby integration tests with `docker compose run --rm test`.
-- Do not assume the host Ruby environment or local database is configured for
-  Ruby tests.
 - Run `gofmt` on changed Go files.
 - Run `go test ./...` from `cli/` after each completed TDD loop.
 - Exercise representative commands with `go run ./cmd/lauth ...` when fixture-backed behavior changes.
-- Check `git diff --check` before committing.
-- Review `git status`, recent log, and staged diff before committing.
-- Stage only intended files. Do not revert or include unrelated user changes without explicit instruction.
+- Ruby verification and shared repository checks follow `../AGENTS.md`.
 
 ## Scope Boundaries
 
