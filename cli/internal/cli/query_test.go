@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -118,17 +119,33 @@ func (f *fakeQueryService) CheckAccess(user, coll, ip string) (AccessResult, err
 }
 
 var _ = Describe("read-only query commands", func() {
-	It("renders the active legacy script mappings without invoking a service", func() {
+	It("renders sorted, aligned legacy script mappings without invoking a service", func() {
 		var output bytes.Buffer
 		command := NewRootCommand(&fakeQueryService{}, &output)
 		command.SetArgs([]string{"legacy-scripts"})
 
 		Expect(command.Execute()).To(Succeed())
-		Expect(output.String()).To(ContainSubstring("qi               institution search"))
-		Expect(output.String()).To(ContainSubstring("authzd_to_coll   access check"))
+		lines := strings.Split(strings.TrimSpace(output.String()), "\n")
+		Expect(lines).To(HaveLen(len(legacyScriptMappings) + 2))
+		Expect(lines[1]).To(And(
+			ContainSubstring("ORIGINAL SCRIPT"),
+			ContainSubstring("COMMAND"),
+			ContainSubstring("DESCRIPTION"),
+		))
+		Expect(lines[2]).To(And(HavePrefix("add_inst"), ContainSubstring("institution add")))
+		Expect(lines[3]).To(And(HavePrefix("ain"), ContainSubstring("network add")))
+		Expect(lines[len(lines)-1]).To(And(HavePrefix("qu"), ContainSubstring("user show")))
+		Expect(output.String()).To(And(ContainSubstring("authzd_to_coll"), ContainSubstring("access check")))
 		Expect(output.String()).To(ContainSubstring("location search"))
 		Expect(output.String()).NotTo(ContainSubstring("aggis"))
 		Expect(output.String()).NotTo(ContainSubstring("vip"))
+
+		commandColumn := strings.Index(lines[1], "COMMAND")
+		descriptionColumn := strings.Index(lines[1], "DESCRIPTION")
+		for _, line := range lines[2:] {
+			Expect(line[commandColumn]).NotTo(Equal(byte(' ')))
+			Expect(line[descriptionColumn]).NotTo(Equal(byte(' ')))
+		}
 	})
 
 	It("routes network search flags and returns the API response", func() {

@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"io"
+	"sort"
+	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 )
@@ -36,12 +38,22 @@ func legacyScriptsCommand(stdout io.Writer) *cobra.Command {
 			if _, err := fmt.Fprintln(stdout, "Legacy scripts with command equivalents:"); err != nil {
 				return err
 			}
-			for _, mapping := range legacyScriptMappings {
-				if _, err := fmt.Fprintf(stdout, "  %-16s %-32s %s\n", mapping.legacy, mapping.command, mapping.description); err != nil {
+
+			mappings := append([]legacyScriptMapping(nil), legacyScriptMappings...)
+			sort.Slice(mappings, func(i, j int) bool {
+				return mappings[i].legacy < mappings[j].legacy
+			})
+
+			writer := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
+			if _, err := fmt.Fprintln(writer, "ORIGINAL SCRIPT\tCOMMAND\tDESCRIPTION"); err != nil {
+				return err
+			}
+			for _, mapping := range mappings {
+				if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", mapping.legacy, mapping.command, mapping.description); err != nil {
 					return err
 				}
 			}
-			return nil
+			return writer.Flush()
 		},
 	}
 }
