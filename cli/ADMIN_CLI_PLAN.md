@@ -156,6 +156,19 @@ remains deleted. The current composite key permits only one deleted historical
 row for a range; repeated delete/recreate cycles and a future history table
 remain deferred.
 
+Authorization evaluates active networks globally for the requested client IP
+and uses the smallest matching range. A more-specific range takes precedence
+over a containing range even when the ranges belong to different institutions.
+For example, an institution 7 `/24` `allow` network and an institution 8
+`/25` `deny` network deny clients in the `/25`, while clients elsewhere in the
+`/24` use the `/24` `allow` configuration. Direct user,
+institution-membership, and group-membership grants are separate authorization
+paths and are not revoked by a deny network.
+Deleted networks are excluded. Equal-sized overlapping IPv4 CIDRs are exact
+duplicates by definition and are rejected globally; different-size and other
+non-identical overlaps remain allowed. The CLI must not add broader overlap
+validation.
+
 ### Output Layer
 
 Use a consistent output strategy:

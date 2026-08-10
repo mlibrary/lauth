@@ -158,6 +158,27 @@ under the current composite key. The
 authorization behavior for permitted overlaps should remain covered without
 adding broader creation-time overlap validation.
 
+### Cross-Institution Authorization Contract
+
+Authorization selects the smallest matching active network globally by client
+IP, rather than selecting a network separately for each institution. The
+selected network's institution is the institution used for the network-based
+grant path. A more-specific network takes precedence over a containing network
+even when the two institutions differ, and deleted networks are excluded.
+
+For example, institution 7 may own `192.0.2.0/24` with `allow` while
+institution 8 owns `192.0.2.0/25` with `deny`. `192.0.2.10` selects the `/25`
+and is denied by the network path; `192.0.2.200` selects the `/24` and is
+allowed by the network path. Direct user, institution-membership, and
+group-membership grants remain independent authorization paths, so a deny
+network does not revoke one of those grants.
+
+Exact active address-range duplicates are rejected globally across institutions
+and access switches. Since equal-sized overlapping IPv4 CIDRs necessarily have
+identical bounds, equal-sized active overlaps cannot produce a tie. Different-
+size and other non-identical overlaps remain permitted and must continue to use
+the most-specific-match behavior; do not add creation-time overlap validation.
+
 ## Response Fields
 
 Use the database schema's field spelling and casing in JSON responses. Do not

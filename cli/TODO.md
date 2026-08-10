@@ -46,7 +46,7 @@ Before beginning any modification work on the next pass, clarify:
 - [x] Complete empty-result, invalid-input, API-error, and output-format coverage for every active command.
 - [x] Verify representative results against the legacy utilities.
 - [x] Add the help-only `legacy-scripts` command.
-- [ ] Document authorization behavior for cross-institution and equal-sized overlapping networks; do not add creation-time overlap validation.
+- [x] Document authorization behavior for cross-institution and equal-sized overlapping networks; do not add creation-time overlap validation.
 - [ ] Follow up: map Bearer tokens to audit identities instead of using `root` for mutation audit fields.
 - [ ] Follow up: duplicate active institution names are currently permitted by the API and schema.
 - [ ] Follow up: the `(dlpsAddressStart, dlpsAddressEnd, dlpsDeleted)` uniqueness key permits only one deleted historical row per range; a history table would support unlimited delete/recreate cycles.

@@ -425,6 +425,33 @@ checking access without a client address, and must be a complete IPv4 address
 when supplied. A missing collection returns `404`; malformed input returns
 `400`.
 
+### Overlapping Network Authorization
+
+Active networks are selected globally by client IP, not independently per
+institution. The authorization evaluator chooses the smallest matching active
+network by address range. A more-specific network therefore takes precedence
+over a containing network, even when the networks belong to different
+institutions. Deleted networks are excluded from this selection.
+
+For example, if institution 7 owns `192.0.2.0/24` with `allow` and institution
+8 owns `192.0.2.0/25` with `deny`, a client at `192.0.2.10` matches the `/25`
+and the network-based result is denied, while a client at `192.0.2.200` matches
+only the `/24` and the network-based result is allowed. Reversing the switches
+reverses those network-based results.
+
+Network selection is only one authorization path. A direct user grant,
+institution-membership grant, or group-membership grant can authorize a user
+independently of the selected network's switch. A `deny` network does not
+revoke those grants; it only prevents that network from contributing an
+`allow` result.
+
+Two active CIDRs with the same address bounds are exact duplicates and are
+rejected globally, including when their access switches or institutions differ.
+For IPv4 CIDRs, equal-sized overlapping ranges necessarily have the same
+bounds, so there is no active equal-sized tie to resolve. Different-size and
+other non-identical overlaps remain valid and use the most-specific-match rule
+above. Network creation must not add broader overlap validation.
+
 ## Out Of Scope
 
 This API does not provide:
