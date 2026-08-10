@@ -175,6 +175,19 @@ var _ = Describe("read-only query commands", func() {
 		Expect(response.UserID).To(Equal("alice"))
 	})
 
+	It("preserves zero-valued network bounds in JSON output", func() {
+		var output bytes.Buffer
+		command := NewRootCommand(&fakeQueryService{}, &output)
+		command.SetArgs([]string{"--output=json", "network", "search", "--ip", "0.0.0.0"})
+
+		Expect(command.Execute()).To(Succeed())
+		var response networkResponse
+		Expect(json.Unmarshal(output.Bytes(), &response)).To(Succeed())
+		Expect(response.Networks).To(HaveLen(1))
+		Expect(response.Networks[0].DlpsAddressStart).To(Equal(uint32(0)))
+		Expect(response.Networks[0].DlpsAddressEnd).To(Equal(uint32(0)))
+	})
+
 	It("returns structured JSON for collection inspection", func() {
 		service := &fakeQueryService{}
 		var output bytes.Buffer

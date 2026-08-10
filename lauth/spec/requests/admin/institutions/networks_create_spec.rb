@@ -45,8 +45,8 @@ RSpec.describe "POST /api/v1/institutions/:id/networks", type: [:request, :datab
     expect(response.keys).to eq([:networks])
     expect(response[:networks].size).to eq(1)
     expect(response[:networks].first.keys).to contain_exactly(
-      :uniqueIdentifier, :dlpsDNSName, :dlpsCIDRAddress, :dlpsAddressStart,
-      :dlpsAddressEnd, :dlpsAccessSwitch, :inst, :lastModifiedTime, :dlpsDeleted
+      :uniqueIdentifier, :dlpsCIDRAddress, :dlpsAddressStart, :dlpsAddressEnd,
+      :dlpsAccessSwitch, :inst, :lastModifiedTime
     )
     expect(response[:networks].first).to include(
       dlpsCIDRAddress: "192.0.2.0/24", dlpsAccessSwitch: "allow", inst: 7

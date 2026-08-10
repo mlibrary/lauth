@@ -14,8 +14,8 @@ type Network struct {
 	UniqueIdentifier int    `json:"uniqueIdentifier,omitempty"`
 	DlpsCIDRAddress  string `json:"dlpsCIDRAddress"`
 	DlpsAccessSwitch string `json:"dlpsAccessSwitch"`
-	DlpsAddressStart uint32 `json:"dlpsAddressStart,omitempty"`
-	DlpsAddressEnd   uint32 `json:"dlpsAddressEnd,omitempty"`
+	DlpsAddressStart uint32 `json:"dlpsAddressStart"`
+	DlpsAddressEnd   uint32 `json:"dlpsAddressEnd"`
 	Inst             int    `json:"inst,omitempty"`
 	LastModifiedTime string `json:"lastModifiedTime,omitempty"`
 }

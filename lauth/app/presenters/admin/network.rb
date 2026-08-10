@@ -5,8 +5,8 @@ module Lauth
     module Admin
       module Network
         FIELDS = %i[
-          uniqueIdentifier dlpsDNSName dlpsCIDRAddress dlpsAddressStart
-          dlpsAddressEnd dlpsAccessSwitch inst lastModifiedTime dlpsDeleted
+          uniqueIdentifier dlpsCIDRAddress dlpsAddressStart dlpsAddressEnd
+          dlpsAccessSwitch inst lastModifiedTime
         ].freeze
 
         module_function

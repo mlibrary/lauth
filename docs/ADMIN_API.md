@@ -144,14 +144,12 @@ GET /api/v1/institutions/{id}/networks
   "networks": [
     {
       "uniqueIdentifier": 12,
-      "dlpsDNSName": "example.edu",
       "dlpsCIDRAddress": "192.0.2.0/24",
       "dlpsAddressStart": 3221225984,
       "dlpsAddressEnd": 3221226239,
       "dlpsAccessSwitch": "allow",
       "inst": 7,
-      "lastModifiedTime": "2026-08-04T12:00:00Z",
-      "dlpsDeleted": "f"
+      "lastModifiedTime": "2026-08-04T12:00:00Z"
     }
   ]
 }
@@ -211,14 +209,12 @@ A successful request returns `201 Created`:
   "networks": [
     {
       "uniqueIdentifier": 13,
-      "dlpsDNSName": null,
       "dlpsCIDRAddress": "192.0.2.0/24",
       "dlpsAddressStart": 3221225984,
       "dlpsAddressEnd": 3221226239,
       "dlpsAccessSwitch": "deny",
       "inst": 7,
-      "lastModifiedTime": "2026-08-04T12:00:00Z",
-      "dlpsDeleted": "f"
+      "lastModifiedTime": "2026-08-04T12:00:00Z"
     }
   ]
 }
