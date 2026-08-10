@@ -62,6 +62,10 @@ lauth cidr to-ints CIDR
 The legacy `authzd_to_coll` behavior is available as `access check`; its
 parameters are ordered as `USERID COLLECTION [IP]`, with IP optional.
 
+Management collections (`dlpsAuthzType = "m"`) are legacy data. The
+administrative API and CLI do not create new management collections; new
+collections must use a supported non-management authorization type.
+
 Command-group aliases are `inst`, `net`, `coll`, and `loc`; `user` is not
 abbreviated. Frequently used options have standard one-letter shorthands:
 `--institution`/`-i`, `--cidr`/`-c`, `--range-start`/`-s`,

@@ -348,6 +348,10 @@ GET /api/v1/collections/{id}
 `id` is an exact collection identifier. The response includes collection
 metadata and active grants:
 
+Management collections (`dlpsAuthzType = "m"`) are a legacy data type. The
+administrative API does not create new management collections; new collections
+must use a supported non-management authorization type.
+
 ```json
 {
   "collection": {

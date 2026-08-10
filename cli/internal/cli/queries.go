@@ -54,6 +54,9 @@ type Collection struct {
 	DlpsAuthenMethod string `json:"dlpsAuthenMethod,omitempty"`
 	DlpsAuthzType    string `json:"dlpsAuthzType,omitempty"`
 	DlpsPartlyPublic string `json:"dlpsPartlyPublic,omitempty"`
+	Manager          int    `json:"manager,omitempty"`
+	LastModifiedTime string `json:"lastModifiedTime,omitempty"`
+	DlpsDeleted      string `json:"dlpsDeleted,omitempty"`
 }
 
 type CollectionInspection struct {
@@ -284,13 +287,8 @@ func renderQueryTable(stdout io.Writer, result any) error {
 			}
 		}
 	case grantResponse:
-		if _, err := fmt.Fprintln(writer, "COLL\tLASTMODIFIEDTIME\tDLPSDELETED"); err != nil {
+		if err := renderGrantTable(writer, value.Grants); err != nil {
 			return err
-		}
-		for _, item := range value.Grants {
-			if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", item.Coll, item.LastModifiedTime, item.DlpsDeleted); err != nil {
-				return err
-			}
 		}
 	case locationResponse:
 		if _, err := fmt.Fprintln(writer, "DLPSPATH\tDLPSSERVER\tCOLL\tLASTMODIFIEDTIME\tDLPSDELETED"); err != nil {
@@ -311,17 +309,11 @@ func renderQueryTable(stdout io.Writer, result any) error {
 			}
 		}
 	case UserInspection:
-		if _, err := fmt.Fprintln(writer, "USERID"); err != nil {
-			return err
-		}
-		if _, err := fmt.Fprintln(writer, value.UserID); err != nil {
+		if err := renderUserInspection(writer, value); err != nil {
 			return err
 		}
 	case CollectionInspection:
-		if _, err := fmt.Fprintln(writer, "UNIQUEIDENTIFIER\tCOMMONNAME\tDESCRIPTION"); err != nil {
-			return err
-		}
-		if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", value.Collection.UniqueIdentifier, value.Collection.CommonName, value.Collection.Description); err != nil {
+		if err := renderCollectionInspection(writer, value); err != nil {
 			return err
 		}
 	case AccessResult:
@@ -337,4 +329,108 @@ func renderQueryTable(stdout io.Writer, result any) error {
 		}
 	}
 	return writer.Flush()
+}
+
+func renderUserInspection(writer *tabwriter.Writer, value UserInspection) error {
+	if _, err := fmt.Fprintln(writer, "USER\t\t\t\t\t\t\t\t\t\t\t\t\t"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(writer, "USERID\tGIVENNAME\tSURNAME\tRFC822MAILBOX\tORGANIZATIONALUNITNAME\tLOCALITYNAME\tSTATEORPROVINCENAME\tPOSTALCODE\tCOUNTRYNAME\tTELEPHONENUMBER\tORGANIZATIONALSTATUS\tDLPSCOURSE\tMANAGER\tLASTMODIFIEDBY\tDLPSDELETED"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(writer, "%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
+		valueField(value.User, "userid", value.UserID),
+		valueField(value.User, "givenName"),
+		valueField(value.User, "surname"),
+		valueField(value.User, "rfc822Mailbox"),
+		valueField(value.User, "organizationalUnitName"),
+		valueField(value.User, "localityName"),
+		valueField(value.User, "stateOrProvinceName"),
+		valueField(value.User, "postalCode"),
+		valueField(value.User, "countryName"),
+		valueField(value.User, "telephoneNumber"),
+		valueField(value.User, "organizationalStatus"),
+		valueField(value.User, "dlpsCourse"),
+		valueField(value.User, "manager"),
+		valueField(value.User, "lastModifiedBy"),
+		valueField(value.User, "dlpsDeleted"),
+	); err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintln(writer, "\nMEMBERSHIPS"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(writer, "USERID\tINST\tLASTMODIFIEDTIME\tDLPSDELETED"); err != nil {
+		return err
+	}
+	for _, membership := range value.Memberships {
+		if _, err := fmt.Fprintf(writer, "%v\t%v\t%v\t%v\n",
+			valueField(membership, "userid"),
+			valueField(membership, "inst"),
+			valueField(membership, "lastModifiedTime"),
+			valueField(membership, "dlpsDeleted"),
+		); err != nil {
+			return err
+		}
+	}
+
+	if _, err := fmt.Fprintln(writer, "\nGRANTS"); err != nil {
+		return err
+	}
+	return renderGrantTable(writer, value.Grants)
+}
+
+func renderCollectionInspection(writer *tabwriter.Writer, value CollectionInspection) error {
+	if _, err := fmt.Fprintln(writer, "COLLECTION\t\t\t\t\t\t\t\t\t\t\t"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(writer, "UNIQUEIDENTIFIER\tCOMMONNAME\tDESCRIPTION\tDLPSCLASS\tDLPSSOURCE\tDLPSAUTHENMETHOD\tDLPSAUTHZTYPE\tDLPSPARTLYPUBLIC\tMANAGER\tLASTMODIFIEDTIME\tDLPSDELETED"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\t%s\t%s\n",
+		value.Collection.UniqueIdentifier,
+		value.Collection.CommonName,
+		value.Collection.Description,
+		value.Collection.DlpsClass,
+		value.Collection.DlpsSource,
+		value.Collection.DlpsAuthenMethod,
+		value.Collection.DlpsAuthzType,
+		value.Collection.DlpsPartlyPublic,
+		value.Collection.Manager,
+		value.Collection.LastModifiedTime,
+		value.Collection.DlpsDeleted,
+	); err != nil {
+		return err
+	}
+
+	if _, err := fmt.Fprintln(writer, "\nGRANTS"); err != nil {
+		return err
+	}
+	return renderGrantTable(writer, value.Grants)
+}
+
+func renderGrantTable(writer *tabwriter.Writer, grants []Grant) error {
+	if _, err := fmt.Fprintln(writer, "UNIQUEIDENTIFIER\tUSERID\tUSER_GRP\tINST\tCOLL\tLASTMODIFIEDTIME\tDLPSDELETED"); err != nil {
+		return err
+	}
+	for _, item := range grants {
+		if _, err := fmt.Fprintf(writer, "%d\t%s\t%d\t%d\t%s\t%s\t%s\n",
+			item.UniqueIdentifier, item.UserID, item.UserGroup, item.Inst, item.Coll,
+			item.LastModifiedTime, item.DlpsDeleted,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func valueField(fields map[string]any, key string, fallback ...string) any {
+	if value, ok := fields[key]; ok && value != nil {
+		return value
+	}
+	if len(fallback) > 0 {
+		return fallback[0]
+	}
+	return ""
 }

@@ -55,7 +55,16 @@ func (f *fakeQueryService) UserShow(user string) (UserInspection, error) {
 	if f.queryErr != nil {
 		return UserInspection{}, f.queryErr
 	}
-	return UserInspection{UserID: user}, nil
+	return UserInspection{
+		UserID: user,
+		User: map[string]any{
+			"userid":      "alice",
+			"givenName":   "Alice",
+			"dlpsDeleted": "f",
+		},
+		Memberships: []map[string]any{{"userid": user, "inst": 7, "dlpsDeleted": "f"}},
+		Grants:      []Grant{{UniqueIdentifier: 11, UserID: user, Inst: 7, Coll: "example"}},
+	}, nil
 }
 func (f *fakeQueryService) SearchLocations(path, server string) ([]Location, error) {
 	f.record("location search", path, server)
@@ -82,7 +91,16 @@ func (f *fakeQueryService) CollectionShow(coll string) (CollectionInspection, er
 	if f.queryErr != nil {
 		return CollectionInspection{}, f.queryErr
 	}
-	return CollectionInspection{Collection: Collection{UniqueIdentifier: coll}}, nil
+	return CollectionInspection{
+		Collection: Collection{
+			UniqueIdentifier: coll,
+			CommonName:       "Example",
+			Description:      "Example collection",
+			DlpsClass:        "example-class",
+			DlpsAuthzType:    "n",
+		},
+		Grants: []Grant{{UniqueIdentifier: 12, Inst: 7, Coll: coll}},
+	}, nil
 }
 func (f *fakeQueryService) CollectionGrants(coll string) ([]Grant, error) {
 	f.record("collection grants", coll)
@@ -224,6 +242,32 @@ var _ = Describe("read-only query commands", func() {
 		Entry("collection grants", []string{"collection", "grants", "example"}, []string{"COLL", "LASTMODIFIEDTIME", "example"}),
 		Entry("user show", []string{"user", "show", "alice"}, []string{"USERID", "alice"}),
 	)
+
+	It("includes nested user and collection inspection data in table output", func() {
+		userOutput := new(bytes.Buffer)
+		userCommand := NewRootCommand(&fakeQueryService{}, userOutput)
+		userCommand.SetArgs([]string{"user", "show", "alice"})
+		Expect(userCommand.Execute()).To(Succeed())
+		Expect(userOutput.String()).To(And(
+			ContainSubstring("GIVENNAME"),
+			ContainSubstring("Alice"),
+			ContainSubstring("MEMBERSHIPS"),
+			ContainSubstring("7"),
+			ContainSubstring("GRANTS"),
+			ContainSubstring("example"),
+		))
+
+		collectionOutput := new(bytes.Buffer)
+		collectionCommand := NewRootCommand(&fakeQueryService{}, collectionOutput)
+		collectionCommand.SetArgs([]string{"collection", "show", "example"})
+		Expect(collectionCommand.Execute()).To(Succeed())
+		Expect(collectionOutput.String()).To(And(
+			ContainSubstring("DLPSCLASS"),
+			ContainSubstring("example-class"),
+			ContainSubstring("GRANTS"),
+			ContainSubstring("example"),
+		))
+	})
 
 	It("rejects unsupported output formats", func() {
 		service := &fakeQueryService{}
