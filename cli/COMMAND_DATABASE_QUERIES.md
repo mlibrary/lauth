@@ -28,7 +28,9 @@ columns have been migrated. The following differences require attention:
   matching Oracle behavior.
 - **Empty strings:** Oracle treats `''` as `NULL`, while MariaDB distinguishes
   an empty string from `NULL`. The empty second argument in
-  `authzd_to_coll_function` must be checked when that function is ported.
+  `authzd_to_coll_function` remains a legacy reference; the new `access check`
+  command uses the shared `/authorized`-compatible access evaluator instead of
+  porting the Oracle table function directly.
 - **`SELECT *`:** The syntax is portable, but result-column order and data
   types depend on the migrated table definition. Stable API responses should
   use explicit column lists.

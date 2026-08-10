@@ -6,6 +6,13 @@ The `lauth` project is reference material for this plan; this document does
 not authorize changes to that directory unless the work is explicitly handed
 off there.
 
+## Handoff Status
+
+The active API handoff is implemented in commit `60d17b6`. The access contract,
+shared authorization evaluation, multi-conflict network behavior, and CLI
+integration are complete. Remaining unchecked items in `cli/TODO.md` are
+intentional follow-ups rather than blockers for the current CLI handoff.
+
 ## Scope
 
 Implement a versioned administrative API backed by Hanami actions,
@@ -35,13 +42,16 @@ See [`RETIRED_FEATURES.md`](RETIRED_FEATURES.md) for retired commands.
 
 The current Hanami application has:
 
-- A single route, `GET /authorized`
+- The original route, `GET /authorized`
+- The administrative access route, `GET /api/v1/access`
 - Bearer-token authentication using `settings.bearer_token`
 - ROM SQL persistence using Trilogy and `database_url`
 - Auto-registered ROM relations under `lib/lauth/persistence`
 - `CollectionRepo` with URI matching and public-collection lookup
 - `GrantRepo` with authorization evaluation for normal and delegated modes
 - An `Authorize` operation used by `/authorized`
+- A collection-based `Ops::Access` evaluator shared by `/authorized` and the
+  administrative access action
 
 The existing `/authorized` endpoint accepts `user`, `uri`, and `ip`, and returns
 an `Access::Result` containing `determination`, `authorized_collections`, and
@@ -233,7 +243,7 @@ authorization; do not replace it with a simple first-match query.
 
 ## Access Check
 
-The access operation accepts:
+The implemented access operation accepts:
 
 ```text
 userid=alice
@@ -241,9 +251,9 @@ collection=example
 ip=192.0.2.1 (optional)
 ```
 
-It should reuse the collection-based authorization evaluation used by
+It reuses the collection-based authorization evaluation used by
 `/authorized`, while resolving the collection directly by identifier. The
-operation should define whether it:
+The operation:
 
 - Checks a direct user grant
 - Checks institution membership grants
@@ -252,10 +262,9 @@ operation should define whether it:
 - Excludes deleted collections and grants
 - Reports public or delegated collections
 
-The response must be stable and must not expose internal SQL or repository
-details. If the existing `Authorize` operation can be safely extended, share
-lower-level policy components rather than making the administrative action
-call another HTTP route internally.
+The response is stable and does not expose internal SQL or repository details.
+`Authorize` remains the URI-resolution adapter; the administrative action is the
+collection-ID adapter. Neither action calls the other over HTTP.
 
 ## Error Contract
 
@@ -293,10 +302,12 @@ Use the existing application conventions:
 ```text
 config/routes.rb
 app/actions/admin/...
+app/ops/access.rb
 app/ops/admin/...
 app/repositories/...
 lib/lauth/persistence/relations/...
 spec/requests/admin/...
+spec/ops/access_spec.rb
 spec/operations/admin/...
 ```
 
@@ -310,9 +321,9 @@ autoloading convention, but responsibilities should remain separated:
 5. Request specs verify the external contract.
 6. Repository/operation specs verify filtering and authorization semantics.
 
-## BDD Implementation Order
+## BDD Implementation Record
 
-Implement one endpoint at a time:
+The implementation followed this endpoint workflow:
 
 1. Add a request spec with method, path, authentication, parameters, response
    envelope, and error behavior.
@@ -322,7 +333,7 @@ Implement one endpoint at a time:
 5. Run focused specs, then the full Lauth test suite.
 6. Update the endpoint contract and CLI fixture when the response is stable.
 
-Recommended order:
+The completed endpoint order was:
 
 1. `institution search`
 2. `institution add`
@@ -335,7 +346,7 @@ Recommended order:
 9. `user show`
 10. `access check`
 
-Each endpoint should have tests for normal results, empty results, malformed
+Each endpoint has tests for normal results, empty results, malformed
 input, authentication failure, authorization failure, repository/API failure,
 and JSON field names.
 

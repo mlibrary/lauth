@@ -310,6 +310,9 @@ The active CLI scope is complete when:
 - All selected top-level utilities have command equivalents or an explicit retired status.
 - `location` is a top-level command group.
 - `access check` is available under the access command group.
+- `lauth legacy-scripts` renders mappings only for legacy utilities with active
+  command equivalents and does not execute legacy scripts or translate their
+  parameters.
 - `lauth cidr from-range START END` emits minimal CIDR coverage for valid IPv4 ranges.
 - `lauth cidr to-range CIDR` emits the starting and ending dotted-decimal addresses.
 - `lauth cidr to-ints CIDR` emits the starting and ending 32-bit integers.
