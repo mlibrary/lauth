@@ -16,10 +16,13 @@ RUN groupadd -g ${GID} -o ${UNAME} && \
 ENV PATH="/go/bin:${PATH}"
 ENV GOMODCACHE="/go/pkg/mod"
 ENV GOCACHE="/go/build-cache"
+ENV GOTELEMETRY=off
 WORKDIR /lauth/cli
 
 #############
 FROM base AS development
+
+ARG GORELEASER_VERSION
 
 RUN --mount=type=cache,id=lauth-cli-go-packages,sharing=locked,target=/go/pkg/mod \
     --mount=type=cache,id=lauth-cli-go-build,sharing=locked,target=/root/.cache/go-build \
