@@ -63,6 +63,12 @@ The default `cli-dev` command runs `go test ./...`, `go vet ./...`, and
 docker compose run --rm cli-dev go test ./internal/cli
 ```
 
+To run the CLI from the development container:
+
+```sh
+docker compose run --rm cli-dev go run ./cmd/lauth --help
+```
+
 For host-side development, the equivalent commands can be run from `cli/`:
 
 ```sh

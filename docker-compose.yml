@@ -62,9 +62,16 @@ services:
     build:
       context: ./
       dockerfile: ./cli/Dockerfile
+      target: development
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     volumes:
       - .:/lauth
+      - cli_go_modules:/go/pkg/mod
+      - cli_go_build:/go/build-cache
     working_dir: /lauth/cli
+    command: ["sh", "-c", "go test ./... && go vet ./... && goreleaser check"]
 
   mariadb:
     image: bitnami/mariadb
@@ -199,6 +206,8 @@ services:
          /sql/setup.sh -u lauth -p lauth -h db.lauth.local -a -b lauth_demo"
 
 volumes:
+  cli_go_build:
+  cli_go_modules:
   mariadb_data:
   build_cache:
 

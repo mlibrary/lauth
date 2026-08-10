@@ -53,6 +53,7 @@ Shared repository and test-environment guidance is in `../AGENTS.md`.
   completed TDD loop. This runs `go test ./...`, `go vet ./...`, and
   `goreleaser check`.
 - Run focused tests with `docker compose run --rm cli-dev go test ./internal/cli`.
+- Run the CLI with `docker compose run --rm cli-dev go run ./cmd/lauth ...`.
 - Exercise representative commands with `go run ./cmd/lauth ...` when fixture-backed behavior changes.
 - Ruby verification and shared repository checks follow `../AGENTS.md`.
 
