@@ -412,6 +412,16 @@ access policy as `/authorized`. The collection is resolved directly by its
 identifier rather than by URI. Delegated collections evaluate grants for the
 collection class. Deleted collections and grants are excluded.
 
+For a normal collection (`dlpsAuthzType = "n"`), `determination` is `allowed`
+when the requested user has a matching active grant and otherwise is `denied`.
+The `authorized_collections` and `public_collections` arrays are empty for this
+mode. For a delegated collection (`dlpsAuthzType = "d"`), the determination is
+`allowed` and the arrays describe the collection class: `authorized_collections`
+contains active collections in the class for which the user has a grant, while
+`public_collections` contains active partly-public collections in the class that
+are not already authorized for the user. The requested delegated collection is
+still resolved by its own identifier.
+
 ```json
 {
   "determination": "allowed",
@@ -424,6 +434,11 @@ collection class. Deleted collections and grants are excluded.
 checking access without a client address, and must be a complete IPv4 address
 when supplied. A missing collection returns `404`; malformed input returns
 `400`.
+
+Management collections (`dlpsAuthzType = "m"`) are legacy records. The
+administrative access endpoint does not create or evaluate new management
+collections and reports them as unsupported rather than treating them as
+normal or delegated collections.
 
 ### Overlapping Network Authorization
 

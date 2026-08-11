@@ -12,7 +12,7 @@ RSpec.describe "GET /api/v1/access", type: [:request, :database] do
     )
   end
 
-  it "returns the authorized response structure for a collection ID" do
+  it "allows a user with a direct grant to a normal collection" do
     collection = Factory[:collection, uniqueIdentifier: "example"]
     user = Factory[:user, userid: "alice"]
     Factory[:grant, :for_user, user: user, collection: collection]
@@ -24,6 +24,45 @@ RSpec.describe "GET /api/v1/access", type: [:request, :database] do
       "determination" => "allowed",
       "authorized_collections" => [],
       "public_collections" => []
+    )
+  end
+
+  it "denies a user without a grant to a normal collection" do
+    Factory[:collection, uniqueIdentifier: "example"]
+
+    get "/api/v1/access", {userid: "alice", collection: "example"}, authorization
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body)).to eq(
+      "determination" => "denied",
+      "authorized_collections" => [],
+      "public_collections" => []
+    )
+  end
+
+  it "reports authorized and public collections for delegated access" do
+    delegated = Factory[
+      :collection, :delegated, uniqueIdentifier: "delegated", dlpsClass: "example",
+      dlpsPartlyPublic: "t"
+    ]
+    granted = Factory[
+      :collection, :delegated, uniqueIdentifier: "granted", dlpsClass: "example",
+      dlpsPartlyPublic: "t"
+    ]
+    Factory[
+      :collection, :delegated, uniqueIdentifier: "public-only", dlpsClass: "example",
+      dlpsPartlyPublic: "t"
+    ]
+    user = Factory[:user, userid: "alice"]
+    Factory[:grant, :for_user, user: user, collection: granted]
+
+    get "/api/v1/access", {userid: "alice", collection: delegated.uniqueIdentifier}, authorization
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body)).to eq(
+      "determination" => "allowed",
+      "authorized_collections" => ["granted"],
+      "public_collections" => ["delegated", "public-only"]
     )
   end
 
