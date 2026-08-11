@@ -307,6 +307,15 @@ var _ = Describe("read-only query commands", func() {
 		Expect(command.Execute()).To(MatchError(`unsupported output format "csv"`))
 	})
 
+	It("uses the shared output contract for query results", func() {
+		var output bytes.Buffer
+		command := NewRootCommand(&fakeQueryService{}, &output)
+		command.SetArgs([]string{"--output=json", "collection", "search", "example"})
+
+		Expect(command.Execute()).To(Succeed())
+		Expect(output.String()).To(Equal("{\"collections\":[{\"uniqueIdentifier\":\"example\"}]}\n"))
+	})
+
 	DescribeTable("rejects missing or extra query arguments", func(args []string) {
 		command := NewRootCommand(&fakeQueryService{}, &bytes.Buffer{})
 		command.SetArgs(args)

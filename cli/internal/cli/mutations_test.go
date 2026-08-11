@@ -99,6 +99,15 @@ var _ = Describe("mutation commands", func() {
 		Expect(output.String()).To(Equal("{\"institutions\":[{\"uniqueIdentifier\":8,\"organizationName\":\"Example University\"}]}\n"))
 	})
 
+	It("uses the shared output contract for mutation results", func() {
+		var output bytes.Buffer
+		command := NewRootCommand(&fakeMutationService{}, &output)
+		command.SetArgs([]string{"--output=json", "institution", "add", "Example University"})
+
+		Expect(command.Execute()).To(Succeed())
+		Expect(output.String()).To(Equal("{\"institutions\":[{\"uniqueIdentifier\":8,\"organizationName\":\"Example University\"}]}\n"))
+	})
+
 	It("propagates institution mutation errors without output", func() {
 		service := &fakeMutationService{institutionErr: errors.New("invalid_parameter: duplicate institution")}
 		var output bytes.Buffer

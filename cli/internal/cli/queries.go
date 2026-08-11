@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -252,17 +251,7 @@ func queryCommand(use, short, example string, query func([]string) (any, error),
 }
 
 func renderResult(command *cobra.Command, stdout io.Writer, result any) error {
-	format, err := command.Root().PersistentFlags().GetString("output")
-	if err != nil {
-		return err
-	}
-	if format == "json" {
-		return json.NewEncoder(stdout).Encode(result)
-	}
-	if format != "table" {
-		return fmt.Errorf("unsupported output format %q", format)
-	}
-	return renderQueryTable(stdout, result)
+	return renderOutput(command, stdout, result)
 }
 
 func renderQueryTable(stdout io.Writer, result any) error {
