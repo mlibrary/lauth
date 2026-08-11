@@ -32,8 +32,8 @@ module Lauth
           attributes.map { |network| create(**network) }
         end
       rescue ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
-        # A concurrent writer can pass preflight; resolve the committed owner
-        # so the API still returns the public duplicate contract.
+        # A concurrent writer can pass the duplicate check; resolve the committed
+        # owner so the API still returns the public duplicate contract.
         conflicts = attributes.filter_map { |network| find_active_owner(network) }
         raise DuplicateCIDR, conflicts unless conflicts.empty?
 
