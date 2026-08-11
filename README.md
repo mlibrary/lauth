@@ -88,3 +88,13 @@ To stop the Compose services and remove their containers:
 ```
 docker compose down --remove-orphans
 ```
+
+This preserves the database volume. To also delete the local database data and
+start from a fresh database, use the destructive form:
+
+```
+docker compose down --volumes --remove-orphans
+```
+
+Only use the volume-removal form when you intend to discard local database
+state.
