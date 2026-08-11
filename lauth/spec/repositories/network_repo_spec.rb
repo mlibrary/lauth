@@ -20,7 +20,7 @@ RSpec.describe Lauth::Repositories::NetworkRepo, type: :database do
     Factory[:institution, uniqueIdentifier: 7, organizationName: "First Institution"]
   end
 
-  it "reports the active owner during repository preflight" do
+  it "reports an existing active owner before attempting creation" do
     repo.create(**attributes)
 
     expect { repo.create_batch([attributes]) }.to raise_error(
@@ -47,5 +47,11 @@ RSpec.describe Lauth::Repositories::NetworkRepo, type: :database do
     repo.create(**attributes.merge(dlpsDeleted: "t"))
 
     expect { repo.create_batch([attributes]) }.not_to raise_error
+  end
+
+  it "rejects a reversed search range" do
+    expect {
+      repo.search_by_range(start_value: "192.0.2.10", end_value: "192.0.2.1")
+    }.to raise_error(described_class::InvalidSearch, "range start must not exceed range end")
   end
 end
