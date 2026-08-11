@@ -19,12 +19,15 @@ module Lauth
           normal_mode(collection: collection, user: user, client_ip: client_ip)
         when "d"
           delegated_mode(collection: collection, user: user, client_ip: client_ip)
+        when "m"
+          raise ArgumentError,
+            "Collection with ID '#{collection.uniqueIdentifier}' is a legacy " \
+            "management collection and is not supported by the administrative access endpoint."
         else
           raise ArgumentError,
             "Collection with ID '#{collection.uniqueIdentifier}' has invalid " \
-            "Authorization Type '#{collection.dlpsAuthzType}'. " \
-            "It must be one of: 'n', 'd', or 'm' (for a normal, delegated, " \
-            "or managed collection, respectively). "
+            "Authorization Type '#{collection.dlpsAuthzType}'. It must be 'n' " \
+            "or 'd' (for a normal or delegated collection, respectively)."
         end
       end
 

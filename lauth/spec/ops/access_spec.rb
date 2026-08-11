@@ -21,4 +21,15 @@ RSpec.describe Lauth::Ops::Access do
       op.call(collection: collection, user: "alice", client_ip: "not-an-ip")
     }.to raise_error(ArgumentError, "ip must be an IPv4 address")
   end
+
+  it "rejects legacy management collections explicitly" do
+    managed = double(uniqueIdentifier: "legacy", dlpsAuthzType: "m")
+
+    expect {
+      op.call(collection: managed, user: "alice")
+    }.to raise_error(
+      ArgumentError,
+      "Collection with ID 'legacy' is a legacy management collection and is not supported by the administrative access endpoint."
+    )
+  end
 end
