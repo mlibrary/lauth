@@ -26,8 +26,7 @@ module Lauth
         patterns = criteria.transform_values do |search_value|
           raise ArgumentError, "search value is required" unless search_value.is_a?(String) && !search_value.empty?
 
-          escaped = search_value.chars.map { |character| /[\\%_]/.match?(character) ? "\\#{character}" : character }.join
-          "%#{escaped.tr("*", "%")}%"
+          Lauth::SearchPattern.wildcard(search_value)
         end
         dataset = locations
           .dataset

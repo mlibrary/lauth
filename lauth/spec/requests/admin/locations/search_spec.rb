@@ -25,4 +25,14 @@ RSpec.describe "/api/v1/locations", type: [:request, :database] do
       dlpsDeleted: "f"
     )
   end
+
+  it "treats SQL wildcard characters as literals" do
+    matching = Factory[:location, dlpsPath: "/100%_books", dlpsServer: "server.example"]
+    Factory[:location, dlpsPath: "/100x_books", dlpsServer: "server.example"]
+
+    get "/api/v1/locations", {path: "/100%_books", server: "server.example"}, authorization
+
+    locations = JSON.parse(last_response.body, symbolize_names: true).fetch(:locations)
+    expect(locations.map { |location| location[:coll] }).to eq([matching.coll])
+  end
 end
