@@ -43,4 +43,22 @@ RSpec.describe "/api/v1/networks", type: [:request, :database] do
 
     expect(last_response.status).to eq(400)
   end
+
+  it "rejects an invalid IP" do
+    get "/api/v1/networks", {ip: "invalid"}, authorization
+
+    expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to include(
+      "error" => include("code" => "invalid_parameter")
+    )
+  end
+
+  it "rejects an invalid range address" do
+    get "/api/v1/networks", {rangeStart: "invalid", rangeEnd: "192.0.2.20"}, authorization
+
+    expect(last_response.status).to eq(400)
+    expect(JSON.parse(last_response.body)).to include(
+      "error" => include("code" => "invalid_parameter")
+    )
+  end
 end

@@ -41,13 +41,19 @@ module Lauth
       end
 
       def search_by_ip(value)
-        search_overlapping(Lauth::AddressRange.from_ip(value))
+        range = Lauth::AddressRange.from_ip(value)
+        search_overlapping(range)
+      rescue ArgumentError => error
+        raise InvalidSearch, error.message
       end
 
       def search_by_prefix(value)
         raise InvalidSearch, "prefix must be a string" unless value.is_a?(String)
 
-        search_overlapping(Lauth::AddressRange.from_prefix(value))
+        range = Lauth::AddressRange.from_prefix(value)
+        search_overlapping(range)
+      rescue ArgumentError => error
+        raise InvalidSearch, error.message
       end
 
       def search_by_cidr(value)
@@ -59,7 +65,10 @@ module Lauth
       end
 
       def search_by_range(start_value:, end_value:)
-        search_overlapping(Lauth::AddressRange.from_values(start_value, end_value))
+        range = Lauth::AddressRange.from_values(start_value, end_value)
+        search_overlapping(range)
+      rescue ArgumentError => error
+        raise InvalidSearch, error.message
       end
 
       def for_institution(institution_id)
