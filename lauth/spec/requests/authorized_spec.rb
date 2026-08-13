@@ -65,4 +65,41 @@ RSpec.describe "/authorized", type: [:request, :database] do
     expect(last_response.status).to eq(200)
     expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
   end
+
+  it "matches the administrative access result for a normal collection" do
+    user = Factory[:user, userid: "parity-user"]
+    collection = Factory[:collection, :restricted_by_username, uniqueIdentifier: "parity-normal"]
+    Factory[:location, collection: collection, dlpsPath: "/parity-normal%"]
+    Factory[:grant, :for_user, user: user, collection: collection]
+
+    get "/authorized", {user: user.userid, uri: "/parity-normal/"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    public_result = JSON.parse(last_response.body)
+
+    get "/api/v1/access", {userid: user.userid, collection: collection.uniqueIdentifier}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    admin_result = JSON.parse(last_response.body)
+
+    expect(public_result).to eq(admin_result)
+  end
+
+  it "matches the administrative access result for a delegated collection" do
+    user = Factory[:user, userid: "delegated-parity-user"]
+    target = Factory[
+      :collection, :delegated, uniqueIdentifier: "parity-target", dlpsClass: "parity"
+    ]
+    public = Factory[
+      :collection, :delegated, uniqueIdentifier: "parity-public", dlpsClass: "parity",
+      dlpsPartlyPublic: "t"
+    ]
+    Factory[:location, collection: target, dlpsPath: "/parity-target%"]
+    Factory[:grant, :for_user, user: user, collection: target]
+
+    get "/authorized", {user: user.userid, uri: "/parity-target/"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    public_result = JSON.parse(last_response.body)
+
+    get "/api/v1/access", {userid: user.userid, collection: target.uniqueIdentifier}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    admin_result = JSON.parse(last_response.body)
+
+    expect(public_result).to eq(admin_result)
+    expect(public_result.fetch("public_collections")).to include(public.uniqueIdentifier)
+  end
 end
