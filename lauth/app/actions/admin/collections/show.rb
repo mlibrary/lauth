@@ -15,6 +15,9 @@ module Lauth
               collection_id: request.params[:id]
             )
             result[:collection] = Lauth::Presenters::Admin::Collection.call(result[:collection])
+            result[:grants] = result[:grants].map { |grant|
+              Lauth::Presenters::Admin::Grant.call(grant)
+            }
             response.body = result.to_json
           rescue Lauth::Ops::Admin::Collections::Show::NotFound => error
             response.format = :json

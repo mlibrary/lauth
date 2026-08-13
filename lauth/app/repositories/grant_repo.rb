@@ -23,7 +23,8 @@ module Lauth
 
       def list(dataset)
         grants.class.new(dataset.where(dlpsDeleted: "f").select(
-          :uniqueIdentifier, :userid, :user_grp, :inst, :coll, :lastModifiedTime, :dlpsDeleted
+          :uniqueIdentifier, :userid, :user_grp, :inst, :coll, :lastModifiedTime,
+          :lastModifiedBy, :dlpsExpiryTime, :dlpsDeleted
         )).order(:coll, :uniqueIdentifier).to_a
       end
 

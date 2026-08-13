@@ -11,9 +11,13 @@ module Lauth
             return unless authenticate_admin(request, response)
 
             response.format = :json
-            response.body = operation.call(
+            result = operation.call(
               collection_id: request.params[:id]
-            ).to_json
+            )
+            result[:grants] = result[:grants].map { |grant|
+              Lauth::Presenters::Admin::Grant.call(grant)
+            }
+            response.body = result.to_json
           rescue Lauth::Ops::Admin::Collections::Grants::NotFound => error
             response.format = :json
             response.status = 404

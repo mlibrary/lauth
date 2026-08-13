@@ -16,6 +16,9 @@ module Lauth
             result[:memberships] = result[:memberships].map { |membership|
               Lauth::Presenters::Admin::Membership.call(membership)
             }
+            result[:grants] = result[:grants].map { |grant|
+              Lauth::Presenters::Admin::Grant.call(grant)
+            }
             response.body = result.to_json
           rescue Lauth::Ops::Admin::Users::Show::NotFound => error
             response.format = :json
