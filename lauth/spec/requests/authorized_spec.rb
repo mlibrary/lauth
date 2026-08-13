@@ -56,14 +56,76 @@ RSpec.describe "/authorized", type: [:request, :database] do
     expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
   end
 
-  it "denies a legacy management collection" do
+  it "allows a non-manager to inspect a management collection without authorization" do
     collection = Factory[:collection, uniqueIdentifier: "legacy", dlpsAuthzType: "m"]
     Factory[:location, collection: collection, dlpsPath: "/legacy%"]
 
     get "/authorized", {user: "lauth-allowed", uri: "/legacy"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
 
     expect(last_response.status).to eq(200)
-    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(
+      determination: "allowed", authorized_collections: [], public_collections: []
+    )
+  end
+
+  it "returns collections managed by a non-root group" do
+    user = Factory[:user, userid: "manager"]
+    group = Factory[:group, uniqueIdentifier: 7]
+    Factory[:group_membership, user: user, group: group]
+    managed = Factory[
+      :collection, uniqueIdentifier: "managed", dlpsAuthzType: "m", manager: group.uniqueIdentifier
+    ]
+    Factory[:collection, uniqueIdentifier: "managed-dev", manager: group.uniqueIdentifier]
+    Factory[:collection, uniqueIdentifier: "other", manager: 8]
+    Factory[:location, collection: managed, dlpsPath: "/managed%"]
+
+    get "/authorized", {user: user.userid, uri: "/managed"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    public_result = JSON.parse(last_response.body, symbolize_names: true)
+    expect(public_result).to include(
+      determination: "allowed",
+      authorized_collections: contain_exactly("managed", "managed-dev"),
+      public_collections: []
+    )
+
+    get "/api/v1/access", {userid: user.userid, collection: managed.uniqueIdentifier}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to eq(public_result)
+  end
+
+  it "returns All for a root-group manager" do
+    user = Factory[:user, userid: "root-manager"]
+    group = Factory[:group, uniqueIdentifier: 0]
+    Factory[:group_membership, user: user, group: group]
+    collection = Factory[
+      :collection, uniqueIdentifier: "root-managed", dlpsAuthzType: "m", manager: 0
+    ]
+    Factory[:location, collection: collection, dlpsPath: "/root-managed%"]
+
+    get "/authorized", {user: user.userid, uri: "/root-managed"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    public_result = JSON.parse(last_response.body, symbolize_names: true)
+    expect(public_result).to include(
+      determination: "allowed", authorized_collections: ["All"], public_collections: []
+    )
+
+    get "/api/v1/access", {userid: user.userid, collection: collection.uniqueIdentifier}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to eq(public_result)
+  end
+
+  it "allows a non-member of the root group with no authorized collections" do
+    collection = Factory[
+      :collection, uniqueIdentifier: "root-managed-anonymous", dlpsAuthzType: "m", manager: 0
+    ]
+    Factory[:location, collection: collection, dlpsPath: "/root-managed-anonymous%"]
+
+    get "/authorized", {user: "not-root-manager", uri: "/root-managed-anonymous"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(
+      determination: "allowed", authorized_collections: [], public_collections: []
+    )
   end
 
   it "matches the administrative access result for a normal collection" do

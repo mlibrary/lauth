@@ -7,7 +7,8 @@ module Lauth
     class Access
       include Deps[
         "repositories.grant_repo",
-        "repositories.collection_repo"
+        "repositories.collection_repo",
+        "repositories.group_membership_repo"
       ]
 
       def call(collection:, user:, client_ip: nil)
@@ -20,9 +21,7 @@ module Lauth
         when "d"
           delegated_mode(collection: collection, user: user, client_ip: client_ip)
         when "m"
-          raise ArgumentError,
-            "Collection with ID '#{collection.uniqueIdentifier}' is a legacy " \
-            "management collection and is not supported by the administrative access endpoint."
+          management_mode(collection: collection, user: user)
         else
           raise ArgumentError,
             "Collection with ID '#{collection.uniqueIdentifier}' has invalid " \
@@ -56,6 +55,24 @@ module Lauth
           determination: "allowed",
           authorized_collections: authorized_ids,
           public_collections: public_ids - authorized_ids
+        )
+      end
+
+      def management_mode(collection:, user:)
+        authorized_ids = if group_membership_repo.member?(user, collection.manager)
+          if collection.manager == 0
+            ["All"]
+          else
+            collection_repo.managed_by(collection.manager).map(&:uniqueIdentifier)
+          end
+        else
+          []
+        end
+
+        Lauth::Access::Result.new(
+          determination: "allowed",
+          authorized_collections: authorized_ids,
+          public_collections: []
         )
       end
 

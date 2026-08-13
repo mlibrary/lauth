@@ -441,10 +441,13 @@ checking access without a client address, and must be a complete IPv4 address
 when supplied. A missing collection returns `404`; malformed input returns
 `400`.
 
-Management collections (`dlpsAuthzType = "m"`) are legacy records. The
-administrative access endpoint does not create or evaluate new management
-collections and reports them as unsupported rather than treating them as
-normal or delegated collections.
+For a management collection (`dlpsAuthzType = "m"`), `determination` is always
+`allowed` and `public_collections` is always empty. The collection's `manager`
+field identifies the managing group. A user who is not a member of that group
+receives an empty `authorized_collections` list. A member receives the active
+collections managed by the same group. For `manager = 0`, a member of group 0
+receives exactly `["All"]`; `All` is a virtual identifier and is never resolved
+as a collection. A non-member of group 0 receives an empty list.
 
 ### Overlapping Network Authorization
 

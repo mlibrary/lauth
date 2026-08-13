@@ -56,6 +56,14 @@ module Lauth
         collections.where(dlpsPartlyPublic: "t", dlpsClass: collection_class, dlpsDeleted: "f").to_a
       end
 
+      def managed_by(group_id)
+        dataset = collections
+          .dataset
+          .where(manager: group_id, dlpsDeleted: "f")
+          .order(:uniqueIdentifier)
+        collections.class.new(dataset).to_a
+      end
+
       private
 
       def sql_column(relation, column)
