@@ -101,7 +101,6 @@ module Lauth
           .order(:dlpsAddressStart, :dlpsAccessSwitch, :uniqueIdentifier)
         networks.class.new(dataset).to_a
       end
-
     end
   end
 end
