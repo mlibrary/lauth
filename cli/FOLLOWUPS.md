@@ -9,3 +9,10 @@ and administrative API.
 - Replace the current `(dlpsAddressStart, dlpsAddressEnd, dlpsDeleted)`
   uniqueness limitation with a history model that permits unlimited
   delete/recreate cycles.
+- Decide whether collection-bound legacy networks require administrative API
+  support. Current network workflows assume consequential networks are
+  institution-bound; duplicate reporting and ownership behavior for `inst =
+  NULL` remain unspecified.
+- Check the production dataset for management collections (`dlpsAuthzType =
+  'm'`) and decide whether any legacy handling is required beyond fail-closed
+  denial by `/authorized`.

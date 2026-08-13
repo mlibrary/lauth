@@ -39,4 +39,30 @@ RSpec.describe "/authorized", type: [:request, :database] do
       expect(body).to include(determination: "allowed")
     end
   end
+
+  it "denies an unknown resource" do
+    get "/authorized", {user: "lauth-allowed", uri: "/missing"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
+  end
+
+  it "denies an invalid client IP" do
+    Factory[:collection, :restricted_by_username]
+
+    get "/authorized", {user: "lauth-allowed", uri: "/restricted-by-username/", ip: "invalid"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
+  end
+
+  it "denies a legacy management collection" do
+    collection = Factory[:collection, uniqueIdentifier: "legacy", dlpsAuthzType: "m"]
+    Factory[:location, collection: collection, dlpsPath: "/legacy%"]
+
+    get "/authorized", {user: "lauth-allowed", uri: "/legacy"}, {"HTTP_AUTHORIZATION" => "Bearer VGhlIEhvYmJpdAo="}
+
+    expect(last_response.status).to eq(200)
+    expect(JSON.parse(last_response.body, symbolize_names: true)).to include(determination: "denied")
+  end
 end
