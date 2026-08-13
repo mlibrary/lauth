@@ -241,11 +241,17 @@ GET /api/v1/institutions/{id}/grants
       "inst": 7,
       "coll": "example",
       "lastModifiedTime": "2026-08-04T12:00:00Z",
+      "lastModifiedBy": "root",
+      "dlpsExpiryTime": "2026-09-04T12:00:00Z",
       "dlpsDeleted": "f"
     }
   ]
 }
 ```
+
+Grant responses use this same projection for collection, institution, and user
+endpoints. `lastModifiedBy` is included because these are administrative
+responses.
 
 ## Networks
 
