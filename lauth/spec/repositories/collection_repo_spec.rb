@@ -25,4 +25,17 @@ RSpec.describe Lauth::Repositories::CollectionRepo, type: :database do
         .to contain_exactly public_match.uniqueIdentifier
     end
   end
+
+  describe "#managed_by" do
+    it "returns active collections for a manager group in identifier order" do
+      second = Factory[:collection, uniqueIdentifier: "managed-z", manager: 7]
+      first = Factory[:collection, uniqueIdentifier: "managed-a", manager: 7]
+      Factory[:collection, :soft_deleted, uniqueIdentifier: "managed-deleted", manager: 7]
+      Factory[:collection, uniqueIdentifier: "other", manager: 8]
+
+      expect(repo.managed_by(7).map(&:uniqueIdentifier)).to eq(
+        [first.uniqueIdentifier, second.uniqueIdentifier]
+      )
+    end
+  end
 end
