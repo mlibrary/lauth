@@ -3,22 +3,6 @@
 module Lauth
   module Repositories
     class NetworkRepo < ROM::Repository[:networks]
-      class InvalidSearch < ArgumentError; end
-
-      class DuplicateCIDR < ArgumentError
-        attr_reader :canonical
-
-        def initialize(conflicts)
-          @canonical = conflicts.first.canonical
-          message = conflicts.map do |conflict|
-            "cidr #{conflict.canonical} already exists for institution #{conflict.owner_id} (#{conflict.owner_name})"
-          end.join("; ")
-          super(message)
-        end
-
-        Conflict = Data.define(:canonical, :owner_id, :owner_name)
-      end
-
       include Deps[container: "persistence.rom"]
 
       struct_namespace Lauth
@@ -109,6 +93,22 @@ module Lauth
           .where(Sequel.lit("dlpsAddressStart <= ? AND dlpsAddressEnd >= ?", range.end, range.start))
           .order(:dlpsAddressStart, :dlpsAccessSwitch, :uniqueIdentifier)
         networks.class.new(dataset).to_a
+      end
+
+      class InvalidSearch < ArgumentError; end
+
+      class DuplicateCIDR < ArgumentError
+        attr_reader :canonical
+
+        def initialize(conflicts)
+          @canonical = conflicts.first.canonical
+          message = conflicts.map do |conflict|
+            "cidr #{conflict.canonical} already exists for institution #{conflict.owner_id} (#{conflict.owner_name})"
+          end.join("; ")
+          super(message)
+        end
+
+        Conflict = Data.define(:canonical, :owner_id, :owner_name)
       end
     end
   end
