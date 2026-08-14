@@ -17,7 +17,10 @@ module Lauth
         dataset = collections
           .dataset
           .where(collections[:dlpsDeleted].is("f"))
-          .join(locations.name.dataset, coll: :uniqueIdentifier, dlpsDeleted: "f")
+          .join(locations.name.dataset) do
+            (sql_column(locations, :coll) =~ sql_column(collections, :uniqueIdentifier)) &
+              (sql_column(locations, :dlpsDeleted) =~ "f")
+          end
           .where(Sequel.ilike(uri, locations[:dlpsPath]))
           .select_append(Sequel.as( # count the slashes
             Sequel.expr {
@@ -32,8 +35,45 @@ module Lauth
         collections.class.new(dataset).to_a.first
       end
 
+      def find(id)
+        dataset = collections
+          .dataset
+          .where(uniqueIdentifier: id, dlpsDeleted: "f")
+        collections.class.new(dataset).to_a.first
+      end
+
+      def search_by_identifier(value)
+        pattern = wildcard_pattern(value)
+        dataset = collections
+          .dataset
+          .where(dlpsDeleted: "f")
+          .where(Sequel.ilike(:uniqueIdentifier, pattern))
+          .order(:uniqueIdentifier)
+        collections.class.new(dataset).to_a
+      end
+
       def public_in_class(collection_class)
         collections.where(dlpsPartlyPublic: "t", dlpsClass: collection_class, dlpsDeleted: "f").to_a
+      end
+
+      def managed_by(group_id)
+        dataset = collections
+          .dataset
+          .where(manager: group_id, dlpsDeleted: "f")
+          .order(:uniqueIdentifier)
+        collections.class.new(dataset).to_a
+      end
+
+      private
+
+      def sql_column(relation, column)
+        Sequel[relation.name.dataset][column]
+      end
+
+      def wildcard_pattern(value)
+        raise ArgumentError, "id is required" unless value.is_a?(String) && !value.empty?
+
+        Lauth::SearchPattern.wildcard(value)
       end
     end
   end
