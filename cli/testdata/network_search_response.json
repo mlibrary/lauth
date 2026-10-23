@@ -1,0 +1,1 @@
+{"networks":[{"inst":7,"dlpsCIDRAddress":"192.0.2.0/24","dlpsAccessSwitch":"allow","dlpsAddressStart":3221225984,"dlpsAddressEnd":3221226239}]}

@@ -107,6 +107,9 @@ CREATE TABLE aa_network(
 	PRIMARY KEY (uniqueIdentifier)
 );
 
+ALTER TABLE aa_network ADD UNIQUE INDEX network_address_range_state
+  (dlpsAddressStart, dlpsAddressEnd, dlpsDeleted);
+
 CREATE TABLE aa_may_access(
 	uniqueIdentifier		INT	NOT NULL AUTO_INCREMENT,
 	userid				VARCHAR(64),

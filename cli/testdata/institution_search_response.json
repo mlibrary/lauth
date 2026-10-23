@@ -1,0 +1,12 @@
+{
+  "institutions": [
+    {
+      "uniqueIdentifier": 1,
+      "organizationName": "Example University"
+    },
+    {
+      "uniqueIdentifier": 2,
+      "organizationName": "Example College"
+    }
+  ]
+}

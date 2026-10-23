@@ -3,6 +3,7 @@
 *~
 .env
 .env*.local
+.config/
 
 .bundle/
 .cache/
