@@ -24,3 +24,6 @@ apache/client/build/
 # Debian Packages
 apache/packages
 !apache/packages/.keep
+
+# Downloaded assets staged for GoReleaser
+/release-assets/
