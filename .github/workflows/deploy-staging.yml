@@ -1,26 +1,19 @@
-name: Deploy Staging on Release
+name: Deploy Staging
 
 on:
-  release:
-    types: [ released ]
+  workflow_call:
+    inputs:
+      image_tag:
+        description: Version tag of the already-published production image
+        required: true
+        type: string
 
 jobs:
-  build-staging:
-    name: Build staging ${{ github.event.release.tag_name }}
-    uses: ./.github/workflows/build-production.yml
-    with:
-      image_name: ${{ vars.IMAGE_NAME }}
-      tag: ${{ github.event.release.tag_name }}
-      dockerfile: ./lauth/Dockerfile
-      target: production
-    secrets: inherit
-
   deploy-staging:
-    needs: build-staging
     name: Deploy to staging
     uses: mlibrary/platform-engineering-workflows/.github/workflows/deploy.yml@2012bb6a322ad02c45c01372de2f5e2e3d7329ac # v1.6.7
     with:
-      image: ghcr.io/mlibrary/${{ vars.IMAGE_NAME }}:${{ needs.build-staging.outputs.image_tag }}
+      image: ghcr.io/mlibrary/${{ vars.IMAGE_NAME }}:${{ inputs.image_tag }}
       file: environments/lauth/staging/web-image.txt
       CONFIG_REPO_RW_APP_ID: ${{ vars.CONFIG_REPO_RW_APP_ID }}
       CONFIG_REPO_RW_INSTALL_ID: ${{ vars.CONFIG_REPO_RW_INSTALL_ID }}

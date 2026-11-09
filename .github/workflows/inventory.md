@@ -14,7 +14,7 @@ which workflows should be retained, combined, eliminate, or updated.
  | build-sync-latest    | dispatch                                       |
  | ci                   | dispatch, main PR merged                       |
  | delete-workflow-runs | dispatch                                       |
- | deploy-staging       | release                                        |
+ | deploy-staging       | workflow_call                                  |
  | release-cli          | tag (v*)                                       |
 
 ### branch-scratch
@@ -42,8 +42,9 @@ latest tag and the commit sha.
 ### build-production
 
 Customized version of `mlibrary/platform-engineering-workflows/build-production`.
-Its purpose is to allow passing the target of a multi-stage build. It is only
-used from deploy-staging.
+It allows passing the target of a multi-stage build and is called by
+`release-cli` to build and push the production image before publishing the
+GitHub Release.
 
 ### build-sync-latest
 
@@ -60,11 +61,11 @@ Deletes workflow runs older than a specified number of days; not scheduled.
 
 ### deploy-staging
 
-Builds staging image, delegating to `build-production` based on a git tag.
-Pushes the container image and updates the `web-image.txt` file for staging in
-the config repository (by way of repository event). Triggers on GitHub release
-of a git tag.
+Deploys the already-built production image and updates the `web-image.txt` file
+for staging in the config repository. Called by `release-cli` after the image
+build and GitHub Release succeed.
 
 ### release-cli
 
-Builds and pushes golang package for the CLI, based on git tag.
+Builds and pushes the production image, publishes the GoReleaser CLI artifacts
+and GitHub Release, then deploys staging for a pushed `v*` tag.

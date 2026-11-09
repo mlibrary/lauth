@@ -36,10 +36,18 @@ archives:
 checksum:
   name_template: checksums.txt
 
+release:
+  github:
+    owner: mlibrary
+    name: lauth
+  draft: false
+  prerelease: auto
+
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
 changelog:
+  use: git
   sort: asc
   filters:
     exclude:
