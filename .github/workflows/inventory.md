@@ -7,7 +7,7 @@ which workflows should be retained, combined, eliminate, or updated.
  | name                 | triggers on                                    |
  |----------------------|----------------------------------------------- |
  | branch-scratch       | dispatch                                       |
- | build-apache-latest  | dispatch, push main                            |
+ | build-apache-latest  | dispatch, push main, workflow_call             |
  | build-db-latest      | dispatch, push main                            |
  | build-lauth-latest   | dispatch, push main                            |
  | build-production     | workflow_call                                  |
@@ -25,9 +25,9 @@ but they need to be in main to appear in the UI at all.
 
 ### build-apache-latest
 
-Builds the whole module, packages, and server image. Pushes one container image
-for the server as `lauth/lauth-apache`, and build artifact with all of the debs
-included in a zip.
+Builds and pushes the Apache server image, and uploads the `.deb` packages as a
+workflow artifact. `release-cli` also calls this workflow and attaches those
+packages to the GitHub Release.
 
 ### build-db-latest
 
@@ -67,5 +67,6 @@ build and GitHub Release succeed.
 
 ### release-cli
 
-Builds and pushes the production image, publishes the GoReleaser CLI artifacts
-and GitHub Release, then deploys staging for a pushed `v*` tag.
+Builds and pushes the production and Apache images, publishes the GoReleaser
+CLI artifacts and Apache `.deb` packages to the GitHub Release, then deploys
+staging for a pushed `v*` tag.

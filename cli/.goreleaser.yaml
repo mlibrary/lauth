@@ -42,6 +42,9 @@ release:
     name: lauth
   draft: false
   prerelease: auto
+  extra_files:
+    # Relative to the cli/ working directory; downloaded from the Apache job artifact.
+    - glob: ../release-assets/apache/*.deb
 
 snapshot:
   version_template: "{{ incpatch .Version }}-next"

@@ -20,8 +20,18 @@ jobs:
       target: production
     secrets: inherit
 
-  release:
+  build-apache:
+    name: Build Apache image and Debian packages ${{ github.ref_name }}
     needs: build-image
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-apache-latest.yml
+    with:
+      image_tag: ${{ needs.build-image.outputs.image_tag }}
+
+  release:
+    needs: [build-image, build-apache]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -31,6 +41,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Download Apache Debian packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: lauth-apache-debs_${{ github.sha }}
+          path: release-assets/apache
 
       - name: Set up Go
         uses: actions/setup-go@v5
