@@ -4,12 +4,14 @@ name: Continuous Integration
 on:
   workflow_dispatch:
   push:
+    branches:
+      - 'main'
   pull_request:
     branches:
       - 'main'
 
 jobs:
-  ci:
+  app:
     if: ${{ github.event_name == 'push' || github.event.pull_request.merged == true }}
 
     runs-on: ubuntu-latest
@@ -21,7 +23,6 @@ jobs:
           - 'app'
           - 'client-tests'
           - 'test'
-          - 'cli'
         ruby:
           - '4.0.6'
 
@@ -51,7 +52,14 @@ jobs:
           docker compose up dbsetup
           docker compose run test
 
-      - if: matrix.suite == 'cli'
+  cli:
+    name: CLI
+    if: ${{ github.event_name == 'push' || github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      
+      - name: Build and test CLI
         run: |
           docker compose build cli-dev
           docker compose run --rm cli-dev
