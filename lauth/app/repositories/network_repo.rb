@@ -10,18 +10,8 @@ module Lauth
 
       def create_batch(attributes)
         container.gateways[:default].connection.transaction do
-          conflicts = attributes.filter_map { |network| find_active_owner(network) }
-          raise DuplicateCIDR, conflicts unless conflicts.empty?
-
           attributes.map { |network| create(**network) }
         end
-      rescue ROM::SQL::UniqueConstraintError, Sequel::UniqueConstraintViolation
-        # A concurrent writer can pass the duplicate check; resolve the committed
-        # owner so the API still returns the public duplicate contract.
-        conflicts = attributes.filter_map { |network| find_active_owner(network) }
-        raise DuplicateCIDR, conflicts unless conflicts.empty?
-
-        raise
       end
 
       def search_by_ip(value)
@@ -65,25 +55,6 @@ module Lauth
 
       private
 
-      def find_active_owner(network)
-        row = container.gateways[:default].connection[:aa_network]
-          .join(:aa_inst, uniqueIdentifier: :inst)
-          .where(
-            Sequel[:aa_network][:dlpsAddressStart] => network.fetch(:dlpsAddressStart),
-            Sequel[:aa_network][:dlpsAddressEnd] => network.fetch(:dlpsAddressEnd),
-            Sequel[:aa_network][:dlpsDeleted] => "f"
-          )
-          .select(
-            Sequel[:aa_inst][:uniqueIdentifier].as(:owner_id),
-            Sequel[:aa_inst][:organizationName].as(:owner_name)
-          ).first
-        return unless row
-
-        DuplicateCIDR::Conflict.new(
-          network.fetch(:dlpsCIDRAddress), row[:owner_id], row[:owner_name]
-        )
-      end
-
       def search_overlapping(range)
         raise InvalidSearch, "range start must not exceed range end" if range.start > range.end
 
@@ -96,20 +67,6 @@ module Lauth
       end
 
       class InvalidSearch < ArgumentError; end
-
-      class DuplicateCIDR < ArgumentError
-        attr_reader :canonical
-
-        def initialize(conflicts)
-          @canonical = conflicts.first.canonical
-          message = conflicts.map do |conflict|
-            "cidr #{conflict.canonical} already exists for institution #{conflict.owner_id} (#{conflict.owner_name})"
-          end.join("; ")
-          super(message)
-        end
-
-        Conflict = Data.define(:canonical, :owner_id, :owner_name)
-      end
     end
   end
 end

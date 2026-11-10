@@ -257,7 +257,8 @@ This command creates an institution-associated network batch through
 `POST /api/v1/institutions/7/networks`. The API accepts only a non-empty CIDR
 array; the CLI accepts CIDR or a complete inclusive range, converts ranges to
 minimal CIDRs, and posts the full array in one atomic operation. It defaults
-`accessSwitch` to `allow`; overlapping networks are permitted.
+`accessSwitch` to `allow`; overlapping and exact duplicate ranges are permitted.
+The API creates a separate row for each submitted CIDR without a warning.
 
 ## Local Command
 

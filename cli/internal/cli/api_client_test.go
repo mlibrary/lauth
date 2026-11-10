@@ -153,18 +153,30 @@ var _ = Describe("administrative API", func() {
 		Expect(err).To(MatchError("invalid_network: network rejected"))
 	})
 
-	It("normalizes a duplicate CIDR error with its canonical owner details", func() {
+	It("passes duplicate CIDRs through and preserves every created network", func() {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			Expect(r.Method).To(Equal(http.MethodPost))
 			Expect(r.URL.Path).To(Equal("/api/v1/institutions/7/networks"))
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write([]byte(`{"error":{"code":"invalid_parameter","message":"cidr 192.0.2.0/24 already exists for institution 7 (Example University)"}}`))
+			var body struct {
+				CIDRs        []string `json:"cidrs"`
+				AccessSwitch string   `json:"accessSwitch"`
+			}
+			Expect(json.NewDecoder(r.Body).Decode(&body)).To(Succeed())
+			Expect(body.CIDRs).To(Equal([]string{"192.0.2.0/24", "192.0.2.0/24"}))
+			Expect(body.AccessSwitch).To(Equal("deny"))
+			w.WriteHeader(http.StatusCreated)
+			_, _ = w.Write([]byte(`{"networks":[{"uniqueIdentifier":21,"inst":7,"dlpsCIDRAddress":"192.0.2.0/24","dlpsAccessSwitch":"deny"},{"uniqueIdentifier":22,"inst":7,"dlpsCIDRAddress":"192.0.2.0/24","dlpsAccessSwitch":"deny"}]}`))
 		}))
 		DeferCleanup(server.Close)
 
-		_, err := NewAPIClient(server.URL, "test-token", server.Client()).CreateNetworks("7", []string{"192.0.2.0/24"}, "allow")
+		networks, err := NewAPIClient(server.URL, "test-token", server.Client()).CreateNetworks(
+			"7", []string{"192.0.2.0/24", "192.0.2.0/24"}, "deny",
+		)
 
-		Expect(err).To(MatchError("invalid_parameter: cidr 192.0.2.0/24 already exists for institution 7 (Example University)"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(networks).To(HaveLen(2))
+		Expect(networks[0].UniqueIdentifier).To(Equal(21))
+		Expect(networks[1].UniqueIdentifier).To(Equal(22))
 	})
 
 	It("requires the active API base URL and token", func() {

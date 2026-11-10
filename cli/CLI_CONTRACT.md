@@ -66,11 +66,11 @@ also requires confirmation; an already canonical CIDR can be posted directly.
 The complete CIDR set is sent as one API batch. `--access-switch` accepts
 `allow` or `deny` and defaults to `allow`.
 
-The CLI must not reject historical network overlaps. The API rejects exact
-active address-range duplicates globally, regardless of institution or access
-switch, while allowing different-size and other non-identical overlaps.
-Soft-deleted networks are excluded from API results and may be recreated under
-the current database uniqueness constraint.
+The CLI does not check for or warn about overlapping or duplicate ranges. The
+API accepts exact address-range duplicates, including active duplicates across
+institutions and access switches, and creates a separate row for each CIDR in
+the request. Soft-deleted networks are excluded from API results and may be
+recreated repeatedly.
 
 ## Local CIDR Commands
 

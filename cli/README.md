@@ -68,9 +68,9 @@ Range input is decomposed into minimal CIDRs, displayed, and confirmed before
 posting. The complete CIDR set is sent as one API batch. Use
 `--access-switch=allow` or `--access-switch=deny`; the default is `allow`.
 
-The CLI does not reject historical network overlaps. The API rejects exact
-active address-range duplicates globally while allowing different-size and
-other non-identical overlaps.
+The CLI does not check for or warn about overlapping or duplicate ranges. The
+API accepts exact address-range duplicates and creates a separate row for each
+CIDR in the request. Soft-deleted ranges can be recreated repeatedly.
 
 ## Local CIDR commands
 

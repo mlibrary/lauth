@@ -20,26 +20,22 @@ RSpec.describe Lauth::Repositories::NetworkRepo, type: :database do
     Factory[:institution, uniqueIdentifier: 7, organizationName: "First Institution"]
   end
 
-  it "reports an existing active owner before attempting creation" do
-    repo.create(**attributes)
+  it "allows identical address bounds with different collection references" do
+    first_collection = Factory[:collection, uniqueIdentifier: "first-pseudo"]
+    second_collection = Factory[:collection, uniqueIdentifier: "second-pseudo"]
+    repo.create(**attributes.merge(coll: first_collection.uniqueIdentifier))
 
-    expect { repo.create_batch([attributes]) }.to raise_error(
-      described_class::DuplicateCIDR,
-      "cidr 192.0.2.0/24 already exists for institution 7 (First Institution)"
-    )
+    repo.create_batch([attributes.merge(coll: second_collection.uniqueIdentifier, dlpsCIDRAddress: "192.0.2.17/24")])
+
+    expect(repo.networks.dataset.where(dlpsAddressStart: attributes[:dlpsAddressStart], dlpsAddressEnd: attributes[:dlpsAddressEnd]).select_map(:coll))
+      .to contain_exactly("first-pseudo", "second-pseudo")
   end
 
-  it "rejects a direct non-canonical CIDR with the same address bounds" do
-    repo.create(**attributes)
-
-    expect { repo.create(**attributes.merge(dlpsCIDRAddress: "192.0.2.17/24")) }.to raise_error(ROM::SQL::UniqueConstraintError)
-  end
-
-  it "rolls back the complete batch when a later CIDR is unavailable" do
-    repo.create(**attributes)
+  it "rolls back the complete batch when a later network violates a database constraint" do
     new_attributes = attributes.merge(dlpsCIDRAddress: "198.51.100.0/24", dlpsAddressStart: 3325256704, dlpsAddressEnd: 3325256959)
+    invalid_attributes = attributes.merge(dlpsCIDRAddress: "203.0.113.0/24", dlpsAddressStart: 3405803776, dlpsAddressEnd: 3405804031, dlpsAccessSwitch: "block")
 
-    expect { repo.create_batch([new_attributes, attributes]) }.to raise_error(described_class::DuplicateCIDR)
+    expect { repo.create_batch([new_attributes, invalid_attributes]) }.to raise_error(ROM::SQL::CheckConstraintError)
     expect(repo.networks.dataset.where(dlpsCIDRAddress: "198.51.100.0/24").count).to eq(0)
   end
 

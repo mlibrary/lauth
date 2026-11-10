@@ -172,31 +172,16 @@ insertion, so `192.0.2.17/24` is stored and returned as `192.0.2.0/24`.
 `prefix`, `rangeStart`, and `rangeEnd`, are ignored rather than rejected.
 
 The complete batch is validated before any row is inserted and is committed as
-one atomic operation. Each CIDR's canonical address bounds are the uniqueness
-key for active networks globally: the check covers all institutions and both
-`allow` and `deny` access switches. An exact duplicate canonical range returns
-`400` with the common `invalid_parameter` error envelope. For an existing
-active range, the message includes the canonical CIDR, owning institution ID,
-and owning organization name:
+one atomic operation. Each CIDR is canonicalized independently. Exact
+duplicates are accepted regardless of institution or access switch, whether
+the same canonical range is already active, appears more than once in the
+request, or exists only as a soft-deleted row.
+Each request entry creates a separate network row and appears separately in the
+successful response. The API does not warn about duplicate ranges. Soft-deleted
+ranges can be recreated repeatedly.
 
-```json
-{
-  "error": {
-    "code": "invalid_parameter",
-    "message": "cidr 192.0.2.0/24 already exists for institution 7 (Example University)"
-  }
-}
-```
-
-Two CIDRs in the same request that canonicalize to the same range are rejected
-before insertion with a message containing the canonical CIDR, for example
-`cidr 192.0.2.0/24 is duplicated in request`. The batch creates no networks
-in either duplicate case. Different-size or otherwise non-identical
-overlapping ranges remain allowed. Soft-deleted ranges are not considered
-active owners and may be recreated while the historical row remains deleted.
-Because the current schema uses `dlpsDeleted` in the unique key, only one
-deleted historical row can exist for a range; repeated delete/recreate cycles
-are a deferred limitation. A future history table can remove that limitation.
+The endpoint remains institution-scoped: it does not accept a collection
+(`coll`) field.
 
 Malformed JSON, a non-object body, missing or invalid `cidrs`, invalid CIDRs or
 address bounds, and an invalid `accessSwitch` also return `400` with the
@@ -469,12 +454,13 @@ independently of the selected network's switch. A `deny` network does not
 revoke those grants; it only prevents that network from contributing an
 `allow` result.
 
-Two active CIDRs with the same address bounds are exact duplicates and are
-rejected globally, including when their access switches or institutions differ.
-For IPv4 CIDRs, equal-sized overlapping ranges necessarily have the same
-bounds, so there is no active equal-sized tie to resolve. Different-size and
-other non-identical overlaps remain valid and use the most-specific-match rule
-above. Network creation must not add broader overlap validation.
+Active networks with the same address bounds are allowed and remain separate
+rows, including when their access switches or institutions differ. Such rows
+tie as the most-specific match. The current evaluator orders matching networks
+by range size and selects one row without a secondary tie-break, so it does not
+guarantee which row contributes its institution or access switch when tied
+rows differ. Different-size and other non-identical overlaps use the
+most-specific-match rule above.
 
 ## Out Of Scope
 
