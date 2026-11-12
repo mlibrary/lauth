@@ -19,6 +19,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       libmariadb-dev \
       curl \
       git \
+      rclone \
       unzip
 
 RUN --mount=type=cache,sharing=locked,target=/var/cache/apt \
